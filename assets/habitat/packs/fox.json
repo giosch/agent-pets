@@ -1,0 +1,13 @@
+{
+  "id": "fox",
+  "name": "Patch Fox",
+  "kind": "character",
+  "colors": {
+    "body": "#E48345",
+    "shadow": "#A44B39",
+    "accent": "#FFD7A0"
+  },
+  "poses": {
+    "idle": "habitat/fox.svg"
+  }
+}

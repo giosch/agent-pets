@@ -1,0 +1,8 @@
+{
+  "id": "tidal",
+  "name": "Tidepool",
+  "kind": "habitat",
+  "poses": {
+    "scene": "habitat/tidepool.svg"
+  }
+}

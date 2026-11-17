@@ -1,0 +1,194 @@
+"""Reduce agent observations into durable sessions and transient display events."""
+import json
+from copy import deepcopy
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from queue import Empty, Full, Queue
+from threading import Lock
+
+from clawd_tank_daemon.session_store import write_json_atomic
+from .adapters import Signal
+
+VERSION = 1
+
+
+@dataclass
+class Session:
+    id: str
+    order: int
+    base: str = "idle"
+    attention: str = "none"
+    turn: str = ""
+    previous_turns: list[str] = field(default_factory=list)
+    calls: dict[str, str] = field(default_factory=dict)
+    waits: dict[str, str] = field(default_factory=dict)
+    helpers: list[str] = field(default_factory=list)
+
+    def public(self) -> dict:
+        activity = next(reversed(self.calls.values())) if self.calls else self.base
+        if self.helpers and activity in {"idle", "working"}:
+            activity = "coordinating"
+        attention = next(iter(self.waits.values()), self.attention)
+        return {"id": self.id, "order": self.order, "activity": activity,
+                "attention": attention, "helpers": len(self.helpers)}
+
+    def finish(self, attention: str) -> None:
+        self.waits.clear()
+        self.calls.clear()
+        self.base = "idle"
+        self.attention = attention
+
+    def observe(self, signal: Signal) -> str | None:
+        kind = signal.kind
+        if kind == "helper_join":
+            if signal.ref not in self.helpers:
+                self.helpers.append(signal.ref)
+            return None
+        if kind == "helper_leave":
+            if signal.ref in self.helpers:
+                self.helpers.remove(signal.ref)
+            return None
+        if self.attention in {"ready", "failure"} and kind in {
+            "tool", "question", "approval", "done", "tool_error", "retry", "compact",
+        }:
+            return None
+        if signal.turn and signal.turn != self.turn:
+            if signal.turn in self.previous_turns:
+                return None
+            if self.turn and kind != "prompt":
+                return None
+            if self.turn:
+                self.previous_turns = (self.previous_turns + [self.turn])[-16:]
+            self.turn = signal.turn
+
+        # Approval hooks may identify a tool without supplying its call ID.
+        call = signal.ref or signal.tool or "_"
+        if kind == "prompt":
+            self.finish("none")
+            self.base = "working"
+        elif kind in {"tool", "question", "approval"}:
+            self.attention = "none"
+            self.base = "working"
+            if kind == "tool":
+                self.calls[call] = signal.activity or "working"
+            else:
+                self.waits[call] = kind
+        elif kind in {"done", "tool_error"}:
+            self.calls.pop(call, None)
+            self.waits.pop(call, None)
+            if signal.tool:
+                self.waits.pop(signal.tool, None)
+            if kind == "tool_error" and self.attention == "none":
+                return "setback"
+        elif kind == "ready":
+            first = self.attention != "ready"
+            self.finish("ready")
+            return "completed" if first else None
+        elif kind == "idle_reminder":
+            if not self.waits and self.attention != "failure":
+                self.finish("ready")
+        elif kind == "failure":
+            self.finish("failure")
+        elif kind == "interrupt":
+            self.finish("none")
+            return "interrupted"
+        elif kind == "compact":
+            return "compacted"
+        elif kind == "retry":
+            return "setback"
+        return None
+
+
+class Habitat:
+    """Serialize state commits, snapshot subscriptions and publication under one lock."""
+
+    def __init__(self, path: Path | None = None):
+        self.path = path
+        self.lock = Lock()
+        self.listeners: set[Queue] = set()
+        self.sessions: dict[str, Session] = {}
+        self.closed: list[str] = []
+        self.sequence = 0
+        self.next_order = 0
+        if path and path.exists():
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if data["version"] != VERSION:
+                raise ValueError("Unsupported habitat state version")
+            self.sessions = {s["id"]: Session(**s) for s in data["sessions"]}
+            self.sequence = data["sequence"]
+            self.next_order = data["next_order"]
+            self.closed = data["closed"]
+
+    def _snapshot(self) -> dict:
+        return {"version": VERSION, "type": "snapshot", "sequence": self.sequence,
+                "sessions": [s.public() for s in self.sessions.values()]}
+
+    def snapshot(self) -> dict:
+        with self.lock:
+            return self._snapshot()
+
+    def subscribe(self) -> Queue:
+        with self.lock:
+            messages = Queue(maxsize=64)
+            messages.put_nowait(self._snapshot())
+            self.listeners.add(messages)
+            return messages
+
+    def unsubscribe(self, messages: Queue) -> None:
+        with self.lock:
+            self.listeners.discard(messages)
+
+    def apply(self, signal: Signal) -> None:
+        sid = f"{signal.source}:{signal.session}"
+        with self.lock:
+            old = self.sessions.get(sid)
+            sessions = self.sessions.copy()
+            closed = self.closed
+            next_order = self.next_order
+            if signal.kind == "close":
+                if old is None:
+                    return
+                del sessions[sid]
+                closed = (closed + [sid])[-512:]
+                message = {"type": "remove", "id": sid}
+            else:
+                if old is None:
+                    if sid in closed and signal.kind not in {"open", "prompt"}:
+                        return
+                    if signal.kind in {"done", "tool_error", "helper_leave", "retry", "interrupt", "compact"}:
+                        return
+                    session = Session(sid, next_order)
+                    next_order += 1
+                    if sid in closed:
+                        closed = [item for item in closed if item != sid]
+                else:
+                    session = deepcopy(old)
+                moment = session.observe(signal)
+                if old == session and moment is None:
+                    return
+                sessions[sid] = session
+                message = {"type": "update", "session": session.public()}
+                if moment:
+                    message["moment"] = moment
+            sequence = self.sequence + 1
+            if self.path:
+                write_json_atomic(self.path, {
+                    "version": VERSION, "sequence": sequence, "next_order": next_order,
+                    "closed": closed, "sessions": [asdict(s) for s in sessions.values()],
+                })
+            self.sessions = sessions
+            self.closed = closed
+            self.next_order = next_order
+            self.sequence = sequence
+            message.update(version=VERSION, sequence=sequence)
+            for queue in self.listeners:
+                try:
+                    queue.put_nowait(message)
+                except Full:
+                    # A slow endpoint can recover current truth without playing stale reactions.
+                    while True:
+                        try:
+                            queue.get_nowait()
+                        except Empty:
+                            break
+                    queue.put_nowait(self._snapshot())

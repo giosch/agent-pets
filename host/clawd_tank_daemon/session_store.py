@@ -11,6 +11,19 @@ logger = logging.getLogger("clawd-tank")
 SESSIONS_PATH = Path.home() / ".clawd-tank" / "sessions.json"
 
 
+def write_json_atomic(path: Path, value: dict) -> None:
+    """Replace a JSON file only after its complete contents have been written."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_path = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(value, f, indent=2)
+            f.write("\n")
+        os.replace(tmp_path, path)
+    finally:
+        Path(tmp_path).unlink(missing_ok=True)
+
+
 def save_sessions(
     sessions: dict[str, dict],
     path: Path = SESSIONS_PATH,
@@ -35,18 +48,10 @@ def save_sessions(
         envelope["session_order"] = [[sid, did] for sid, did in order]
     if next_id is not None:
         envelope["next_display_id"] = next_id
-    path.parent.mkdir(parents=True, exist_ok=True)
     try:
-        fd, tmp_path = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
-        with os.fdopen(fd, "w") as f:
-            json.dump(envelope, f)
-        os.replace(tmp_path, str(path))
+        write_json_atomic(path, envelope)
     except OSError:
         logger.warning("Failed to save session state to %s", path)
-        try:
-            os.unlink(tmp_path)
-        except (OSError, UnboundLocalError):
-            pass
 
 
 def load_sessions(path: Path = SESSIONS_PATH) -> tuple[dict[str, dict], list[tuple[str, int]], int]:

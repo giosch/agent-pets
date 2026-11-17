@@ -1,0 +1,8 @@
+{
+  "id": "grove",
+  "name": "Pine Grove",
+  "kind": "habitat",
+  "poses": {
+    "scene": "habitat/grove.svg"
+  }
+}

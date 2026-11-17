@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 256" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#649aaf"/><stop offset=".66" stop-color="#a8ced0"/><stop offset="1" stop-color="#f5d7b0"/></linearGradient>
+    <pattern id="sand" width="31" height="13" patternUnits="userSpaceOnUse"><path fill="#a98b73" opacity=".45" d="M2 7h3v1H2zm16-5h2v1h-2z"/><path fill="#f5d69e" d="M9 10h4v1H9z"/></pattern>
+    <pattern id="water" width="83" height="17" patternUnits="userSpaceOnUse"><path fill="#addad6" d="M4 4h15v1H4zm42 8h8v1h-8z"/><path fill="#447f8b" d="M25 9h9v1h-9z"/></pattern>
+    <g id="cloud" fill="#e6e5d0"><path d="M0 8h9V5h8V2h10V0h13v3h11v3h9v2h10v2H0z"/><path d="M18 12h38v1H18z" opacity=".5"/></g>
+    <g id="grass"><path fill="#596f62" d="M0 15V5h2v6h2V1h2v9h3V5h2v10z"/><path fill="#859575" d="M2 12V8h1v4zm4-4V0h1v8z"/></g>
+    <g id="pebble"><path fill="#8f8b80" d="M0 3h2V1h5v1h3v3H0z"/><path fill="#c4bba3" d="M2 2h5v1H2z"/></g>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h640v162H0z"/>
+  <path fill="#ffe4ac" d="M444 31h17v2h7v4h4v5h3v17h-3v6h-5v4h-7v2h-15v-2h-8v-4h-4v-7h-2V44h2v-7h5v-4h6z"/>
+  <use href="#cloud" x="46" y="46"/><use href="#cloud" x="342" y="65" transform="translate(96 -8) scale(.8)"/><use href="#cloud" x="534" y="27"/>
+  <path fill="#a0baba" d="M0 112h22v-3h25v-6h20v-4h24v-3h27v4h18v4h24v6h34v3h35v9H0zm382 6h24v-3h34v-5h23v-4h21v-6h25v-6h28v-4h24v4h29v4h26v-3h24v26H382z"/>
+  <path fill="#81a3a4" d="M0 110h15v3h25v5h39v4h61v3H0zm512 12h16v-4h28v-7h25v-4h29v-6h30v27H512z"/>
+  <path fill="#72b1b5" d="M0 123h640v67H0z"/><path fill="url(#water)" d="M0 126h640v62H0z"/>
+  <path fill="#f4d9ac" d="M437 127h35v2h-35zm-8 5h23v1h-23zm21 4h39v1h-39zm-7 6h19v1h-19zm-16 6h24v1h-24z"/>
+  <path fill="#47858a" d="M0 146h35v-4h10v-5h21v3h18v5h11v4h19v3H0zm544 14h11v-3h11v-7h8v-5h18v4h7v6h18v3h23v6h-96z"/>
+  <path fill="#8c9c8e" d="M0 141h27v-11h7v-9h17v4h13v9h12v7h11v3H0z"/><path fill="#738c84" d="M34 127h16v9h8v5H26v-6h8z"/>
+  <path fill="#ede6cd" d="M36 119V95h8v24h3v5H33v-5z"/><path fill="#c47d6e" d="M36 105h8v5h-8zm-2-11h12v2H34zm2-5h8v1h2v2H34v-2h2z"/><path fill="#596c6e" d="M36 92h8v3h-8z"/>
+  <path fill="#c5c8aa" d="M0 168h53v4h51v6h49v4h62v-3h64v-5h51v-2h66v3h39v4h61v-1h63v-5h45v-4h36v87H0z"/>
+  <path fill="#f3deb4" d="M0 170h51v4h51v6h54v4h62v-3h64v-5h50v-2h63v3h39v4h63v-1h64v-5h48v-4h31v85H0z"/>
+  <path fill="#d9bb91" d="M0 183h51v3h65v5h63v2h87v-4h67v-3h70v3h73v4h74v-4h57v-5h33v72H0z"/>
+  <path fill="url(#sand)" d="M0 187h640v69H0z"/>
+  <path fill="#afab8c" d="M0 215h34v-4h40v3h34v6h38v8H95v5H26v-3H0z"/><path fill="#79adab" d="M0 215h34v-2h38v3h36v5h23v4H89v5H29v-3H0z"/><path fill="#c5d6bf" d="M20 218h41v1H20zm49 6h30v1H69z"/>
+  <use href="#grass" x="15" y="180"/><use href="#grass" x="27" y="178"/><use href="#grass" x="599" y="181"/><use href="#grass" x="615" y="183"/>
+  <use href="#pebble" x="96" y="197"/><use href="#pebble" x="551" y="210"/><use href="#pebble" x="570" y="212"/>
+  <path fill="#ab8e78" d="M0 247h30v-4h27v4h43v4h51v5H0zm479 9v-3h52v-5h44v-6h35v-4h30v18z"/><path fill="#d79a85" d="M157 223h2v-2h2v3h3v1h-3v2h-2v-2h-3v-1h1z"/>
+  <g fill="#597e82"><path d="M211 63h3v1h2v2h-2v-1h-3zm5 1h2v-2h3v1h-2v2h-3z"/><path d="M228 58h3v1h2v1h-2v-1h-3zm5 1h2v-1h3v1h-2v1h-3z"/></g>
+</svg>

@@ -1,0 +1,41 @@
+name: Browser habitat
+on:
+  push:
+    paths:
+      - 'host/**'
+      - 'assets/habitat/**'
+      - 'assets/svg-animations/**'
+      - '.github/workflows/habitat.yml'
+  pull_request:
+    paths:
+      - 'host/**'
+      - 'assets/**'
+      - '.github/workflows/habitat.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  habitat:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test state, adapters, hooks and packs
+        working-directory: host
+        run: python -m unittest discover -s tests -p test_habitat.py -v
+      - name: Install browser test tools
+        run: npm install --no-save --package-lock=false playwright@1.62.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Exercise installed hooks and the live browser
+        run: node host/tests/habitat_browser.cjs

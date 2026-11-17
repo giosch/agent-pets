@@ -1,0 +1,28 @@
+{
+  "id": "clawd",
+  "name": "Clawd",
+  "kind": "character",
+  "colors": {
+    "body": "#DE886D",
+    "shadow": "#A85C49",
+    "accent": "#FFB89D"
+  },
+  "poses": {
+    "idle": "svg-animations/clawd-idle-living.svg",
+    "resting": "svg-animations/clawd-sleeping.svg",
+    "working": "svg-animations/clawd-working-thinking.svg",
+    "inspecting": "svg-animations/clawd-working-debugger.svg",
+    "editing": "svg-animations/clawd-working-typing.svg",
+    "executing": "svg-animations/clawd-working-building.svg",
+    "researching": "svg-animations/clawd-working-wizard.svg",
+    "coordinating": "svg-animations/clawd-working-conducting.svg",
+    "external": "svg-animations/clawd-working-beacon.svg",
+    "question": "svg-animations/clawd-notification.svg",
+    "approval": "svg-animations/clawd-notification.svg",
+    "failure": "svg-animations/clawd-dizzy.svg",
+    "completed": "svg-animations/clawd-happy.svg",
+    "setback": "svg-animations/clawd-working-confused.svg",
+    "compacted": "svg-animations/clawd-working-sweeping.svg",
+    "interrupted": "svg-animations/clawd-working-confused.svg"
+  }
+}

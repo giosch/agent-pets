@@ -4,7 +4,26 @@
 
 <h1 align="center">Clawd Tank</h1>
 
-A tiny desktop aquarium for your Claude Code sessions.
+A pet habitat for local Claude Code and Codex sessions, with a portable browser display and the original Clawd Tank hardware.
+
+## Browser habitat
+
+Each chat gets a palette, a working pose, and a symbol when it needs you. The browser shows up to three pets, with approvals and questions first. Choose the character and habitat independently. The local Python host supports multiple display tabs and restores active sessions after a restart.
+
+From the repository root, use Python 3.10 or newer on Windows, macOS, or Linux. On systems where Python is called `python3`, substitute `python3` below.
+
+```sh
+python host/habitat.py install-hooks
+python host/habitat.py serve --open
+```
+
+The installer merges its commands into the user hook settings for both agents. You can select one with `install-hooks claude` or `install-hooks codex`. Review the new Codex hooks in Settings → Hooks or `/hooks`, and start or restart your local coding sessions. Leave the host running while you code. Open the printed localhost address in another tab to attach a second display.
+
+To preview four simulated sessions without installing hooks, run `python host/habitat.py serve --demo --open --port 0`. The demo is isolated from live sessions. Use `python host/habitat.py uninstall-hooks` to remove the habitat integration. Settings and session state default to `~/.clawd-tank/habitat`; the global `--state-dir` option can select a different directory.
+
+See the [vision, requirements, and roadmap](docs/habitat-vision.md) for the PC architecture, hardware milestones, and Android stretch goal. The [activity protocol and renderer pack guide](docs/habitat-protocol.md) describes how to connect a display or export artwork.
+
+## Original hardware and macOS simulator
 
 Clawd Tank is a notification display for Claude Code built on a [Waveshare ESP32-C6-LCD-1.47](https://s.click.aliexpress.com/e/_c4PGS55v) (320x172 ST7789). An animated pixel-art crab named Clawd lives on the screen, reacting to your coding session — alerting on new notifications, celebrating when you dismiss them, and sleeping when you're away.
 
