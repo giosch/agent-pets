@@ -23,6 +23,10 @@ To preview four simulated sessions without installing hooks, run `python host/ha
 
 See the [vision, requirements, and roadmap](docs/habitat-vision.md) for the PC architecture, hardware milestones, and Android stretch goal. The [activity protocol and renderer pack guide](docs/habitat-protocol.md) describes how to connect a display or export artwork.
 
+The browser's Clawd pack uses all 32 original SVGs. A pet wakes on the first arrival, walks between slots or into overflow, and burrows on session close. A reported fork briefly splits the new pet into two silhouettes. Active helpers appear as miniature companions. Overlapping tools trigger juggling, recognized builds stack blocks, and file transfers carry a box.
+
+An idle Clawd occasionally plays with a coffee cup, grooves, or loses its hat. Sustained generic work alternates thinking and pushing. Repeated setbacks trigger overheating, and alternate completions show a lightbulb. Narrow displays use miniature typing. The browser shows a broken link on loss of contact and a drowsy pose when the display device reports a discharging battery at 15% or less. Reduced-motion mode uses the static base and preserves attention badges.
+
 ## Original hardware and macOS simulator
 
 Clawd Tank is a notification display for Claude Code built on a [Waveshare ESP32-C6-LCD-1.47](https://s.click.aliexpress.com/e/_c4PGS55v) (320x172 ST7789). An animated pixel-art crab named Clawd lives on the screen, reacting to your coding session — alerting on new notifications, celebrating when you dismiss them, and sleeping when you're away.

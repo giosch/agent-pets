@@ -25,13 +25,15 @@ class Session:
     waits: dict[str, str] = field(default_factory=dict)
     helpers: list[str] = field(default_factory=list)
 
+    fork_seen: bool = False
+
     def public(self) -> dict:
         activity = next(reversed(self.calls.values())) if self.calls else self.base
         if self.helpers and activity in {"idle", "working"}:
             activity = "coordinating"
         attention = next(iter(self.waits.values()), self.attention)
         return {"id": self.id, "order": self.order, "activity": activity,
-                "attention": attention, "helpers": len(self.helpers)}
+                "attention": attention, "helpers": len(self.helpers), "active_calls": len(self.calls)}
 
     def finish(self, attention: str) -> None:
         self.waits.clear()
@@ -42,6 +44,9 @@ class Session:
 
     def observe(self, signal: Signal) -> str | None:
         kind = signal.kind
+        if kind == "fork" and not self.fork_seen:
+            self.fork_seen = True
+            return "forked"
         if kind == "helper_join":
             if signal.ref not in self.helpers:
                 self.helpers.append(signal.ref)
@@ -163,7 +168,7 @@ class Habitat:
                 message = {"type": "remove", "id": sid}
             else:
                 if old is None:
-                    if sid in closed and signal.kind not in {"open", "prompt"}:
+                    if sid in closed and signal.kind not in {"open", "prompt", "fork"}:
                         return
                     if signal.kind in {"done", "tool_error", "helper_leave", "retry", "interrupt", "compact"}:
                         return

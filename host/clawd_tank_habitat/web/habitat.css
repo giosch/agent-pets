@@ -48,6 +48,17 @@ select { appearance: auto; font: 600 14px "DM Sans", "Segoe UI", sans-serif; col
 .empty-help code { font-size: 12px; }
 :focus-visible { outline: 3px solid #3e796e; outline-offset: 3px; }
 @keyframes arrive { from { opacity: 0; translate: 0 8px; } }
+.companion { position: absolute; bottom: 0; right: 0; width: 32%; height: 32%; image-rendering: pixelated; }
+.leaving { position: absolute; pointer-events: none; image-rendering: pixelated; }
+.leaving.walking { animation: walk-away .65s ease-in forwards; }
+@keyframes walk-away { to { transform: translateX(65%); opacity: 0; } }
+.pet[data-moment=forked]::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: var(--fork-art) center / contain no-repeat; image-rendering: pixelated; animation: split 1.45s ease-out both; }
+@keyframes split { 0% { transform: scale(.92); } 70%,100% { transform: translate(58%, -12%) scale(.65); opacity: 0; } }
+.fork-flash, .fork-flash::after { position: absolute; width: 54px; height: 54px; background: var(--fork-art) center / contain no-repeat; image-rendering: pixelated; pointer-events: none; }
+.fork-flash { right: 10px; top: 8px; }
+.fork-flash::after { content: ""; animation: split 1.45s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .leaving, .pet[data-moment=forked]::after { display: none; } }
 @media (max-width: 660px) {
   .mast-inner, main { width: calc(100% - 30px); }
   .mast-inner { min-height: 56px; }

@@ -23,6 +23,24 @@
     "completed": "svg-animations/clawd-happy.svg",
     "setback": "svg-animations/clawd-working-confused.svg",
     "compacted": "svg-animations/clawd-working-sweeping.svg",
-    "interrupted": "svg-animations/clawd-working-confused.svg"
+    "interrupted": "svg-animations/clawd-working-confused.svg",
+    "wake": "svg-animations/clawd-wake.svg",
+    "walking": "svg-animations/clawd-crab-walking.svg",
+    "departing": "svg-animations/clawd-going-away.svg",
+    "helper": "svg-animations/clawd-mini-clawd.svg",
+    "compact_work": "svg-animations/mini-crab-typing.svg",
+    "parallel": "svg-animations/clawd-working-juggling.svg",
+    "coffee": "svg-animations/clawd-coffee-head-flip.svg",
+    "groove": "svg-animations/clawd-grooving.svg",
+    "hat": "svg-animations/clawd-hat-mishap.svg",
+    "building": "svg-animations/clawd-working-builder.svg",
+    "transferring": "svg-animations/clawd-working-carrying.svg",
+    "pushing": "svg-animations/clawd-working-pushing.svg",
+    "thinking": "svg-animations/clawd-working-ultra-thinking.svg",
+    "eureka": "svg-animations/clawd-eureka.svg",
+    "overheated": "svg-animations/clawd-working-overheated.svg",
+    "offline": "svg-animations/clawd-disconnected.svg",
+    "low_power": "svg-animations/clawd-idle-low-battery.svg",
+    "still": "svg-animations/clawd-static-base.svg"
   }
 }

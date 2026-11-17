@@ -22,10 +22,13 @@ Every new connection receives a complete snapshot first. Replace the local colle
 | `sequence` | Host revision. It increases for each committed change and is persisted. Duplicate or older deltas within a connection can be ignored. |
 | `id` | Opaque stable session identity. The current host namespaces local IDs by runtime. Treat the whole value as a key. |
 | `order` | Nonnegative, stable order of appearance. Use it for tie-breaking and deriving a session’s palette while it is open. |
-| `activity` | `idle`, `working`, `inspecting`, `editing`, `executing`, `researching`, `coordinating`, or `external`. A limited endpoint can draw a single working pose for all active categories. |
+| `activity` | `idle`, `working`, `inspecting`, `editing`, `executing`, `building`, `transferring`, `researching`, `coordinating`, or `external`. A limited endpoint can draw a single working pose for all active categories. |
 | `attention` | `none`, `question`, `approval`, `failure`, or `ready`. A normal finished turn remains ready until the chat continues or ends. |
 | `helpers` | Number of known active helpers associated with the parent session. |
-| `moment` | Optional on an update. Play `completed`, `setback`, `compacted`, or `interrupted` once, then return to the current pose. An outstanding blocking alert has priority. |
+| `active_calls` | Number of observed tool calls still running in this session. Older hosts can omit this field. |
+| `moment` | Optional on an update. Play `forked`, `completed`, `setback`, `compacted`, or `interrupted` once, then return to the current pose. An outstanding blocking alert has priority. |
+
+A session start explicitly marked `source: "fork"` produces a split reaction for that child once. Snapshots carry no moments.
 
 An update replaces the entire record for its session and a remove deletes that ID. An empty snapshot represents an available host with no open sessions. A disconnected transport represents loss of contact. The browser shows those conditions separately. Endpoints can choose their own capacity. Rank question/approval/failure first, ready second, and ordinary activity third, then use increasing `order`.
 

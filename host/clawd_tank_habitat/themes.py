@@ -17,6 +17,8 @@ POSES = {
     "scene", "idle", "working", "resting", "inspecting", "editing", "executing",
     "researching", "coordinating", "external", "question", "approval", "ready", "failure",
     "completed", "setback", "compacted", "interrupted",
+    "wake", "walking", "departing", "helper", "compact_work", "parallel", "coffee", "groove", "hat",
+    "building", "transferring", "pushing", "thinking", "eureka", "overheated", "offline", "low_power", "still",
 }
 
 
@@ -75,6 +77,10 @@ class Pack:
             src = re.sub(re.escape(color), f"hsl({hue:.3f}, {saturation}%, {lightness}%)",
                          src, flags=re.IGNORECASE)
         src = re.sub(r"<svg(?=[\s>])", f'<svg data-pose="{pose}"', src, count=1)
+        if pose == "offline":
+            # The browser uses a broken-link symbol in the original board artwork.
+            src = src.replace("M -3,3 L 3,-3 L 0,-6 L 0,6 L 3,3 L -3,-3",
+                              "M -4,1 l 2,-2 M 1,1 l 3,-3 M -2,-4 l 1,2 M 1,3 l 1,1")
         return src.encode("utf-8")
 
     def archive(self, destination: Path):
@@ -114,7 +120,8 @@ class Themes:
         self.packs[pack.manifest["kind"], pack.manifest["id"]] = pack
 
     def catalog(self) -> list[dict]:
-        return [{k: p.manifest[k] for k in ("kind", "id", "name")} for p in self.packs.values()]
+        return [{**{k: p.manifest[k] for k in ("kind", "id", "name")}, "poses": list(p.manifest["poses"])}
+                for p in self.packs.values()]
 
 
 def install_pack(source: Path, installed: Path) -> Path:

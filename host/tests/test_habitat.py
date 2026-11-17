@@ -133,6 +133,23 @@ class HabitatTests(unittest.TestCase):
                     configure(source, target.parent, path=target)
                 self.assertEqual(target.read_text(), "{broken")
 
+    def test_fork_moment_and_work_details(self):
+        h = Habitat()
+        q = h.subscribe()
+        q.get()
+        def send(event, **fields):
+            h.apply(normalize("codex", dict(session_id="child", hook_event_name=event, **fields)))
+            return q.get_nowait()
+        self.assertEqual(send("SessionStart", source="fork")["moment"], "forked")
+        self.assertNotIn("moment", h.subscribe().get())
+        h.apply(normalize("codex", dict(session_id="child", hook_event_name="SessionStart", source="fork")))
+        self.assertTrue(q.empty())
+        for ref, command, expected in [("a", "cargo build", "building"), ("b", "scp readme host:docs", "transferring")]:
+            state = send("PreToolUse", tool_name="Bash", tool_use_id=ref, tool_input={"command": command})["session"]
+            self.assertEqual(state["activity"], expected)
+        self.assertEqual(state["active_calls"], 2)
+        self.assertEqual(send("PostToolUse", tool_name="Bash", tool_use_id="b")["session"]["active_calls"], 1)
+
     def test_artwork_pack_export_and_install(self):
         with TemporaryDirectory() as directory:
             root = Path(directory)

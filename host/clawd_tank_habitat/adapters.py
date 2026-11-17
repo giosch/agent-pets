@@ -24,7 +24,7 @@ ACTIVITIES = {
 KINDS = {
     "open", "close", "prompt", "tool", "done", "question", "approval", "tool_error",
     "ready", "idle_reminder", "failure", "compact", "helper_join", "helper_leave",
-    "retry", "interrupt",
+    "retry", "interrupt", "fork",
 }
 
 _INSPECT_COMMANDS = {
@@ -41,6 +41,12 @@ def _activity(tool: str, arguments) -> str:
     if not isinstance(command, str) or re.search(r"[;&|<>\n\r$`()]", command):
         return activity
     words = command.lower().split()
+    if words and words[0] in {"cp", "mv", "scp", "rsync", "copy-item", "move-item", "robocopy"}:
+        return "transferring"
+    if words and (words[0] in {"make", "ninja", "msbuild"} or words[:2] in
+                  (["cmake", "--build"], ["cargo", "build"], ["dotnet", "build"], ["go", "build"])
+                  or words[:3] == ["npm", "run", "build"]):
+        return "building"
     if words and (words[0] in _INSPECT_COMMANDS or " ".join(words[:2]) in _INSPECT_COMMANDS):
         return "inspecting"
     return activity
@@ -71,7 +77,7 @@ class Signal:
             raise ValueError("Invalid hook identifier")
         if self.source not in SOURCES or self.kind not in KINDS or not self.session:
             raise ValueError("Unknown source, session or event")
-        if self.activity not in {"", "working", "external", *ACTIVITIES.values()}:
+        if self.activity not in {"", "working", "external", "building", "transferring", *ACTIVITIES.values()}:
             raise ValueError("Unknown activity")
 
 
@@ -89,7 +95,7 @@ def normalize(source: str, hook: dict) -> Signal | None:
         session = message["session_id"]
     else:
         session = hook["session_id"]
-    kind = EVENTS[event]
+    kind = "fork" if event == "SessionStart" and hook.get("source") == "fork" else EVENTS[event]
     tool = hook.get("tool_name") or ""
     if not isinstance(tool, str):
         return None

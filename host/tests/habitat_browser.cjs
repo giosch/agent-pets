@@ -127,6 +127,11 @@ async function main() {
     hook(source, id, "SessionEnd");
   }
   await page.locator("[data-resting]").waitFor();
+  hook("codex", "branch", "SessionStart", { source: "fork" });
+  await page.locator('[data-session="codex:branch"][data-moment="forked"]').waitFor();
+  assert.equal(await pet(page, "codex:branch").evaluate(el => getComputedStyle(el, "::after").animationName), "split");
+  hook("codex", "branch", "SessionEnd");
+  await require("./habitat_animation_checks.cjs")(browser, url);
   assert.deepEqual(errors, []);
   console.log("Four-session browser acceptance passed on " + process.platform);
 }
