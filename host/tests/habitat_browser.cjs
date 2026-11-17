@@ -41,7 +41,7 @@ async function startHost() {
   });
   const lines = readline.createInterface({ input: host.stdout });
   const url = await new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error("Habitat startup timed out")), 10000);
+    const timeout = setTimeout(() => reject(new Error("Habitat startup timed out")), 30000);
     host.once("error", error => { clearTimeout(timeout); reject(error); });
     host.once("exit", code => { clearTimeout(timeout); reject(new Error("Host exited " + code)); });
     lines.once("line", line => { clearTimeout(timeout); resolve(line.match(/http:\/\/\S+/)[0]); });

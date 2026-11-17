@@ -7,6 +7,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from queue import Empty
 import secrets
+from socketserver import TCPServer
 from urllib.parse import parse_qs, urlsplit
 
 from .adapters import Signal
@@ -27,6 +28,12 @@ class HabitatServer(ThreadingHTTPServer):
         self.key = secrets.token_urlsafe(32)
         self.demo = demo
         super().__init__(("127.0.0.1", port), Handler)
+
+    def server_bind(self):
+        # HTTPServer normally reverse-resolves this address. The habitat always
+        # binds a numeric loopback address and can start with DNS unavailable.
+        TCPServer.server_bind(self)
+        self.server_name, self.server_port = self.server_address[:2]
 
 
 class Handler(BaseHTTPRequestHandler):

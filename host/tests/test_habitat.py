@@ -4,14 +4,22 @@ from pathlib import Path
 from queue import Empty
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
 from clawd_tank_habitat.adapters import Signal, normalize
 from clawd_tank_habitat.hooks import configure
 from clawd_tank_habitat.model import Habitat
+from clawd_tank_habitat.server import HabitatServer
 from clawd_tank_habitat.themes import Themes, install_pack
 
 
 class HabitatTests(unittest.TestCase):
+    def test_local_host_starts_without_dns(self):
+        with TemporaryDirectory() as directory, patch("socket.getfqdn", side_effect=AssertionError("DNS lookup")):
+            with HabitatServer(0, Habitat(), Themes(Path(directory))) as server:
+                self.assertEqual(server.server_name, "127.0.0.1")
+                self.assertGreater(server.server_port, 0)
+
     def test_agent_adapters_share_meaning(self):
         for source, edit in [("claude", "Edit"), ("codex", "functions.apply_patch")]:
             def event(name, tool, **extra):
