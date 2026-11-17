@@ -84,7 +84,8 @@ async function main() {
   await page.locator("#overflow:not([hidden])").waitFor();
   assert.deepEqual(await page.locator(".pet").evaluateAll(nodes => nodes.map(n => n.dataset.session)),
                    ["claude:a", "codex:b", "claude:c"]);
-  assert.equal(await pet(page, "codex:b").getAttribute("data-pose"), "editing");
+  // Adding a neighbor briefly walks this pet to its new slot before editing resumes.
+  await page.locator('[data-session="codex:b"][data-pose="editing"]').waitFor();
   const color = await pet(page, "claude:a").getAttribute("data-palette");
   hook("codex", "d", "PermissionRequest", { tool_name: "Bash", tool_use_id: "d" });
   await pet(page, "codex:d").locator(".signal[data-kind=approval]").waitFor();
