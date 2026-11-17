@@ -4,6 +4,7 @@ import json
 import os
 from dataclasses import asdict
 from pathlib import Path
+import re
 import shlex
 import sys
 
@@ -12,6 +13,18 @@ from .adapters import HOOKS, normalize
 
 LAUNCHER = Path(__file__).resolve().parents[1] / "habitat.py"
 STATUS = "Updating Clawd Tank habitat"
+
+
+def _windows_command(argv: list[str]) -> str:
+    # Codex may submit this same string to cmd.exe or PowerShell. A bare
+    # executable works in both. Keep normal paths readable in hook review and
+    # pass punctuation literally through both shells, including $ and %.
+    def literal(arg):
+        safe = re.sub(r"[^\w .:/\\-]", lambda m: f"' + [char]::ConvertFromUtf32({ord(m[0])}) + '", arg)
+        return f"'{arg}'" if safe == arg else f"('{safe}')"
+
+    command = " ".join(literal(arg) for arg in argv)
+    return f'powershell.exe -NoProfile -NonInteractive -Command "& {command}"'
 
 
 def config_path(source: str) -> Path:
@@ -53,8 +66,7 @@ def configure(source: str, state_dir: Path, *, remove: bool = False, path: Path 
     else:
         handler["command"] = shlex.join(argv)
         if os.name == "nt":
-            # Codex's default Windows hook runner wraps this line in cmd.exe /S /C.
-            handler["commandWindows"] = " ".join(f'"{arg}"' for arg in argv)
+            handler["commandWindows"] = _windows_command(argv)
 
     for event in HOOKS[source]:
         entries = hooks.get(event, [])

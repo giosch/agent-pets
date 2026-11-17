@@ -11,7 +11,7 @@ const { chromium } = require("playwright");
 const python = process.env.HABITAT_PYTHON || "python";
 const entry = path.resolve(__dirname, "../habitat.py");
 const work = fs.mkdtempSync(path.join(os.tmpdir(), "clawd habitat "));
-const state = path.join(work, "state");
+const state = path.join(work, "state $pet & %TEMP%!");
 const env = { ...process.env, CLAUDE_CONFIG_DIR: path.join(work, "claude"), CODEX_HOME: path.join(work, "codex") };
 const options = { env, cwd: work, encoding: "utf8", windowsHide: true, timeout: 10000 };
 let host;
@@ -29,7 +29,10 @@ function hook(source, session, event, data = {}) {
     check(spawnSync(handler.command, handler.args, { ...options, input }));
   } else {
     const cmd = process.platform === "win32" ? handler.commandWindows : handler.command;
-    const result = spawnSync(cmd, { ...options, shell: true, input });
+    // Local Codex can select PowerShell; its other Windows command path uses cmd.exe.
+    const result = process.platform === "win32" && event !== "PreToolUse"
+      ? spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", cmd], { ...options, input })
+      : spawnSync(cmd, { ...options, shell: true, input });
     check(result);
     assert.deepEqual(JSON.parse(result.stdout), {});
   }
@@ -37,11 +40,15 @@ function hook(source, session, event, data = {}) {
 
 async function startHost() {
   host = spawn(python, [entry, "--state-dir", state, "serve", "--port", "0"], {
-    env, cwd: work, windowsHide: true, stdio: ["ignore", "pipe", "inherit"]
+    env: { ...env, PYTHONFAULTHANDLER: "1" }, cwd: work, windowsHide: true, stdio: ["ignore", "pipe", "inherit"]
   });
   const lines = readline.createInterface({ input: host.stdout });
   const url = await new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error("Habitat startup timed out")), 30000);
+    const timeout = setTimeout(() => {
+      // Python prints the stuck thread's stack on POSIX so a CI timeout is diagnosable.
+      if (process.platform !== "win32") host.kill("SIGABRT");
+      reject(new Error("Habitat startup timed out"));
+    }, 30000);
     host.once("error", error => { clearTimeout(timeout); reject(error); });
     host.once("exit", code => { clearTimeout(timeout); reject(new Error("Host exited " + code)); });
     lines.once("line", line => { clearTimeout(timeout); resolve(line.match(/http:\/\/\S+/)[0]); });
