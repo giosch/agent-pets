@@ -2,6 +2,7 @@
 import io
 import json
 import re
+from xml.etree import ElementTree
 from dataclasses import dataclass
 from pathlib import Path
 from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile
@@ -46,8 +47,14 @@ class Pack:
             if source not in mapping:
                 local_name = f"art-{len(mapping)}.svg"
                 svg = read_asset(source)
-                if "<svg" not in svg or len(svg) > MAX_PACK:
+                if len(svg) > MAX_PACK:
                     raise ValueError("Invalid SVG artwork")
+                try:
+                    root = ElementTree.fromstring(svg)
+                except ElementTree.ParseError as error:
+                    raise ValueError(f"Invalid SVG in {source}") from error
+                if root.tag != "{http://www.w3.org/2000/svg}svg":
+                    raise ValueError(f"Expected SVG artwork in {source}")
                 files[local_name] = svg
                 mapping[source] = local_name
         packed = {"format": 1, "kind": kind, "id": key, "name": name, "colors": colors,
@@ -67,7 +74,7 @@ class Pack:
             saturation, lightness = roles[role]
             src = re.sub(re.escape(color), f"hsl({hue:.3f}, {saturation}%, {lightness}%)",
                          src, flags=re.IGNORECASE)
-        src = src.replace("<svg ", f'<svg data-pose="{pose}" ', 1)
+        src = re.sub(r"<svg(?=[\s>])", f'<svg data-pose="{pose}"', src, count=1)
         return src.encode("utf-8")
 
     def archive(self, destination: Path):

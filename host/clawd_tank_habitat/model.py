@@ -21,6 +21,7 @@ class Session:
     turn: str = ""
     previous_turns: list[str] = field(default_factory=list)
     calls: dict[str, str] = field(default_factory=dict)
+    call_tools: dict[str, str] = field(default_factory=dict)
     waits: dict[str, str] = field(default_factory=dict)
     helpers: list[str] = field(default_factory=list)
 
@@ -35,6 +36,7 @@ class Session:
     def finish(self, attention: str) -> None:
         self.waits.clear()
         self.calls.clear()
+        self.call_tools.clear()
         self.base = "idle"
         self.attention = attention
 
@@ -71,21 +73,29 @@ class Session:
             self.base = "working"
             if kind == "tool":
                 self.calls[call] = signal.activity or "working"
+                self.call_tools[call] = signal.tool
             else:
+                if kind == "approval" and not signal.ref:
+                    candidates = [ref for ref, name in self.call_tools.items() if name == signal.tool]
+                    if len(candidates) == 1:
+                        call = candidates[0]
                 self.waits[call] = kind
         elif kind in {"done", "tool_error"}:
             self.calls.pop(call, None)
+            self.call_tools.pop(call, None)
             self.waits.pop(call, None)
-            if signal.tool:
+            if signal.tool and signal.tool not in self.call_tools.values():
                 self.waits.pop(signal.tool, None)
             if kind == "tool_error" and self.attention == "none":
                 return "setback"
         elif kind == "ready":
+            if self.attention == "failure":
+                return None
             first = self.attention != "ready"
             self.finish("ready")
             return "completed" if first else None
         elif kind == "idle_reminder":
-            if not self.waits and self.attention != "failure":
+            if self.base == "idle" and not self.waits and self.attention != "failure":
                 self.finish("ready")
         elif kind == "failure":
             self.finish("failure")

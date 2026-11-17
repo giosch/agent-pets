@@ -38,7 +38,7 @@ def _activity(tool: str, arguments) -> str:
     if activity != "executing" or not isinstance(arguments, dict):
         return activity
     command = arguments.get("command", arguments.get("cmd"))
-    if not isinstance(command, str) or re.search(r"[;&|<>\n\r$`()]|\\\n", command):
+    if not isinstance(command, str) or re.search(r"[;&|<>\n\r$`()]", command):
         return activity
     words = command.lower().split()
     if words and (words[0] in _INSPECT_COMMANDS or " ".join(words[:2]) in _INSPECT_COMMANDS):

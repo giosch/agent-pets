@@ -55,6 +55,17 @@ class HabitatTests(unittest.TestCase):
         send("prompt", turn="b")
         self.assertEqual(send("ready", turn="a")["attention"], "none")
         self.assertEqual(send("failure", turn="b")["attention"], "failure")
+        self.assertEqual(send("ready", turn="b")["attention"], "failure")
+
+    def test_approval_without_call_id_during_parallel_commands(self):
+        h = Habitat()
+        for ref in ("first", "second"):
+            h.apply(Signal("codex", "s", "tool", ref=ref, tool="Bash", activity="executing"))
+        h.apply(Signal("codex", "s", "approval", tool="Bash"))
+        h.apply(Signal("codex", "s", "done", ref="first", tool="Bash"))
+        self.assertEqual(h.snapshot()["sessions"][0]["attention"], "approval")
+        h.apply(Signal("codex", "s", "done", ref="second", tool="Bash"))
+        self.assertEqual(h.snapshot()["sessions"][0]["attention"], "none")
 
     def test_snapshots_order_and_one_shots_survive_restart(self):
         with TemporaryDirectory() as directory:
@@ -98,7 +109,8 @@ class HabitatTests(unittest.TestCase):
         for source in ("codex", "claude"):
             with TemporaryDirectory() as directory:
                 target = Path(directory) / "hooks.json"
-                other = {"hooks": [{"type": "command", "command": "my-hook"}]}
+                other = {"hooks": [{"type": "command", "command": "my-hook",
+                                    "statusMessage": "Updating Clawd Tank habitat"}]}
                 original = {"hooks": {"Stop": [other]}, "description": "Keep me"}
                 target.write_text(json.dumps(original))
                 configure(source, target.parent, path=target)

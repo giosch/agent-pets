@@ -20,11 +20,30 @@ def config_path(source: str) -> Path:
     return Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")) / "hooks.json"
 
 
+def _our_hook(handler, source):
+    if not isinstance(handler, dict) or handler.get("statusMessage") != STATUS:
+        return False
+    if source == "claude":
+        args = handler.get("args")
+    else:
+        command = handler.get("command")
+        if not isinstance(command, str):
+            return False
+        try:
+            args = shlex.split(command)[1:]
+        except ValueError:
+            return False
+    return (isinstance(args, list) and len(args) == 5 and args[0] == str(LAUNCHER)
+            and args[1] == "--state-dir" and args[-2:] == ["hook", source])
+
+
 def configure(source: str, state_dir: Path, *, remove: bool = False, path: Path | None = None):
     path = path or config_path(source)
     settings = json.loads(path.read_text(encoding="utf-8-sig")) if path.exists() else {}
     if not isinstance(settings, dict) or not isinstance(settings.get("hooks", {}), dict):
         raise ValueError(f"Invalid hooks configuration in {path}")
+    if remove and "hooks" not in settings:
+        return path
     before = json.dumps(settings)
     hooks = settings.setdefault("hooks", {})
     argv = [sys.executable, str(LAUNCHER), "--state-dir", str(state_dir), "hook", source]
@@ -46,8 +65,7 @@ def configure(source: str, state_dir: Path, *, remove: bool = False, path: Path 
             if not isinstance(group, dict) or not isinstance(group.get("hooks"), list):
                 kept.append(group)
                 continue
-            others = [h for h in group["hooks"] if not
-                      (isinstance(h, dict) and h.get("statusMessage") == STATUS)]
+            others = [h for h in group["hooks"] if not _our_hook(h, source)]
             if others == group["hooks"]:
                 kept.append(group)
             elif others:
