@@ -6,6 +6,8 @@ The habitat is a companion for someone using local coding agents. A glance shoul
 
 Clawd Tank receives Claude Code hooks, tracks sessions and helpers in a Python daemon, and drives the Waveshare ESP32-C6-LCD-1.47 over BLE and an SDL simulator over TCP. Both use the same embedded scene code. The board has a clock, notification cards, a button, and an RGB LED. The daemon persists sessions and restores the scene when a connection returns. Its v2 messages name crab animations and select up to four pets by arrival order. The packaged menu bar application is for macOS. A contributor maintains a separate [Linux port](https://github.com/VloStudios/clawd-tank-linux).
 
+The original SDL simulator documents a macOS build with Xcode, CMake, and SDL2. The new browser habitat is the software display for Windows, macOS, and Linux. Both can coexist in the same checkout. [Original simulator guide](../simulator/README.md)
+
 ## What the person sees
 
 - Each open coding session has a pet with a stable identity. A modular palette lets sessions share a character design and still look different.
@@ -30,6 +32,17 @@ The portable host uses Python 3.10+ and its standard library. Each runtime invok
 The Claude adapter reuses the existing hook normalizer. Both host implementations use the same atomic JSON writer. The original animated crab SVGs are the source art for the browser’s Clawd character. The browser has its own endpoint implementation and runs independently of the macOS launcher, SDL2, and the ESP32 toolchain.
 
 Windows, macOS, and Linux run the same host and browser assets. OS-specific concerns in the browser milestone are hook command invocation, settings paths, and the host’s single-writer file lock. The supported agent surfaces are local Claude Code and local Codex sessions configured to run command hooks. The runtime controls when those hooks fire. An adapter can express generic activity when a tool or hosted operation supplies less detail. A retryable model attempt can produce a brief setback. An explicit terminal failure can request intervention.
+
+## What each coding client can tell the pet
+
+| Display information | Claude Code | Codex |
+|---|---|---|
+| Presence | Session start and end add or remove a pet. Subagent start and stop update its helper count. | The same lifecycle events map to the same session and helper behavior. |
+| Current activity | `Read` and `Grep` mean inspecting. `Edit` and `Write` mean editing. | `apply_patch` also means editing. A supported shell hook for `git status` means inspecting. A prompt establishes generic working when a hosted tool supplies no detail. |
+| Attention | A permission request raises the approval symbol. `AskUserQuestion` raises a question. `StopFailure` raises the intervention symbol. | Permission requests and user-input tools raise the corresponding symbols. Both runtimes mark a finished turn ready and clear it on the next prompt. |
+| Brief events | A completed turn, reported tool failure, or compaction can produce a visible reaction. | A completed turn, reported MCP error, failed model attempt, compaction, or interruption can produce a reaction. |
+
+Local Claude Code terminal sessions and local sessions in the desktop Code tab share hook settings. Local Codex terminal and desktop sessions can both run command hooks. The terminal offers `/hooks` for review and the desktop app offers Settings → Hooks. The command must execute on the same computer as the habitat host to reach its loopback address. Codex cloud orchestration has a different hook surface, and hosted tools such as web search provide no local tool-use detail. [Claude Code shared configuration](https://code.claude.com/docs/en/desktop#shared-configuration) · [Codex hook review and tool coverage](https://learn.chatgpt.com/docs/hooks)
 
 ## Delivery order and acceptance
 

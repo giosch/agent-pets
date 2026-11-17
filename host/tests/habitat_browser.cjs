@@ -97,6 +97,9 @@ async function main() {
   await pet(second, "claude:a").locator(".signal[data-kind=ready]").waitFor();
   assert.equal(await second.locator("[data-moment]").count(), 0);
   assert.equal(await pet(second, "claude:a").getAttribute("data-palette"), color);
+  await page.locator('[data-session="claude:a"][data-moment]').waitFor({ state: "detached" });
+  assert.equal(await pet(page, "claude:a").getAttribute("data-pose"), "ready");
+  await pet(page, "claude:a").locator(".signal[data-kind=ready]").waitFor();
   await page.selectOption("#habitat", "grove");
   await second.locator('#scene[aria-label="Pine Grove"]').waitFor();
   assert.equal(await pet(page, "claude:a").getAttribute("data-palette"), color);
@@ -108,6 +111,7 @@ async function main() {
   if (process.env.HABITAT_SCREENSHOT) await page.screenshot({ path: process.env.HABITAT_SCREENSHOT });
   hook("claude", "a", "UserPromptSubmit");
   await pet(page, "claude:a").locator(".signal").waitFor({ state: "hidden" });
+  await pet(second, "claude:a").locator(".signal").waitFor({ state: "hidden" });
   hook("codex", "d", "PostToolUse", { tool_name: "Bash", tool_use_id: "d" });
   await pet(page, "codex:d").waitFor({ state: "detached" });
   await pet(page, "claude:c").waitFor();
