@@ -12,6 +12,19 @@ from clawd_tank_habitat.model import Habitat
 
 
 class DesktopTests(unittest.TestCase):
+    def test_first_real_event_can_arrive_after_its_session_was_closed(self):
+        with TemporaryDirectory() as temp:
+            directory = Path(temp)
+            path = directory / "sessions.json"
+            habitat = Habitat(path)
+            initial = habitat.snapshot()
+            enqueue(directory, Signal("claude", "already-closed", "close"))
+            drain(directory, habitat)
+            restored = Habitat(path)
+            self.assertEqual(restored.snapshot(), initial)
+            self.assertEqual(restored.last_events["claude"]["kind"], "close")
+            self.assertGreater(restored.last_events["claude"]["time"], 0)
+
     def test_restart_with_unacknowledged_live_moment_and_offline_close(self):
         with TemporaryDirectory() as temp:
             d = Path(temp)

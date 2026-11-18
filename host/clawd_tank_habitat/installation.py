@@ -155,7 +155,13 @@ def stop_for_upgrade(directory):
                         if _our_hook(h,source):
                             argv = [h["command"],*h["args"]] if source=="claude" else shlex.split(h["command"])
                             if len(argv) == 6:
-                                installed.add((Path(argv[0]).resolve(),Path(argv[1]).resolve()))
+                                interpreter, script = Path(argv[0]).resolve(), Path(argv[1]).resolve()
+                                installed.add((interpreter, script))
+                                # Framework Python's bin/python execs the Python.app inside that version.
+                                framework = interpreter.parent.parent
+                                if (sys.platform == "darwin" and interpreter.parent.name == "bin"
+                                        and framework.parent.parent.name == "Python.framework"):
+                                    installed.add(((framework / "Resources/Python.app/Contents/MacOS/Python").resolve(), script))
     for proc in psutil.process_iter():
         try:
             args = proc.cmdline()
@@ -168,8 +174,11 @@ def stop_for_upgrade(directory):
                        for c in proc.net_connections(kind="tcp")):
                 continue
             proc.terminate()
-            proc.wait(5)
-            return True
+            for _ in range(100):
+                if not proc.is_running() or proc.status() == psutil.STATUS_ZOMBIE:
+                    return True
+                time.sleep(.05)
+            raise RuntimeError("The checkout habitat is still shutting down")
         except (psutil.AccessDenied, psutil.NoSuchProcess):
             continue
     raise RuntimeError("Close the running checkout habitat and reopen the installer")

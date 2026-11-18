@@ -157,41 +157,48 @@ class Habitat:
         with self.lock:
             self.listeners.discard(messages)
 
-    def apply(self, signal: Signal, checkpoint=None, observed=None) -> None:
+    def _transition(self, signal):
         sid = f"{signal.source}:{signal.session}"
+        old = self.sessions.get(sid)
+        sessions = self.sessions.copy()
+        closed = self.closed
+        next_order = self.next_order
+        if signal.kind == "close":
+            if old is None:
+                return
+            del sessions[sid]
+            closed = (closed + [sid])[-512:]
+            message = {"type": "remove", "id": sid}
+        else:
+            if old is None:
+                if sid in closed and signal.kind not in {"open", "prompt", "fork"}:
+                    return
+                if signal.kind in {"done", "tool_error", "helper_leave", "retry", "interrupt", "compact"}:
+                    return
+                session = Session(sid, next_order)
+                next_order += 1
+                if sid in closed:
+                    closed = [item for item in closed if item != sid]
+            else:
+                session = deepcopy(old)
+            moment = session.observe(signal)
+            if old == session and moment is None:
+                return
+            sessions[sid] = session
+            message = {"type": "update", "session": session.public()}
+            if moment:
+                message["moment"] = moment
+        return sessions, closed, next_order, message
+
+    def apply(self, signal: Signal, checkpoint=None, observed=None) -> None:
         with self.lock:
             if checkpoint and self.checkpoint[0] == checkpoint[0] and self.checkpoint[1] >= checkpoint[1]:
                 return
-            old = self.sessions.get(sid)
-            sessions = self.sessions.copy()
-            closed = self.closed
-            next_order = self.next_order
-            if signal.kind == "close":
-                if old is None:
-                    return
-                del sessions[sid]
-                closed = (closed + [sid])[-512:]
-                message = {"type": "remove", "id": sid}
-            else:
-                if old is None:
-                    if sid in closed and signal.kind not in {"open", "prompt", "fork"}:
-                        return
-                    if signal.kind in {"done", "tool_error", "helper_leave", "retry", "interrupt", "compact"}:
-                        return
-                    session = Session(sid, next_order)
-                    next_order += 1
-                    if sid in closed:
-                        closed = [item for item in closed if item != sid]
-                else:
-                    session = deepcopy(old)
-                moment = session.observe(signal)
-                if old == session and moment is None:
-                    return
-                sessions[sid] = session
-                message = {"type": "update", "session": session.public()}
-                if moment:
-                    message["moment"] = moment
-            sequence = self.sequence + 1
+            change = self._transition(signal)
+            if change is None and observed is None:
+                return
+            sessions, closed, next_order, message = change or (self.sessions, self.closed, self.next_order, None)
+            sequence = self.sequence + int(message is not None)
             last_events = self.last_events.copy()
             if observed is not None:
                 last_events[signal.source] = {"time": observed, "kind": signal.kind}
@@ -207,6 +214,8 @@ class Habitat:
             self.closed = closed
             self.next_order = next_order
             self.sequence = sequence
+            if message is None:
+                return
             message.update(version=VERSION, sequence=sequence)
             for queue in self.listeners:
                 try:

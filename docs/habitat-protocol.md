@@ -32,7 +32,7 @@ A session start explicitly marked `source: "fork"` produces a split reaction for
 
 An update replaces the entire record for its session and a remove deletes that ID. An empty snapshot represents an available host with no open sessions. A disconnected transport represents loss of contact. The browser shows those conditions separately. Endpoints can choose their own capacity. Rank question/approval/failure first, ready second, and ordinary activity third, then use increasing `order`.
 
-The host retains only the normalized identifiers needed to correlate tool requests, turns, and helpers. Raw prompts, diffs, paths, and tool results are excluded from the display stream. HTTP hook ingestion is a private, authenticated host interface. Hook installation is required once for each local runtime. Start the host before generating activity. Hooks exit promptly when the host is offline.
+The host retains normalized identifiers needed to correlate tool requests, turns, and helpers. Raw prompts, diffs, paths, and tool results are excluded from the display stream. Register hooks once for each local runtime. Current hooks write normalized observations into a per-user SQLite inbox, then notify the host through an authenticated loopback request. The host drains the inbox before publishing its connection information on startup. A session that closed during downtime therefore disappears from the restored snapshot.
 
 ## Renderer packs
 

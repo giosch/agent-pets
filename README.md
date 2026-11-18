@@ -10,7 +10,9 @@ A pet habitat for local Claude Code and Codex sessions, with a portable browser 
 
 Each chat gets a palette, a working pose, and a symbol when it needs you. The browser shows up to three pets, with approvals and questions first. Choose the character and habitat independently. The local Python host supports multiple display tabs and restores active sessions after a restart.
 
-From the repository root, use Python 3.10 or newer on Windows, macOS, or Linux. On systems where Python is called `python3`, substitute `python3` below.
+For packaged installs, see the [desktop installation and recovery guide](desktop/README.md). The desktop app bundles its runtime and opens this same habitat. Desktop release tags begin with `desktop-v`.
+
+To run from a checkout, use Python 3.10 or newer on Windows, macOS, or Linux. On systems where Python is called `python3`, substitute `python3` below.
 
 ```sh
 python host/habitat.py install-hooks

@@ -134,6 +134,17 @@ def main(first, second):
         event("codex","keep","Stop")
         after = get("v1/snapshot")["sessions"]
         assert after[0]["attention"]=="ready", (after, get("v1/connections")["agents"]["codex"])
+        # An incomplete previous release must be rejected before stopping the current host.
+        previous_manifest = root/"releases"/pointer.decode()/"release.json"
+        manifest = previous_manifest.read_bytes()
+        active_pid = info()["pid"]
+        try:
+            previous_manifest.write_bytes(manifest + b" ")
+            failed = subprocess.run([stable,"rollback-desktop"],env=env,timeout=30)
+            assert failed.returncode != 0
+            assert info()["pid"] == active_pid and get("v1/snapshot")["sessions"] == after
+        finally:
+            previous_manifest.write_bytes(manifest)
         cli("rollback-desktop")
         assert (root/"current").read_bytes()==pointer
         assert get("v1/snapshot")["sessions"]==after
