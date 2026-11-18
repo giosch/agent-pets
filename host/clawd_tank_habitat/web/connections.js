@@ -10,6 +10,7 @@ const rows = {};
 let trust = "unknown";
 let stopped = false;
 let lastTrustCheck = 0;
+let checkingTrust = false;
 async function action(action, fields = {}) {
   const res = await fetch("/manage", {method:"POST", headers:{"Content-Type":"application/json",
     Authorization:"Bearer " + key}, body:JSON.stringify({action,...fields})});
@@ -61,9 +62,12 @@ async function refresh() {
   el("status").textContent = "Host running" + (data.version ? " · v" + data.version : "") + " · " + data.displays + (data.displays === 1 ? " habitat display" : " habitat displays");
   el("login").checked = data.login;
   el("uninstaller").hidden = !key || !data.version;
-  if (key && data.agents.codex.state === "installed" && Date.now() - lastTrustCheck > 30000) {
+  if (key && !checkingTrust && data.agents.codex.state === "installed" && Date.now() - lastTrustCheck > 30000) {
     lastTrustCheck = Date.now();
-    trust = (await action("trust")).trust;
+    checkingTrust = true;
+    action("trust").then(result => { trust = result.trust; })
+      .catch(error => { el("feedback").textContent = error.message; })
+      .finally(() => { checkingTrust = false; });
   }
   for (const [source,a] of Object.entries(data.agents)) {
     const row = rows[source], installed = a.state === "installed";
@@ -106,13 +110,19 @@ el("login").onchange = async () => {
   try { await action("login",{enabled:el("login").checked}); }
   catch(e) { el("feedback").textContent = e.message; await refresh(); }
 };
-el("finish").onclick = async () => { if (key) await action("finish"); location.assign("/"); };
+el("finish").onclick = async () => {
+  try { if (key) await action("finish"); location.assign("/"); }
+  catch (error) { el("feedback").textContent = error.message; }
+};
 el("stop").onclick = async () => {
   try { await action("stop"); stopped = true; el("status").textContent = "Host stopped. Open Clawd Tank to start it again."; }
   catch(e) { el("feedback").textContent = e.message; }
 };
 async function poll() {
-  try { await refresh(); } catch(e) { el("feedback").textContent = e.message; }
+  try { await refresh(); } catch(e) {
+    el("status").textContent = "Host unavailable. Open Clawd Tank to reconnect.";
+    el("feedback").textContent = e.message;
+  }
   if (!stopped) setTimeout(poll, 3000);
 }
 poll();

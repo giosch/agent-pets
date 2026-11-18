@@ -108,12 +108,16 @@ def build(dest, version):
             (installer/"Contents/Resources").mkdir()
             shutil.move(str(app),str(installer/"Contents/Resources/runtime"))
             mac_sign(installer)
+            if os.environ.get("MACOS_SIGN_IDENTITY"):
+                run("codesign","--verify","--deep","--strict",installer)
             target=dest/(name+".dmg")
             run("hdiutil","create","-ov","-volname","Clawd Tank Setup","-srcfolder",volume,target)
             mac_sign(target)
             if os.environ.get("MACOS_NOTARY_PROFILE"):
                 run("xcrun","notarytool","submit",target,"--keychain-profile",os.environ["MACOS_NOTARY_PROFILE"],"--wait")
                 run("xcrun","stapler","staple",target)
+                run("xcrun","stapler","validate",target)
+                run("spctl","--assess","--type","open","--context","context:primary-signature",target)
         else:
             archive=work/"payload.tar.gz"
             with tarfile.open(archive,"w:gz") as tar:

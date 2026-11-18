@@ -150,11 +150,30 @@ def main(first, second):
         assert get("v1/snapshot")["sessions"]==after
         assert (home/"codex/hooks.json").read_bytes()==old_hooks
         cli("uninstall-desktop")
-        until(lambda:not stable.exists())
+        until(lambda:not root.exists())
         for profile,file in [("claude","settings.json"),("codex","hooks.json")]:
             assert json.loads((home/profile/file).read_text())==original
         assert (state/"sessions.json").exists()
-        print("Packaged install, hook migration, restart, offline close, running upgrade and uninstall passed",sys.platform)
+        if os.name=="nt":
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER,r"Software\Microsoft\Windows\CurrentVersion\Run") as key:
+                try:
+                    winreg.QueryValueEx(key,"ClawdTankHabitat")
+                except FileNotFoundError:
+                    pass
+                else:
+                    raise AssertionError("Uninstall left sign-in registration behind")
+        else:
+            assert not entry.exists()
+        install(second)
+        cli("launch","--background")
+        assert all(a["state"]=="available" for a in get("v1/connections")["agents"].values())
+        sentinel = state/"unrelated-user-file"
+        sentinel.write_text("keep me")
+        cli("uninstall-desktop","--purge-data")
+        until(lambda:not root.exists())
+        assert sentinel.read_text()=="keep me"
+        assert not (state/"sessions.json").exists() and not (state/"activity.sqlite3").exists()
+        print("Packaged migration, login, offline close, upgrade, rollback and both uninstall modes passed",sys.platform)
 
 
 if __name__ == "__main__":
