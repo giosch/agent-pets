@@ -94,6 +94,7 @@ def main():
     setup.add_argument("--no-open", action="store_true")
     uninstall = commands.add_parser("uninstall-desktop", help="Uninstall the desktop app")
     uninstall.add_argument("--purge-data", action="store_true", help="Also erase saved sessions and installed packs")
+    uninstall.add_argument("--choose-data", action="store_true", help="Ask whether to keep saved habitat data")
     commands.add_parser("self-test", help="Verify the bundled runtime and artwork")
     start = commands.add_parser("serve", help="Serve the browser habitat on loopback")
     start.add_argument("--port", type=int, default=19873)
@@ -119,7 +120,15 @@ def main():
         activate(Path(sys.executable).parent, directory, not args.no_open)
     elif args.command == "uninstall-desktop":
         from clawd_tank_habitat.installation import uninstall
-        uninstall(directory, args.purge_data)
+        purge = args.purge_data
+        if args.choose_data and os.name == "nt":
+            import ctypes
+            choice = ctypes.windll.user32.MessageBoxW(None, "Keep saved sessions, preferences and artwork for a future install?\n\nYes keeps your data. No erases it. Cancel keeps Clawd Tank installed.",
+                                                       "Uninstall Clawd Tank Habitat", 0x23)
+            if choice == 2:
+                return
+            purge = choice == 7
+        uninstall(directory, purge)
     elif args.command == "self-test":
         import sqlite3
         from clawd_tank_habitat.themes import Themes

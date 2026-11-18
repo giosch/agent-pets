@@ -20,9 +20,11 @@ class WindowsSetup {
             var start=new ProcessStartInfo(Path.Combine(stage,"habitat-runtime.exe"),
                 verify ? "self-test" : "desktop-install" + (args.Contains("/no-launch") ? " --no-open" : ""));
             start.WorkingDirectory=stage; start.UseShellExecute=false; start.CreateNoWindow=true;
+            start.RedirectStandardError=true;
             using (var child=Process.Start(start)) {
+                string detail=child.StandardError.ReadToEnd();
                 child.WaitForExit();
-                if(child.ExitCode!=0) throw new IOException("Installation failed ("+child.ExitCode+"). See the habitat installation log.");
+                if(child.ExitCode!=0) throw new IOException("Installation failed ("+child.ExitCode+"). "+detail);
             }
             return 0;
         } catch(Exception e) {

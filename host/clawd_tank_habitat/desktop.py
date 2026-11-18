@@ -4,7 +4,6 @@ import json
 import os
 from pathlib import Path
 import plistlib
-import shlex
 import shutil
 import subprocess
 import sys
@@ -143,7 +142,14 @@ def login(directory, enabled=None):
     argv = [*launch_command(), "--state-dir", str(directory), "launch", "--background"]
     if os.name == "nt":
         import winreg
-        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run") as key:
+        location = r"Software\Microsoft\Windows\CurrentVersion\Run"
+        try:
+            key = (winreg.OpenKey(winreg.HKEY_CURRENT_USER,location,0,winreg.KEY_READ)
+                   if enabled is None else winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER,location,0,
+                                                              winreg.KEY_READ | winreg.KEY_SET_VALUE))
+        except FileNotFoundError:
+            return False
+        with key:
             if enabled is True:
                 winreg.SetValueEx(key, "ClawdTankHabitat", 0, winreg.REG_SZ, subprocess.list2cmdline(argv))
             elif enabled is False:

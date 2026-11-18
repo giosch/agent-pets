@@ -4,7 +4,7 @@ $marker=Join-Path $root '.habitat-install'
 if ([IO.File]::ReadAllText($marker) -ne 'Clawd Tank desktop installation v1') { throw 'Unexpected install root' }
 for ($attempt=0; $attempt -lt 40; $attempt++) {
     try {
-        foreach ($name in @('releases','clawd-tank.exe','current','host.lock')) {
+        foreach ($name in @('releases','clawd-tank.exe','current','previous','host.lock')) {
             $target=[IO.Path]::GetFullPath((Join-Path $root $name))
             if ([IO.Path]::GetDirectoryName($target) -ne $root) { throw 'Unexpected path' }
             if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }

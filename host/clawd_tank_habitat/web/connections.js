@@ -58,7 +58,7 @@ async function refresh() {
   const res = await fetch("/v1/connections", {cache:"no-store"});
   if (!res.ok) throw Error("Connections are unavailable.");
   const data = await res.json();
-  el("status").textContent = "Host running · " + data.displays + (data.displays === 1 ? " habitat display" : " habitat displays");
+  el("status").textContent = "Host running" + (data.version ? " · v" + data.version : "") + " · " + data.displays + (data.displays === 1 ? " habitat display" : " habitat displays");
   el("login").checked = data.login;
   if (key && data.agents.codex.state === "installed" && Date.now() - lastTrustCheck > 30000) {
     lastTrustCheck = Date.now();
@@ -80,6 +80,16 @@ async function refresh() {
 }
 el("login").disabled = !key;
 el("stop").disabled = !key;
+el("updates").disabled = !key;
+el("updates").onclick = async () => {
+  try {
+    const update = await action("updates");
+    el("download").hidden = !update.available;
+    if (update.available) el("download").href = update.url;
+    el("feedback").textContent = update.available ? "Version " + update.version + " is available." :
+      update.version ? "You have the current desktop release." : "No desktop release is published for this platform yet.";
+  } catch (err) { el("feedback").textContent = "Could not check for updates. " + err.message; }
+};
 el("hint").hidden = !!key;
 el("login").onchange = async () => {
   try { await action("login",{enabled:el("login").checked}); }

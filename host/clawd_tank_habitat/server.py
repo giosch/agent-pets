@@ -7,6 +7,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from queue import Empty
 import secrets
+import sqlite3
 import threading
 import time
 from socketserver import TCPServer
@@ -45,7 +46,11 @@ class HabitatServer(ThreadingHTTPServer):
     def service_actions(self):
         if time.monotonic() >= self.next_drain:
             self.next_drain = time.monotonic() + 3
-            self.drain()
+            try:
+                self.drain()
+            except (OSError, sqlite3.OperationalError):
+                # A transient writer conflict leaves unacknowledged events in the inbox.
+                pass
 
     def server_bind(self):
         # HTTPServer normally reverse-resolves this address. The habitat always
@@ -89,12 +94,13 @@ class Handler(BaseHTTPRequestHandler):
             self._send(json.dumps(self.server.habitat.snapshot()).encode(), "application/json")
         elif url.path == "/v1/connections" and self.server.directory and not self.server.demo:
             from .desktop import integration, login
+            from .installation import installed_version
             from .adapters import SOURCES
             host = self.server
             with host.habitat.lock:
                 count = len(host.habitat.listeners)
                 last = dict(host.habitat.last_events)
-            data = {"displays": count, "login": login(host.directory),
+            data = {"displays": count, "login": login(host.directory), "version": installed_version(),
                     "agents": {s: {**integration(s, host.directory), "last": last.get(s)} for s in SOURCES}}
             self._send(json.dumps(data).encode(), "application/json")
         elif url.path == "/v1/themes":
@@ -142,7 +148,8 @@ class Handler(BaseHTTPRequestHandler):
             self.server.habitat.unsubscribe(queue)
 
     def _manage(self):
-        from .desktop import codex_trust, integration, login, probe
+        from .desktop import codex_trust, login, probe
+        from .installation import check_updates
         from .hooks import configure
         host = self.server
         if not hmac.compare_digest(self.headers.get("Authorization", "").encode(),
@@ -166,6 +173,8 @@ class Handler(BaseHTTPRequestHandler):
                     result["trust"] = codex_trust()
                 elif action == "login" and isinstance(data.get("enabled"), bool):
                     result["login"] = login(host.directory, data["enabled"])
+                elif action == "updates":
+                    result = check_updates()
                 elif action == "finish":
                     (host.directory / "setup-complete").touch()
                 elif action == "stop":
@@ -199,7 +208,11 @@ class Handler(BaseHTTPRequestHandler):
             self.server.shutdown()
             return
         if self.path == "/internal/drain":
-            self.server.drain()
+            try:
+                self.server.drain()
+            except (OSError, sqlite3.OperationalError):
+                self.send_error(503, "Activity is queued")
+                return
             self._send(b"", "application/json", 204)
             return
         try:

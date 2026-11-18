@@ -15,7 +15,8 @@ def connect(directory: Path):
     db = sqlite3.connect(directory / "activity.sqlite3", timeout=1)
     db.execute("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, observed REAL, payload TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS identity (id INTEGER PRIMARY KEY, generation TEXT)")
-    db.execute("INSERT OR IGNORE INTO identity VALUES (1, ?)", (uuid.uuid4().hex,))
+    if not db.execute("SELECT 1 FROM identity WHERE id=1").fetchone():
+        db.execute("INSERT OR IGNORE INTO identity VALUES (1, ?)", (uuid.uuid4().hex,))
     return db
 
 

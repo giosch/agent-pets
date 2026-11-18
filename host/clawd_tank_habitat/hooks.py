@@ -6,6 +6,7 @@ from dataclasses import asdict
 from pathlib import Path
 import re
 import shlex
+import sqlite3
 import sys
 
 from clawd_tank_daemon.session_store import write_json_atomic
@@ -119,7 +120,7 @@ def forward(source: str, state_dir: Path, stream) -> None:
     """A closed habitat is normal. Hook output must never steer an agent."""
     try:
         payload = json.load(stream)
-        if isinstance(payload, dict) and payload.get("habitat_check"):
+        if isinstance(payload, dict) and re.fullmatch("[0-9a-f]{32}", str(payload.get("habitat_check", ""))) and "hook_event_name" not in payload:
             from .desktop import control
             if control(state_dir, "ping"):
                 print(payload["habitat_check"], file=sys.stderr)
@@ -141,11 +142,14 @@ def forward(source: str, state_dir: Path, stream) -> None:
             target = "/internal/drain" if info.get("inbox") else "/internal/activity"
             connection.request("POST", target, b"" if info.get("inbox") else json.dumps(asdict(signal)),
                                {"Content-Type": "application/json", "Authorization": "Bearer " + info["key"]})
-            connection.getresponse().read()
+            response = connection.getresponse()
+            response.read()
+            if response.status != 204 and not info.get("inbox"):
+                enqueue(state_dir, signal)
         except (OSError, http.client.HTTPException):
             if not info.get("inbox"):
                 enqueue(state_dir, signal)
         finally:
             connection.close()
-    except (OSError, http.client.HTTPException, ValueError, KeyError, TypeError):
+    except (OSError, sqlite3.Error, http.client.HTTPException, ValueError, KeyError, TypeError):
         return

@@ -78,7 +78,8 @@ def desktop_entry(root, remove=False):
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, reg) as key:
             for k,v in {"DisplayName":"Clawd Tank Habitat","DisplayVersion":manifest["version"],
                         "InstallLocation":str(root), "DisplayIcon":str(target),
-                        "UninstallString":f'"{target}" uninstall-desktop'}.items():
+                        "UninstallString":f'"{target}" uninstall-desktop --choose-data',
+                        "QuietUninstallString":f'"{target}" uninstall-desktop'}.items():
                 winreg.SetValueEx(key,k,0,winreg.REG_SZ,v)
     elif sys.platform == "darwin":
         app = Path.home() / "Applications/Clawd Tank Habitat.app"
@@ -165,6 +166,44 @@ def stop_for_upgrade(directory):
     raise RuntimeError("Close the running checkout habitat and reopen the installer")
 
 
+def installed_version():
+    try:
+        root = install_root()
+        current = (root / "current").read_text().strip()
+        if len(current) != 20 or any(c not in "0123456789abcdef" for c in current):
+            return None
+        return json.loads((root / "releases" / current / "release.json").read_text())["version"]
+    except (OSError, ValueError, KeyError):
+        return None
+
+
+def check_updates():
+    import platform
+    import re
+    import urllib.request
+    api = "https://api.github.com/repos/giosch/clawd-tank/releases"
+    request = urllib.request.Request(api,headers={"Accept":"application/vnd.github+json","User-Agent":"Clawd-Tank-Habitat"})
+    with urllib.request.urlopen(request, timeout=8) as response:
+        releases = json.load(response)
+    candidates = []
+    for release in releases:
+        match = re.fullmatch(r"desktop-v(\d+\.\d+\.\d+)", release["tag_name"])
+        if not match or release["draft"] or release["prerelease"]:
+            continue
+        version = match[1]
+        artifact = f"Clawd-Tank-{version}-{platform.system().lower()}-{platform.machine().lower()}"
+        suffix = "-Setup.exe" if os.name=="nt" else ".dmg" if sys.platform=="darwin" else ".run"
+        if any(a["name"]==artifact+suffix for a in release["assets"]):
+            candidates.append((tuple(map(int,version.split("."))), version, artifact+suffix))
+    if not candidates:
+        return {"version":None}
+    _, version, artifact = max(candidates)
+    installed = installed_version()
+    newer = not installed or tuple(map(int,version.split("."))) > tuple(map(int,installed.split(".")))
+    return {"version":version, "available":newer,
+            "url": f"https://github.com/giosch/clawd-tank/releases/download/desktop-v{version}/{artifact}"}
+
+
 def activate(payload, directory, open_window=True):
     from habitat import state_owner
     root = install_root()
@@ -192,20 +231,30 @@ def activate(payload, directory, open_window=True):
         subprocess.run([str(exe),"self-test"], check=True, timeout=25)
         stable = launcher(root)
         shim = RESOURCES / ("clawd-tank.exe" if os.name == "nt" else "posix-launch")
-        if not stable.exists() or stable.read_bytes() != shim.read_bytes():
-            atomic(stable, shim.read_bytes(), 0o755)
         os.environ["CLAWD_TANK_LAUNCHER"] = str(stable)
         sources = [s for s in SOURCES if integration(s,directory)["state"] in {"installed","repair"}]
         pointer = root / "current"
         previous = pointer.read_bytes() if pointer.exists() else None
         running = stop_for_upgrade(directory)
-        atomic(pointer, release_id.encode())
         try:
+            if not stable.exists() or stable.read_bytes() != shim.read_bytes():
+                # Windows releases the launcher's executable mapping just after its host exits.
+                for attempt in range(60):
+                    try:
+                        atomic(stable, shim.read_bytes(), 0o755)
+                        break
+                    except PermissionError:
+                        if attempt == 59:
+                            raise
+                        time.sleep(.1)
+            atomic(pointer, release_id.encode())
             desktop_entry(root)
             for source in sources:
                 configure(source,directory)
             if open_window or running:
                 launch(directory, background=not open_window)
+            if previous and previous != release_id.encode():
+                atomic(root / "previous", previous)
         except Exception:
             if previous:
                 atomic(pointer, previous)
@@ -240,7 +289,7 @@ def uninstall(directory, purge=False):
                          stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     else:
         shutil.rmtree(root / "releases")
-        for path in [launcher(root),root/"current",root/"host.lock",root/".habitat-install"]:
+        for path in [launcher(root),root/"current",root/"previous",root/"host.lock",root/".habitat-install"]:
             path.unlink(missing_ok=True)
         if not any(root.iterdir()):
             root.rmdir()
