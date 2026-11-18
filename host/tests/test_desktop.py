@@ -13,6 +13,30 @@ from clawd_tank_habitat.model import Habitat
 
 
 class DesktopTests(unittest.TestCase):
+    def test_missing_end_hook_reconciles_after_host_restart(self):
+        import subprocess
+        import sys
+        from clawd_tank_habitat.presence import process_info, owner_exited
+        with TemporaryDirectory() as temp, subprocess.Popen([sys.executable, "-c", "import time;time.sleep(60)"]) as child:
+            try:
+                start = process_info(child.pid)[2]
+                self.assertTrue(owner_exited(child.pid, start + "-older"))
+                path = Path(temp) / "sessions.json"
+                habitat = Habitat(path)
+                habitat.apply(Signal("claude", "tracked", "approval", owner_pid=child.pid, owner_start=start))
+                habitat.apply(Signal("codex", "other", "open"))
+                habitat = Habitat(path)
+                habitat.reconcile_owners()
+                self.assertEqual(len(habitat.snapshot()["sessions"]), 2)
+                child.terminate()
+                child.wait(10)
+                habitat.reconcile_owners()
+                self.assertEqual([s["id"] for s in Habitat(path).snapshot()["sessions"]], ["codex:other"])
+                self.assertEqual(habitat.feed[-1]["kind"], "owner_exit")
+            finally:
+                if child.poll() is None:
+                    child.terminate()
+
     def test_interrupted_candidate_preserves_running_installation(self):
         with TemporaryDirectory() as temp:
             directory = Path(temp)

@@ -30,7 +30,9 @@ const reactions = {completed: "Celebrates the finished turn.", forked: "Splits b
 const attentionText = {approval: "Shows the approval symbol.", question: "Shows the question symbol.",
   failure: "Signals that you need to intervene.", ready: "Keeps the ready symbol until you resume."};
 
-function meaning({before, after, arrived, moment}) {
+function meaning({before, after, arrived, moment, kind}) {
+  if (kind === "owner_exit" && before && !after) return "Claude exited. Its pet leaves the habitat.";
+  if (kind === "dismissed" && before && !after) return "The stale pet was dismissed.";
   if (!after) return before ? "Leaves the habitat." : "No pet is active for this session.";
   const parts = [];
   if (arrived) parts.push("Arrives in the habitat.");

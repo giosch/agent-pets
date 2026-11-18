@@ -29,6 +29,8 @@ The browser's Clawd pack uses all 32 original SVGs. A pet wakes on the first arr
 
 The event feed below the live habitat and demo shows the latest 200 observations received in this host run, newest first. Each row names the agent, hook, and pet (when one exists), and explains its response. Hooks that leave the scene unchanged still get a row. Opening a new tab restores recent rows without replaying animations. The feed omits prompts, commands, and tool output.
 
+Claude's normal session-end hook removes its pet. For native Claude processes the hook can identify, the host also remembers the process ID and start time, including across host restarts. If that process exits without a final hook, the host removes its pet at the next presence check. Silence alone never expires a session waiting for you. Sessions from older installations acquire this protection on their next identifiable Claude hook.
+
 An idle Clawd occasionally plays with a coffee cup, grooves, or loses its hat. Sustained generic work alternates thinking and pushing. Repeated setbacks trigger overheating, and alternate completions show a lightbulb. Narrow displays use miniature typing. The browser shows a broken link on loss of contact and a drowsy pose when the display device reports a discharging battery at 15% or less. Reduced-motion mode uses the static base and preserves attention badges.
 
 ## Original hardware and macOS simulator

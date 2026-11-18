@@ -28,6 +28,8 @@ class Session:
     helpers: list[str] = field(default_factory=list)
 
     fork_seen: bool = False
+    owner_pid: int = 0
+    owner_start: str = ""
 
     def public(self) -> dict:
         activity = next(reversed(self.calls.values())) if self.calls else self.base
@@ -169,8 +171,10 @@ class Habitat:
         sessions = self.sessions.copy()
         closed = self.closed
         next_order = self.next_order
-        if signal.kind == "close":
+        if signal.kind in {"close", "owner_exit", "dismissed"}:
             if old is None:
+                return
+            if signal.kind == "owner_exit" and (old.owner_pid, old.owner_start) != (signal.owner_pid, signal.owner_start):
                 return
             del sessions[sid]
             closed = (closed + [sid])[-512:]
@@ -187,6 +191,8 @@ class Habitat:
                     closed = [item for item in closed if item != sid]
             else:
                 session = deepcopy(old)
+            if signal.source == "claude" and signal.owner_pid and signal.owner_start:
+                session.owner_pid, session.owner_start = signal.owner_pid, signal.owner_start
             moment = session.observe(signal)
             if old == session and moment is None:
                 return
@@ -195,6 +201,15 @@ class Habitat:
             if moment:
                 message["moment"] = moment
         return sessions, closed, next_order, message
+
+    def reconcile_owners(self):
+        from .presence import owner_exited
+        with self.lock:
+            tracked = [(s.id.split(":", 1)[1], s.owner_pid, s.owner_start)
+                       for s in self.sessions.values() if s.id.startswith("claude:") and s.owner_pid]
+        for session_id, pid, start in tracked:
+            if owner_exited(pid, start):
+                self.apply(Signal("claude", session_id, "owner_exit", owner_pid=pid, owner_start=start))
 
     def apply(self, signal: Signal, checkpoint=None, observed=None) -> None:
         with self.lock:

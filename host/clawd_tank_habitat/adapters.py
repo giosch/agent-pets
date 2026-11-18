@@ -24,7 +24,7 @@ ACTIVITIES = {
 KINDS = {
     "open", "close", "prompt", "tool", "done", "question", "approval", "tool_error",
     "ready", "idle_reminder", "failure", "compact", "helper_join", "helper_leave",
-    "retry", "interrupt", "fork", "observe",
+    "retry", "interrupt", "fork", "observe", "owner_exit", "dismissed",
 }
 
 _INSPECT_COMMANDS = {
@@ -71,8 +71,12 @@ class Signal:
     tool: str = ""
     activity: str = ""
     event: str = ""
+    owner_pid: int = 0
+    owner_start: str = ""
 
     def __post_init__(self):
+        if type(self.owner_pid) is not int or not 0 <= self.owner_pid <= 0x7fffffff or not isinstance(self.owner_start, str) or len(self.owner_start) > 64:
+            raise ValueError("Invalid process identity")
         fields = (self.session, self.turn, self.ref, self.tool)
         if not all(isinstance(v, str) and len(v) <= 512 for v in fields):
             raise ValueError("Invalid hook identifier")

@@ -2,7 +2,7 @@
 import http.client
 import json
 import os
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 import re
 import shlex
@@ -136,6 +136,10 @@ def forward(source: str, state_dir: Path, stream) -> None:
         except (OSError, ValueError):
             info = {}
         if not info or info.get("inbox"):
+            if source == "claude" and signal.kind not in {"close", "observe"}:
+                from .presence import claude_owner
+                pid, start = claude_owner()
+                signal = replace(signal, owner_pid=pid, owner_start=start)
             enqueue(state_dir, signal)
             if not info:
                 return
@@ -144,6 +148,8 @@ def forward(source: str, state_dir: Path, stream) -> None:
             target = "/internal/drain" if info.get("inbox") else "/internal/activity"
             legacy = asdict(signal)
             legacy.pop("event")
+            legacy.pop("owner_pid")
+            legacy.pop("owner_start")
             if not info.get("inbox") and signal.kind == "observe":
                 return
             connection.request("POST", target, b"" if info.get("inbox") else json.dumps(legacy),

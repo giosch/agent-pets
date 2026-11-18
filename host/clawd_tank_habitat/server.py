@@ -48,6 +48,7 @@ class HabitatServer(ThreadingHTTPServer):
             self.next_drain = time.monotonic() + 3
             try:
                 self.drain()
+                self.habitat.reconcile_owners()
             except (OSError, sqlite3.OperationalError):
                 # A transient writer conflict leaves unacknowledged events in the inbox.
                 pass
