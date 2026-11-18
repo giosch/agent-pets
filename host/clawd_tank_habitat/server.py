@@ -7,6 +7,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from queue import Empty
 import secrets
+import threading
+import time
 from socketserver import TCPServer
 from urllib.parse import parse_qs, urlsplit
 
@@ -16,18 +18,34 @@ from .themes import POSES, Themes
 
 WEB = Path(__file__).with_name("web")
 STATIC = {"/": "index.html", "/habitat.css": "habitat.css", "/habitat.js": "habitat.js",
-          "/favicon.svg": "favicon.svg"}
+          "/favicon.svg": "favicon.svg", "/connections": "connections.html", "/connections.js": "connections.js"}
 
 
 class HabitatServer(ThreadingHTTPServer):
     daemon_threads = True
 
-    def __init__(self, port: int, habitat: Habitat, themes: Themes, *, demo=False):
+    def __init__(self, port: int, habitat: Habitat, themes: Themes, *, demo=False, directory=None):
         self.habitat = habitat
         self.themes = themes
         self.key = secrets.token_urlsafe(32)
+        self.management = secrets.token_urlsafe(32)
+        self.settings_lock = threading.Lock()
         self.demo = demo
+        self.directory = directory
+        self.inbox_lock = threading.Lock()
+        self.next_drain = 0
         super().__init__(("127.0.0.1", port), Handler)
+
+    def drain(self):
+        if self.directory is not None and not self.demo:
+            from .inbox import drain
+            with self.inbox_lock:
+                drain(self.directory, self.habitat)
+
+    def service_actions(self):
+        if time.monotonic() >= self.next_drain:
+            self.next_drain = time.monotonic() + 3
+            self.drain()
 
     def server_bind(self):
         # HTTPServer normally reverse-resolves this address. The habitat always
@@ -69,6 +87,16 @@ class Handler(BaseHTTPRequestHandler):
             self._events()
         elif url.path == "/v1/snapshot":
             self._send(json.dumps(self.server.habitat.snapshot()).encode(), "application/json")
+        elif url.path == "/v1/connections" and self.server.directory and not self.server.demo:
+            from .desktop import integration, login
+            from .adapters import SOURCES
+            host = self.server
+            with host.habitat.lock:
+                count = len(host.habitat.listeners)
+                last = dict(host.habitat.last_events)
+            data = {"displays": count, "login": login(host.directory),
+                    "agents": {s: {**integration(s, host.directory), "last": last.get(s)} for s in SOURCES}}
+            self._send(json.dumps(data).encode(), "application/json")
         elif url.path == "/v1/themes":
             data = {"packs": self.server.themes.catalog(), "demo": self.server.demo}
             self._send(json.dumps(data).encode(), "application/json")
@@ -113,15 +141,66 @@ class Handler(BaseHTTPRequestHandler):
         finally:
             self.server.habitat.unsubscribe(queue)
 
+    def _manage(self):
+        from .desktop import codex_trust, integration, login, probe
+        from .hooks import configure
+        host = self.server
+        if not hmac.compare_digest(self.headers.get("Authorization", "").encode(),
+                                   ("Bearer " + host.management).encode()):
+            self.send_error(403)
+            return
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            if not 0 < length <= 4096 or self.headers.get_content_type() != "application/json":
+                raise ValueError("Invalid request")
+            data = json.loads(self.rfile.read(length))
+            action, source = data["action"], data.get("source")
+            with host.settings_lock:
+                result = {}
+                if action in {"install", "remove", "probe"} and source in {"claude", "codex"}:
+                    if action != "probe":
+                        configure(source, host.directory, remove=action == "remove")
+                    if action != "remove":
+                        result["verified"] = probe(source, host.directory)
+                elif action == "trust":
+                    result["trust"] = codex_trust()
+                elif action == "login" and isinstance(data.get("enabled"), bool):
+                    result["login"] = login(host.directory, data["enabled"])
+                elif action == "finish":
+                    (host.directory / "setup-complete").touch()
+                elif action == "stop":
+                    self._send(b"{}", "application/json")
+                    host.shutdown()
+                    return
+                else:
+                    raise ValueError("Unknown action")
+            self._send(json.dumps(result).encode(), "application/json")
+        except (ValueError, OSError, TypeError, KeyError) as error:
+            self._send(json.dumps({"error": str(error)}).encode(), "application/json", 400)
+
     def do_POST(self):
         if not self._local():
             return
-        if self.path != "/internal/activity" or self.server.demo:
+        if self.path == "/manage" and self.server.directory and not self.server.demo:
+            self._manage()
+            return
+        if self.path not in {"/internal/activity", "/internal/drain", "/internal/stop", "/internal/ping"} or self.server.demo:
             self.send_error(404)
             return
         if not hmac.compare_digest(self.headers.get("Authorization", "").encode(),
                                    ("Bearer " + self.server.key).encode()):
             self.send_error(403)
+            return
+        if self.path == "/internal/ping":
+            self._send(b'{"app":"clawd-tank"}', "application/json")
+            return
+        if self.path == "/internal/stop":
+            self._send(b"", "application/json", 204)
+            self.server.shutdown()
+            return
+        if self.path == "/internal/drain":
+            self.server.drain()
+            self._send(b"", "application/json", 204)
             return
         try:
             length = int(self.headers.get("Content-Length", ""))

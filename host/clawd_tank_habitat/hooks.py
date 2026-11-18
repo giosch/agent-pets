@@ -33,21 +33,47 @@ def config_path(source: str) -> Path:
     return Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")) / "hooks.json"
 
 
+def launch_command():
+    if getattr(sys, "frozen", False):
+        return [os.environ.get("CLAWD_TANK_LAUNCHER", sys.executable)]
+    return [sys.executable, str(LAUNCHER)]
+
+
 def _our_hook(handler, source):
     if not isinstance(handler, dict) or handler.get("statusMessage") != STATUS:
         return False
     if source == "claude":
+        exe = handler.get("command", "")
         args = handler.get("args")
     else:
         command = handler.get("command")
         if not isinstance(command, str):
             return False
         try:
-            args = shlex.split(command)[1:]
+            parts = shlex.split(command)
+            if not parts:
+                return False
+            exe, *args = parts
         except ValueError:
             return False
-    return (isinstance(args, list) and len(args) == 5 and args[0] == str(LAUNCHER)
-            and args[1] == "--state-dir" and args[-2:] == ["hook", source])
+    if not isinstance(args, list) or not isinstance(exe, str) or args[-2:] != ["hook", source]:
+        return False
+    if len(args) == 5 and isinstance(args[0], str):
+        path = Path(args[0])
+        return path.parts[-2:] == ("host", "habitat.py") and args[1] == "--state-dir"
+    return len(args) == 4 and args[0] == "--state-dir" and Path(exe).stem == "clawd-tank"
+
+
+def expected_handler(source, state_dir):
+    argv = [*launch_command(), "--state-dir", str(state_dir), "hook", source]
+    handler = {"type": "command", "statusMessage": STATUS, "timeout": 3}
+    if source == "claude":
+        handler.update(command=argv[0], args=argv[1:])
+    else:
+        handler["command"] = shlex.join(argv)
+        if os.name == "nt":
+            handler["commandWindows"] = _windows_command(argv)
+    return handler
 
 
 def configure(source: str, state_dir: Path, *, remove: bool = False, path: Path | None = None):
@@ -59,14 +85,7 @@ def configure(source: str, state_dir: Path, *, remove: bool = False, path: Path 
         return path
     before = json.dumps(settings)
     hooks = settings.setdefault("hooks", {})
-    argv = [sys.executable, str(LAUNCHER), "--state-dir", str(state_dir), "hook", source]
-    handler = {"type": "command", "statusMessage": STATUS, "timeout": 3}
-    if source == "claude":
-        handler.update(command=argv[0], args=argv[1:])
-    else:
-        handler["command"] = shlex.join(argv)
-        if os.name == "nt":
-            handler["commandWindows"] = _windows_command(argv)
+    handler = expected_handler(source, state_dir)
 
     for event in HOOKS[source]:
         entries = hooks.get(event, [])
@@ -99,15 +118,33 @@ def configure(source: str, state_dir: Path, *, remove: bool = False, path: Path 
 def forward(source: str, state_dir: Path, stream) -> None:
     """A closed habitat is normal. Hook output must never steer an agent."""
     try:
-        info = json.loads((state_dir / "connection.json").read_text(encoding="utf-8"))
-        signal = normalize(source, json.load(stream))
+        payload = json.load(stream)
+        if isinstance(payload, dict) and payload.get("habitat_check"):
+            from .desktop import control
+            if control(state_dir, "ping"):
+                print(payload["habitat_check"], file=sys.stderr)
+            return
+        signal = normalize(source, payload)
         if signal is None:
             return
+        from .inbox import enqueue
+        try:
+            info = json.loads((state_dir / "connection.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            info = {}
+        if not info or info.get("inbox"):
+            enqueue(state_dir, signal)
+            if not info:
+                return
         connection = http.client.HTTPConnection("127.0.0.1", info["port"], timeout=0.8)
         try:
-            connection.request("POST", "/internal/activity", json.dumps(asdict(signal)),
+            target = "/internal/drain" if info.get("inbox") else "/internal/activity"
+            connection.request("POST", target, b"" if info.get("inbox") else json.dumps(asdict(signal)),
                                {"Content-Type": "application/json", "Authorization": "Bearer " + info["key"]})
             connection.getresponse().read()
+        except (OSError, http.client.HTTPException):
+            if not info.get("inbox"):
+                enqueue(state_dir, signal)
         finally:
             connection.close()
     except (OSError, http.client.HTTPException, ValueError, KeyError, TypeError):

@@ -125,6 +125,8 @@ class Habitat:
         self.closed: list[str] = []
         self.sequence = 0
         self.next_order = 0
+        self.checkpoint = ("", 0)
+        self.last_events = {}
         if path and path.exists():
             data = json.loads(path.read_text(encoding="utf-8"))
             if data["version"] != VERSION:
@@ -133,6 +135,8 @@ class Habitat:
             self.sequence = data["sequence"]
             self.next_order = data["next_order"]
             self.closed = data["closed"]
+            self.checkpoint = tuple(data.get("checkpoint", self.checkpoint))
+            self.last_events = data.get("last_events", {})
 
     def _snapshot(self) -> dict:
         return {"version": VERSION, "type": "snapshot", "sequence": self.sequence,
@@ -153,9 +157,11 @@ class Habitat:
         with self.lock:
             self.listeners.discard(messages)
 
-    def apply(self, signal: Signal) -> None:
+    def apply(self, signal: Signal, checkpoint=None, observed=None) -> None:
         sid = f"{signal.source}:{signal.session}"
         with self.lock:
+            if checkpoint and self.checkpoint[0] == checkpoint[0] and self.checkpoint[1] >= checkpoint[1]:
+                return
             old = self.sessions.get(sid)
             sessions = self.sessions.copy()
             closed = self.closed
@@ -186,11 +192,17 @@ class Habitat:
                 if moment:
                     message["moment"] = moment
             sequence = self.sequence + 1
+            last_events = self.last_events.copy()
+            if observed is not None:
+                last_events[signal.source] = {"time": observed, "kind": signal.kind}
             if self.path:
                 write_json_atomic(self.path, {
                     "version": VERSION, "sequence": sequence, "next_order": next_order,
                     "closed": closed, "sessions": [asdict(s) for s in sessions.values()],
+                    "checkpoint": checkpoint or self.checkpoint, "last_events": last_events,
                 })
+            self.checkpoint = checkpoint or self.checkpoint
+            self.last_events = last_events
             self.sessions = sessions
             self.closed = closed
             self.next_order = next_order

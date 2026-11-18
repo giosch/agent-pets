@@ -58,13 +58,15 @@ def serve(args, directory):
 
     with nullcontext() if args.demo else state_owner(directory):
         habitat = Habitat(None if args.demo else directory / "sessions.json")
-        with HabitatServer(args.port, habitat, Themes(directory / "packs"), demo=args.demo) as server:
+        with HabitatServer(args.port, habitat, Themes(directory / "packs"), demo=args.demo, directory=directory) as server:
             info = directory / "connection.json"
             stop = threading.Event()
             if args.demo:
                 threading.Thread(target=run_demo, args=(habitat, stop), daemon=True).start()
             else:
-                write_json_atomic(info, {"port": server.server_port, "key": server.key})
+                server.drain()
+                write_json_atomic(info, {"port": server.server_port, "key": server.key, "management": server.management,
+                                         "inbox": True, "pid": os.getpid()})
             url = f"http://127.0.0.1:{server.server_port}/"
             print(f"{'Demo' if args.demo else 'Live'} habitat at {url}", flush=True)
             try:
@@ -83,7 +85,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state-dir", type=Path,
                         default=Path(os.environ.get("CLAWD_HABITAT_HOME", Path.home() / ".clawd-tank" / "habitat")))
-    commands = parser.add_subparsers(dest="command", required=True)
+    commands = parser.add_subparsers(dest="command")
+    launcher = commands.add_parser("launch", help="Open the installed desktop habitat")
+    launcher.add_argument("--background", action="store_true")
+    commands.add_parser("stop", help="Stop this user’s live host")
+    commands.add_parser("unregister", help="Remove installed hooks and sign-in startup")
+    setup = commands.add_parser("desktop-install", help="Install or update this bundled desktop release")
+    setup.add_argument("--no-open", action="store_true")
+    uninstall = commands.add_parser("uninstall-desktop", help="Uninstall the desktop app")
+    uninstall.add_argument("--purge-data", action="store_true", help="Also erase saved sessions and installed packs")
+    commands.add_parser("self-test", help="Verify the bundled runtime and artwork")
     start = commands.add_parser("serve", help="Serve the browser habitat on loopback")
     start.add_argument("--port", type=int, default=19873)
     start.add_argument("--open", action="store_true", help="Open a local browser tab")
@@ -101,7 +112,36 @@ def main():
     install.add_argument("archive", type=Path)
     args = parser.parse_args()
     directory = args.state_dir.expanduser().resolve()
-    if args.command == "serve":
+    if args.command == "desktop-install":
+        from clawd_tank_habitat.installation import activate
+        if not getattr(sys, "frozen", False):
+            parser.error("Run the downloaded desktop installer")
+        activate(Path(sys.executable).parent, directory, not args.no_open)
+    elif args.command == "uninstall-desktop":
+        from clawd_tank_habitat.installation import uninstall
+        uninstall(directory, args.purge_data)
+    elif args.command == "self-test":
+        import sqlite3
+        from clawd_tank_habitat.themes import Themes
+        from clawd_tank_habitat.server import WEB
+        with sqlite3.connect(":memory:") as db:
+            db.execute("SELECT 1")
+        if ("character", "clawd") not in Themes(directory / "packs").packs or not (WEB / "connections.js").is_file():
+            raise RuntimeError("Missing desktop resources")
+    elif args.command in {None, "launch"}:
+        from clawd_tank_habitat.desktop import launch
+        launch(directory, getattr(args, "background", False))
+    elif args.command == "stop":
+        from clawd_tank_habitat.desktop import control
+        control(directory, "stop")
+    elif args.command == "unregister":
+        from clawd_tank_habitat.desktop import control, login
+        from clawd_tank_habitat.hooks import configure
+        for source in SOURCES:
+            configure(source, directory, remove=True)
+        login(directory, False)
+        control(directory, "stop")
+    elif args.command == "serve":
         serve(args, directory)
     elif args.command == "hook":
         from clawd_tank_habitat.hooks import forward

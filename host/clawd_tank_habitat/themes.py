@@ -2,6 +2,7 @@
 import io
 import json
 import re
+import sys
 from xml.etree import ElementTree
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,7 +10,7 @@ from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile
 
 from clawd_tank_daemon.session_store import write_json_atomic
 
-ASSETS = Path(__file__).resolve().parents[2] / "assets"
+ASSETS = (Path(sys._MEIPASS) if getattr(sys, "frozen", False) else Path(__file__).resolve().parents[2]) / "assets"
 SLUG = re.compile(r"[a-z][a-z0-9_-]{0,47}\Z")
 SWATCH = re.compile(r"#[\da-fA-F]{6}\Z")
 MAX_PACK = 8 * 1024 * 1024

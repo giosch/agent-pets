@@ -1,4 +1,9 @@
 const byId = id => document.getElementById(id);
+const manage = new URLSearchParams(location.hash.slice(1)).get("manage");
+if (manage) {
+  sessionStorage.setItem("habitat-management", manage);
+  history.replaceState(null, "", location.pathname);
+}
 const occupants = byId("occupants");
 const sessions = new Map();
 const pets = new Map();
@@ -245,6 +250,7 @@ async function start() {
   if (!response.ok) throw new Error("Theme catalog unavailable");
   const catalog = await response.json();
   demo = catalog.demo;
+  if (demo) byId("connection").removeAttribute("href");
   for (const pack of catalog.packs) {
     selectors[pack.kind].add(new Option(pack.name, pack.id));
     if (pack.kind === "character") artwork.set(pack.id, new Set(pack.poses));
