@@ -73,6 +73,15 @@ async function main() {
   context.on("weberror", error => errors.push(error.error().message));
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await page.locator("#connection[data-state=live]").waitFor();
+  const settings = await context.newPage();
+  const { management } = JSON.parse(fs.readFileSync(path.join(state, "connection.json")));
+  await settings.goto(url + "connections#manage=" + management);
+  const claude = settings.locator("article").filter({has:settings.getByRole("heading",{name:"Claude Code"})});
+  await claude.getByText("Waiting for first event.",{exact:false}).waitFor();
+  await claude.getByRole("button",{name:"Check command"}).click();
+  await settings.getByText("Claude Code command reached the host.").waitFor();
+  assert.equal((await (await fetch(url + "v1/snapshot")).json()).sessions.length, 0);
+  await settings.close();
   const pet = (page, id) => page.locator('[data-session="' + id + '"]');
   for (const [source, sid, tool] of [
     ["claude", "a", "Edit"], ["codex", "b", "apply_patch"], ["claude", "c", "Read"], ["codex", "d", "Bash"]

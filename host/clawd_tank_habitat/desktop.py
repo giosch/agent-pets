@@ -10,7 +10,7 @@ import sys
 import time
 import webbrowser
 
-from .hooks import STATUS, _our_hook, config_path, expected_handler, launch_command
+from .hooks import _our_hook, config_path, expected_handler, launch_command
 from .adapters import HOOKS
 
 
@@ -92,11 +92,31 @@ def probe(source, directory):
         return False
 
 
-def codex_trust():
+def codex_trust(directory):
     """Ask the local runtime about these handlers. No trust decisions are written."""
     exe = shutil.which("codex.exe" if os.name == "nt" else "codex")
+    if not exe and sys.platform == "darwin":
+        for app in (Path("/Applications"), Path.home()/"Applications"):
+            candidate = app / "Codex.app/Contents/Resources/codex"
+            if candidate.is_file():
+                exe = str(candidate)
+                break
+    if not exe and os.name == "nt":
+        try:
+            result = subprocess.run(["powershell.exe","-NoProfile","-NonInteractive","-Command",
+                                     "(Get-AppxPackage -Name OpenAI.Codex | Select-Object -First 1).InstallLocation"],
+                                    capture_output=True, text=True, timeout=4, creationflags=subprocess.CREATE_NO_WINDOW)
+            location = result.stdout.strip()
+            if location:
+                candidate = Path(location)/"app/resources/codex.exe"
+                if candidate.is_file():
+                    exe = str(candidate)
+        except (OSError, subprocess.TimeoutExpired):
+            pass
     if not exe:
         return "unknown"
+    handler = expected_handler("codex", directory)
+    command = handler.get("commandWindows",handler["command"])
     msgs = [{"method":"initialize","id":1,"params":{"clientInfo":{"name":"habitat","version":"1"},
              "capabilities":{"experimentalApi":True}}}, {"method":"initialized","params":{}},
             {"method":"hooks/list","id":2,"params":{"cwds":[str(Path.home())]}}]
@@ -114,9 +134,8 @@ def codex_trust():
                         msg = json.loads(line)
                         if msg.get("id") == 2:
                             found.extend(h for row in msg.get("result", {}).get("data", []) for h in row["hooks"]
-                                         if h.get("statusMessage") == STATUS or
-                                         ("habitat.py" in (h.get("command") or "") or "clawd-tank" in (h.get("command") or ""))
-                                         and Path(h.get("sourcePath") or "") == config_path("codex"))
+                                         if h.get("command") == command and
+                                         Path(h.get("sourcePath") or "") == config_path("codex"))
                             break
                 except (OSError, ValueError, KeyError):
                     pass
@@ -131,7 +150,9 @@ def codex_trust():
                 reader.join(1)
         if any(h.get("trustStatus") == "untrusted" for h in found):
             return "review"
-        if found and all(h.get("trustStatus") in {"trusted","managed"} for h in found):
+        if any(h.get("enabled") is False for h in found):
+            return "disabled"
+        if len(found) == len(HOOKS["codex"]) and all(h.get("trustStatus") in {"trusted","managed"} for h in found):
             return "trusted"
     except (OSError, ValueError, subprocess.SubprocessError):
         pass
@@ -141,6 +162,8 @@ def codex_trust():
 def login(directory, enabled=None):
     argv = [*launch_command(), "--state-dir", str(directory), "launch", "--background"]
     if os.name == "nt":
+        if getattr(sys, "frozen", False) and os.environ.get("CLAWD_TANK_LAUNCHER"):
+            argv[0] = str(Path(argv[0]).with_name("clawd-tank-desktop.exe"))
         import winreg
         location = r"Software\Microsoft\Windows\CurrentVersion\Run"
         try:

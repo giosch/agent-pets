@@ -72,7 +72,7 @@ def desktop_entry(root, remove=False):
         script = ("$ErrorActionPreference='Stop'; $s=(New-Object -ComObject WScript.Shell).CreateShortcut($env:HABITAT_LINK);"
                   "$s.TargetPath=$env:HABITAT_ENTRY; $s.WorkingDirectory=$env:LOCALAPPDATA; $s.Save()")
         subprocess.run(["powershell.exe","-NoProfile","-NonInteractive","-Command",script],
-                       env={**os.environ,"HABITAT_LINK":str(link),"HABITAT_ENTRY":str(target)}, check=True,
+                       env={**os.environ,"HABITAT_LINK":str(link),"HABITAT_ENTRY":str(root / "clawd-tank-desktop.exe")}, check=True,
                        creationflags=subprocess.CREATE_NO_WINDOW)
         manifest = json.loads((root / "releases" / (root / "current").read_text().strip() / "release.json").read_text())
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, reg) as key:
@@ -90,12 +90,21 @@ def desktop_entry(root, remove=False):
             if app.exists():
                 shutil.rmtree(app)
             return
-        bin_dir = app / "Contents/MacOS"
-        bin_dir.mkdir(parents=True, exist_ok=True)
-        template = RESOURCES / "mac-launch"
-        atomic(bin_dir / "clawd-tank", template.read_bytes(), 0o755)
-        atomic(info, plistlib.dumps({"CFBundleIdentifier":"io.clawdtank.desktop","CFBundleExecutable":"clawd-tank",
-                                     "CFBundleName":"Clawd Tank Habitat","CFBundlePackageType":"APPL"}))
+        release = (root / "current").read_text().strip()
+        template = root / "releases" / release / "desktop-assets" / app.name
+        app.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=app.parent) as tmp:
+            staged = Path(tmp) / app.name
+            shutil.copytree(template, staged, symlinks=True)
+            old = Path(tmp) / "previous.app"
+            if app.exists():
+                os.replace(app,old)
+            try:
+                os.replace(staged,app)
+            except OSError:
+                if old.exists():
+                    os.replace(old,app)
+                raise
     else:
         base = Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local/share"))
         entry = base / "applications/clawd-tank-habitat.desktop"
@@ -230,18 +239,22 @@ def activate(payload, directory, open_window=True):
         exe = release / ("habitat-runtime.exe" if os.name == "nt" else "habitat-runtime")
         subprocess.run([str(exe),"self-test"], check=True, timeout=25)
         stable = launcher(root)
-        shim = RESOURCES / ("clawd-tank.exe" if os.name == "nt" else "posix-launch")
+        shims = [(stable, RESOURCES / ("clawd-tank.exe" if os.name == "nt" else "posix-launch"))]
+        if os.name == "nt":
+            shims.append((root / "clawd-tank-desktop.exe", RESOURCES / "clawd-tank-desktop.exe"))
         os.environ["CLAWD_TANK_LAUNCHER"] = str(stable)
         sources = [s for s in SOURCES if integration(s,directory)["state"] in {"installed","repair"}]
         pointer = root / "current"
         previous = pointer.read_bytes() if pointer.exists() else None
         running = stop_for_upgrade(directory)
         try:
-            if not stable.exists() or stable.read_bytes() != shim.read_bytes():
+            for executable, shim in shims:
+                if executable.exists() and executable.read_bytes() == shim.read_bytes():
+                    continue
                 # Windows releases the launcher's executable mapping just after its host exits.
                 for attempt in range(60):
                     try:
-                        atomic(stable, shim.read_bytes(), 0o755)
+                        atomic(executable, shim.read_bytes(), 0o755)
                         break
                     except PermissionError:
                         if attempt == 59:
@@ -262,6 +275,17 @@ def activate(payload, directory, open_window=True):
                     launch(directory, background=True)
             raise
     return manifest["version"]
+
+
+def uninstall_from_settings(directory, purge):
+    if not getattr(sys, "frozen", False) or not installed_version():
+        raise ValueError("Use the installed desktop application to uninstall")
+    stable = launcher(install_root())
+    args = [str(stable), "--state-dir", str(directory), "uninstall-desktop"]
+    if purge:
+        args.append("--purge-data")
+    subprocess.Popen(args, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     cwd=tempfile.gettempdir(), creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
 
 
 def uninstall(directory, purge=False):

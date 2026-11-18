@@ -6,6 +6,8 @@ main.connections { max-width: 840px; }
 .agent-list { display: grid; gap: 12px; margin: 28px 0; }
 .agent-list article, .desktop-prefs { background: #fcfbf4; border: 1px solid #cbd1c2; border-radius: 12px; padding: 18px 22px; }
 .agent-list h2 { margin: 0; }
+#uninstaller { margin: 22px 0; }
+#uninstaller summary { cursor: pointer; }
 .agent-list code { color: #50645b; overflow-wrap: anywhere; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
 .actions button { font: inherit; padding: 6px 12px; border: 1px solid #bac9bf; border-radius: 6px; background: #eff3e8; color: #243e35; cursor: pointer; }

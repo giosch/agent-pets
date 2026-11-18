@@ -23,6 +23,52 @@ jobs:
       - run: python -m pip install -r desktop/requirements-build.txt
       - name: Build earlier release fixture
         run: python desktop/build.py --out earlier --version 0.0.1
+      - name: Configure Windows release signing
+        if: startsWith(github.ref, 'refs/tags/desktop-v') && runner.os == 'Windows'
+        shell: pwsh
+        env:
+          PFX: ${{ secrets.DESKTOP_WINDOWS_PFX_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.DESKTOP_WINDOWS_PFX_PASSWORD }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not $env:PFX) { throw 'Configure the Windows signing identity before publishing.' }
+          $certFile = Join-Path $env:RUNNER_TEMP 'desktop-signing.pfx'
+          try {
+            [IO.File]::WriteAllBytes($certFile,[Convert]::FromBase64String($env:PFX))
+            $password = ConvertTo-SecureString $env:PFX_PASSWORD -AsPlainText -Force
+            $cert = Import-PfxCertificate -FilePath $certFile -CertStoreLocation Cert:\CurrentUser\My -Password $password
+            "WINDOWS_SIGN_THUMBPRINT=$($cert.Thumbprint)" | Out-File $env:GITHUB_ENV -Append
+            $tool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" | Sort-Object FullName | Select-Object -Last 1
+            if (-not $tool) { throw 'Windows SDK SignTool is required.' }
+            $tool.DirectoryName | Out-File $env:GITHUB_PATH -Append
+          } finally { Remove-Item -LiteralPath $certFile -ErrorAction SilentlyContinue }
+      - name: Configure Apple release signing and notarization
+        if: startsWith(github.ref, 'refs/tags/desktop-v') && runner.os == 'macOS'
+        shell: bash
+        env:
+          P12: ${{ secrets.DESKTOP_MAC_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.DESKTOP_MAC_P12_PASSWORD }}
+          IDENTITY: ${{ secrets.DESKTOP_MAC_SIGN_IDENTITY }}
+          API_KEY: ${{ secrets.DESKTOP_MAC_NOTARY_KEY_BASE64 }}
+          KEY_ID: ${{ secrets.DESKTOP_MAC_NOTARY_KEY_ID }}
+          ISSUER: ${{ secrets.DESKTOP_MAC_NOTARY_ISSUER }}
+        run: |
+          set -eu
+          : "${IDENTITY:?Configure Developer ID signing before publishing}" "${API_KEY:?Configure notarization}"
+          keychain="$RUNNER_TEMP/desktop-signing.keychain-db"
+          password="$(openssl rand -hex 24)"
+          umask 077
+          printf '%s' "$P12" | base64 -D > "$RUNNER_TEMP/sign.p12"
+          printf '%s' "$API_KEY" | base64 -D > "$RUNNER_TEMP/notary.p8"
+          security create-keychain -p "$password" "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$RUNNER_TEMP/sign.p12" -k "$keychain" -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain" >/dev/null
+          security list-keychains -d user -s "$keychain" "$HOME/Library/Keychains/login.keychain-db"
+          xcrun notarytool store-credentials clawd-desktop --key "$RUNNER_TEMP/notary.p8" --key-id "$KEY_ID" --issuer "$ISSUER"
+          rm "$RUNNER_TEMP/sign.p12" "$RUNNER_TEMP/notary.p8"
+          echo "MACOS_SIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+          echo "MACOS_NOTARY_PROFILE=clawd-desktop" >> "$GITHUB_ENV"
       - name: Build candidate
         shell: bash
         run: |
@@ -37,3 +83,24 @@ jobs:
         with:
           name: habitat-${{ matrix.os }}
           path: installers/
+  publish:
+    if: startsWith(github.ref, 'refs/tags/desktop-v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: habitat-*
+          merge-multiple: true
+          path: installers
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: installers/*
+      - name: Publish tested desktop installers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" installers/* --repo "$GITHUB_REPOSITORY" --verify-tag --title "Clawd Tank Habitat ${GITHUB_REF_NAME#desktop-v}" --generate-notes

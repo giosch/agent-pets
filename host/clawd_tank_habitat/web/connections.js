@@ -60,6 +60,7 @@ async function refresh() {
   const data = await res.json();
   el("status").textContent = "Host running" + (data.version ? " · v" + data.version : "") + " · " + data.displays + (data.displays === 1 ? " habitat display" : " habitat displays");
   el("login").checked = data.login;
+  el("uninstaller").hidden = !key || !data.version;
   if (key && data.agents.codex.state === "installed" && Date.now() - lastTrustCheck > 30000) {
     lastTrustCheck = Date.now();
     trust = (await action("trust")).trust;
@@ -74,12 +75,22 @@ async function refresh() {
     else if (a.state === "invalid") row.state.textContent = "Settings file needs attention. Correct its JSON before connecting.";
     else if (!installed) row.state.textContent = "Hook needs repair";
     else if (source === "codex" && trust === "review") row.state.textContent = "Review the habitat hooks in Codex Settings → Hooks or /hooks.";
+    else if (source === "codex" && trust === "disabled") row.state.textContent = "Habitat hooks are disabled in Codex. Check Settings → Hooks or /hooks.";
     else if (!a.last) row.state.textContent = "Waiting for first event. Send a prompt in a new local session.";
     else row.state.textContent = "Last activity · " + new Date(a.last.time * 1000).toLocaleString() + " · " + a.last.kind;
   }
 }
 el("login").disabled = !key;
 el("stop").disabled = !key;
+el("uninstall").onclick = async () => {
+  const purge = el("purge").checked;
+  if (!confirm(purge ? "Uninstall and permanently erase your saved sessions and installed artwork?" : "Uninstall Clawd Tank and keep your habitat data?")) return;
+  try {
+    await action("uninstall",{purge});
+    stopped = true;
+    el("status").textContent = "Uninstalling Clawd Tank…";
+  } catch (err) { el("feedback").textContent = err.message; }
+};
 el("updates").disabled = !key;
 el("updates").onclick = async () => {
   try {

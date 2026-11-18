@@ -32,7 +32,9 @@ jobs:
           node-version: '22'
       - name: Test state, adapters, hooks and packs
         working-directory: host
-        run: python -m unittest discover -s tests -p test_habitat.py -v
+        run: |
+          python -m unittest discover -s tests -p test_habitat.py -v
+          python -m unittest discover -s tests -p test_desktop.py -v
       - name: Install browser test tools
         run: npm install --no-save --package-lock=false playwright@1.62.1
       - name: Install Chromium

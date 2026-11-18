@@ -33,7 +33,7 @@ class WindowsLauncher {
             string target=File.ReadAllText(Path.Combine(root,"current")).Trim();
             if (!Regex.IsMatch(target, @"\A[A-Za-z0-9._-]+\z") || target.StartsWith(".")) throw new IOException("Invalid installation");
             string program=Path.Combine(root,"releases",target,"habitat-runtime.exe");
-            Environment.SetEnvironmentVariable("CLAWD_TANK_LAUNCHER",self);
+            Environment.SetEnvironmentVariable("CLAWD_TANK_LAUNCHER",Path.Combine(root,"clawd-tank.exe"));
             Startup s=new Startup(); s.size=Marshal.SizeOf(s); s.flags=0x101;
             s.input=GetStdHandle(-10); s.output=GetStdHandle(-11); s.error=GetStdHandle(-12);
             ProcessInfo pi;

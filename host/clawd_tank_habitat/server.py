@@ -149,7 +149,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def _manage(self):
         from .desktop import codex_trust, login, probe
-        from .installation import check_updates
+        from .installation import check_updates, uninstall_from_settings
         from .hooks import configure
         host = self.server
         if not hmac.compare_digest(self.headers.get("Authorization", "").encode(),
@@ -170,9 +170,11 @@ class Handler(BaseHTTPRequestHandler):
                     if action != "remove":
                         result["verified"] = probe(source, host.directory)
                 elif action == "trust":
-                    result["trust"] = codex_trust()
+                    result["trust"] = codex_trust(host.directory)
                 elif action == "login" and isinstance(data.get("enabled"), bool):
                     result["login"] = login(host.directory, data["enabled"])
+                elif action == "uninstall" and isinstance(data.get("purge"), bool):
+                    uninstall_from_settings(host.directory, data["purge"])
                 elif action == "updates":
                     result = check_updates()
                 elif action == "finish":

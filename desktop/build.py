@@ -22,9 +22,9 @@ def run(*args, **kwargs):
     subprocess.run([str(arg) for arg in args], check=True, **kwargs)
 
 
-def compile_windows(source, output, *extra):
+def compile_windows(source, output, *extra, subsystem="winexe"):
     compiler = Path(os.environ["WINDIR"]) / "Microsoft.NET/Framework64/v4.0.30319/csc.exe"
-    run(compiler, "/nologo", "/target:winexe", "/optimize+", "/r:System.Windows.Forms.dll",
+    run(compiler, "/nologo", "/target:" + subsystem, "/optimize+", "/r:System.Windows.Forms.dll",
         "/out:" + str(output), *extra, DESKTOP/source)
 
 
@@ -52,9 +52,12 @@ def build(dest, version):
         flags = []
         if system == "windows":
             shim = work/"clawd-tank.exe"
-            compile_windows("WindowsLauncher.cs",shim)
-            win_sign(shim)
-            data.append((shim,"clawd_tank_habitat/install_resources"))
+            compile_windows("WindowsLauncher.cs",shim,subsystem="exe")
+            gui = work/"clawd-tank-desktop.exe"
+            compile_windows("WindowsLauncher.cs",gui)
+            for entry in (shim,gui):
+                win_sign(entry)
+                data.append((entry,"clawd_tank_habitat/install_resources"))
         if system == "darwin" and os.environ.get("MACOS_SIGN_IDENTITY"):
             flags.extend(["--codesign-identity",os.environ["MACOS_SIGN_IDENTITY"]])
         for src,target in data:
@@ -62,8 +65,22 @@ def build(dest, version):
         run(sys.executable,"-m","PyInstaller","--noconfirm","--onedir","--name","habitat-runtime",
             "--specpath",work,"--workpath",work/"pyi","--distpath",work/"dist",*flags,ROOT/"host/habitat.py")
         app = work/"dist/habitat-runtime"
-        if system == "windows":
-            win_sign(app / "habitat-runtime.exe")
+        if system == "windows" and os.environ.get("WINDOWS_SIGN_THUMBPRINT"):
+            for path in app.rglob("*"):
+                if path.suffix.lower() in {".dll",".pyd",".exe"}:
+                    verified = subprocess.run(["signtool","verify","/pa",str(path)], capture_output=True)
+                    if verified.returncode:
+                        win_sign(path)
+            run("signtool","verify","/pa",app / "habitat-runtime.exe")
+        if system == "darwin":
+            shortcut = app / "desktop-assets/Clawd Tank Habitat.app"
+            binary = shortcut / "Contents/MacOS"
+            binary.mkdir(parents=True)
+            run("cc","-O2","-o",binary/"clawd-tank",DESKTOP/"mac-launch.c")
+            (shortcut/"Contents/Info.plist").write_bytes(plistlib.dumps({"CFBundleIdentifier":"io.clawdtank.desktop",
+                "CFBundleExecutable":"clawd-tank","CFBundleName":"Clawd Tank Habitat","CFBundlePackageType":"APPL",
+                "CFBundleVersion":version,"CFBundleShortVersionString":version}))
+            mac_sign(shortcut)
         files = {p.relative_to(app).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                  for p in sorted(app.rglob("*")) if p.is_file()}
         (app/"release.json").write_text(json.dumps({"version":version,"files":files},sort_keys=True), encoding="utf-8")
@@ -77,13 +94,14 @@ def build(dest, version):
             compile_windows("WindowsSetup.cs",target,"/r:System.IO.Compression.dll",
                             "/r:System.IO.Compression.FileSystem.dll","/resource:"+str(archive)+",habitat.zip")
             win_sign(target)
+            if os.environ.get("WINDOWS_SIGN_THUMBPRINT"):
+                run("signtool","verify","/pa", target)
         elif system == "darwin":
             volume = work/"volume"
             installer = volume/"Install Clawd Tank.app"
             binary = installer/"Contents/MacOS"
             binary.mkdir(parents=True)
-            (binary/"install").write_text('#!/bin/sh\nexec "$(dirname "$0")/../Resources/runtime/habitat-runtime" desktop-install "$@"\n')
-            (binary/"install").chmod(0o755)
+            run("cc","-O2","-DINSTALLER","-o",binary/"install",DESKTOP/"mac-launch.c")
             (installer/"Contents/Info.plist").write_bytes(plistlib.dumps({"CFBundleName":"Install Clawd Tank",
                 "CFBundleIdentifier":"io.clawdtank.installer","CFBundlePackageType":"APPL","CFBundleExecutable":"install",
                 "CFBundleVersion":version,"CFBundleShortVersionString":version}))
