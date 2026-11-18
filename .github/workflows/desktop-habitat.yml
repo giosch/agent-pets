@@ -1,6 +1,7 @@
 name: Desktop habitat installer
 on:
   push:
+    branches: [master]
     paths: ['desktop/**', 'host/**', 'assets/habitat/**', 'assets/svg-animations/**', '.github/workflows/desktop-habitat.yml']
     tags: ['desktop-v*']
   workflow_dispatch:
