@@ -1,0 +1,20 @@
+{
+  "candidate": "f30a22be7a9eaf24ade281a1b45377f5e30a21c93e8a1f5bc1c2e1054194202d",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey reached for a large red lever, pulled it toward itself and ducked into a brace.",
+  "evidence": [
+    {
+      "pose": "0.49\u20130.84 s / throw",
+      "observation": "The warm fingers wrap the red handle as the shaft moves through its pivot at the fixed base. The red handle and beige base retain their colors in teal."
+    },
+    {
+      "pose": "0.84 s / brace",
+      "observation": "The knees bend, one hand meets the forehead, and the eyes angle back toward the lowered handle. The held bent shaft preserves the consequence after the hand releases it."
+    }
+  ],
+  "blockers": []
+}

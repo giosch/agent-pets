@@ -1,0 +1,21 @@
+{
+  "candidate": "42c9b626f35b8d6026486cbdc7d71b1cd0e9cf4fa1a01c112bcaa40147c27d1b",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Monke observes through a telescope and takes a serious note.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "0\u2013710 ms",
+      "observation": "The muzzle stays at the eyepiece, then pulls away and tips up as the observation lands. The tripod keeps its footing."
+    },
+    {
+      "pose": "910 ms onward",
+      "observation": "The notebook comes forward and the head bends to it. The waiting poses alternate writing and a brief glance up with the telescope still beside the actor."
+    }
+  ],
+  "blockers": []
+}

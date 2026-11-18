@@ -1,0 +1,21 @@
+{
+  "candidate": "5ff0ae4adb5eac62f5bb802ee4a41d56f06afdc211b17084e817ef16fe974926",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A nearly empty battery hangs above the monkey as it folds onto a walking stick, tail sinking to the floor.",
+  "inspection": "Original blind read retained. Rechecked revised exposures at native size and decoded brown GIF frames against the previously inspected intro and waiting phases.",
+  "evidence": [
+    {
+      "pose": "0–1600 ms, poses 0 through 4",
+      "observation": "As the grip takes the weight, the cane base remains at x58–63 and both feet stay planted at x24–37 and x44–56 on y55. The drooping arm and lowering chin make the slump readable."
+    },
+    {
+      "pose": "1600–4450 ms, waiting",
+      "observation": "The tail has settled at floor level. The breath puff appears at 2950 ms while the ferrule and soles retain those exact floor contacts. Waiting returns to the same exhausted pose."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,21 @@
+{
+  "candidate": "3a43142943d6cb765e71ac06aa83829df5f4478de4061a7c508a9a5951481dc3",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Alternates keyboard taps, pausing with both index fingers raised.",
+  "evidence": [
+    {
+      "pose": "1 / 2",
+      "observation": "One upright finger clears the muzzle; the opposite fingertip strikes the beige key row beside a small impact mark."
+    },
+    {
+      "pose": "5 / 0",
+      "observation": "Both index fingers stand separately on opposite sides of the chest before returning to the keys; the cable and keys retain their colors."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

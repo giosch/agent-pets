@@ -1,0 +1,20 @@
+{
+  "candidate": "d531b70e56746f24abfd27ff877d5958bfea05eccadd4fb61e3d2a6b1ed79979",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey swung in on a vine, released, landed in a crouch and stood.",
+  "evidence": [
+    {
+      "pose": "0.20\u20130.54 s / arc",
+      "observation": "A hand remains attached to the overhead vine as the curled tail and feet trail the body. Entry clipping follows the approaching arc."
+    },
+    {
+      "pose": "0.67\u20130.84 s / touchdown",
+      "observation": "The hands spread above bent knees as the feet meet the ground, then settle at the hips. The loose vine continues past the shoulder while the single attached tail stays with the body."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,20 @@
+{
+  "candidate": "3079b22a097182a907c0463a16c9230c496b8b0a37a13c41d8f1ee2b19fa68e8",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey hammered the keyboard until it steamed, recoiled, blew on it and resumed with one careful finger.",
+  "evidence": [
+    {
+      "pose": "0.10\u20130.36 s / mashing",
+      "observation": "Both hands drop at once and steam rises. The sudden raised fists and clenched teeth read as a reaction to the keyboard, whose case stays still."
+    },
+    {
+      "pose": "0.78\u20131.01 s / careful press",
+      "observation": "A single index finger rises before touching the right side of the key bed. Both coat colors preserve the warm hand, keyboard and white breath puff."
+    }
+  ],
+  "blockers": []
+}

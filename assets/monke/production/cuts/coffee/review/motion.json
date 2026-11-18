@@ -1,0 +1,21 @@
+{
+  "candidate": "a88fd470d1bf0a2963cdc0d06b86870681ffd5d96ba9555b688140c246e2e9e9",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The seated monkey answers a banana phone, reconsiders and eats it.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "0\u20131260 ms",
+      "observation": "The empty hand reaches down, picks up the banana and brings it to the ear. The 660 ms ear hold gives the phone gag time to register."
+    },
+    {
+      "pose": "1600\u20132500 ms",
+      "observation": "The eyes turn toward the banana in front of the face. It is peeled before the mouth closes over it. The half-eaten fruit remains in hand during the chewing hold."
+    }
+  ],
+  "blockers": []
+}

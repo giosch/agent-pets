@@ -1,0 +1,21 @@
+{
+  "candidate": "60db5fea22ce6a27789c2d1eb8aca221677041828ad0f4356783c2d5e57a0e21",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A banana peel sends Monke sprawling; it gets up and goes back to the keyboard.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "140\u2013470 ms",
+      "observation": "The lead foot meets the peel before the arms and legs fly outward. The seated impact lasts 320 ms so the fall reads cleanly."
+    },
+    {
+      "pose": "790\u20131010 ms and waiting",
+      "observation": "The monkey rises beside the desk, then the forearm extends to the keys. A small finger tap carries the recovered state."
+    }
+  ],
+  "blockers": []
+}

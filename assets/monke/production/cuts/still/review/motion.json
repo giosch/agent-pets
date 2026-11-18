@@ -1,0 +1,21 @@
+{
+  "candidate": "3fc17e41f771904973e51cfe947416fe300d31e1a1f5e4fefd36b2cf01ee3a92",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Blank-faced seated monkey with hands on knees and a loose tail curl.",
+  "inspection": "Reviewed the new native brown and teal exposures with the previously inspected runtime phase timing.",
+  "evidence": [
+    {
+      "pose": "0 ms, pose 0",
+      "observation": "The elbows bend over the thighs, with feet planted at x28\u00e2\u20ac\u201c40 and x49\u00e2\u20ac\u201c61 on y55. The weight reads as seated."
+    },
+    {
+      "pose": "1000 ms, waiting boundary",
+      "observation": "The single exposure holds the muzzle, hands and tail silhouette throughout the repeated waiting phase."
+    }
+  ],
+  "blockers": []
+}

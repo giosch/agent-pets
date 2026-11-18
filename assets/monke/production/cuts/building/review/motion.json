@@ -1,0 +1,21 @@
+{
+  "candidate": "adab82a18aa8486373bd14da0d7065fa2b33442bef66d8fc297f540d0ddbcfe6",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Wearing a hard hat, Monke stacks golden blocks then surveys the result.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "300\u2013690 ms",
+      "observation": "Both hands support the raised block before it reaches the top of the base block. Contact precedes the short bounce."
+    },
+    {
+      "pose": "880 ms onward",
+      "observation": "The hands leave the stack, one returns to the helmet rim and the stationary stack receives a brief glint during the wait."
+    }
+  ],
+  "blockers": []
+}

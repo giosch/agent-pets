@@ -1,0 +1,20 @@
+{
+  "candidate": "b9cfed63db7b0ec92da33b24bb850707e3ac74997d87539af5ee0db866642c1c",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey picks up one banana at the red basket, carries it across and puts it in the green basket, then turns back.",
+  "evidence": [
+    {
+      "pose": "pose 1 / 0.32 s",
+      "observation": "The loaded figure now has a rounded projecting muzzle, a continuous outer forearm and two complete lower legs. The source basket stays clear of the pickup silhouette."
+    },
+    {
+      "pose": "poses 4 and return / 0.86 and 1.34 s",
+      "observation": "The hands release the fruit into the green basket. Both feet remain broad on the turn and keep their skin color in the teal drawing. The red and green labels stay in place."
+    }
+  ],
+  "blockers": []
+}

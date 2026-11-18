@@ -1,0 +1,22 @@
+{
+  "candidate": "dd4ce4c9de722878d65009d0ee8fd961003f2e8ac916c559bb683fbb762396bf",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The monkey picks up a banana, carries it across, deposits it, then turns back.",
+  "evidence": [
+    {
+      "pose": "0.65 s and turnaround",
+      "observation": "The rear foot now reaches the ground with a broad sole, and the turnaround has two feet. The banana stays yellow and both basket signs remain distinct."
+    },
+    {
+      "pose": "pose 1 / 0.32 s",
+      "observation": "The right edge of the muzzle, right shoulder/forearm and shin end on the very same vertical cut near x49. The face and wrist abruptly narrow in this pickup before their volume returns on the next stride."
+    }
+  ],
+  "blockers": [
+    "A rectangular crop still clips the loaded figure in the pickup exposure."
+  ]
+}

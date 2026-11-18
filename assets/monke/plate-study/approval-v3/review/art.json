@@ -1,0 +1,23 @@
+{
+  "candidate": "9f86549cec49a57093cf76e344ce3a74dea237d44ecdc7cbce898b045289902a",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blockers": [],
+  "context": "Retrospective calibration; prior versions identified by paths. No blinded initial read claimed.",
+  "role": "art",
+  "agent": "/root/art_review",
+  "evidence": [
+    {
+      "pose": "touch / hook",
+      "observation": "At 80 × 64, the attached tail forms a visible band around the wrist. The feet stay planted and there is space between the fingertip and the button."
+    },
+    {
+      "pose": "plead, 1.51 s",
+      "observation": "Raised inner brows, outward gaze and pursed mouth communicate waiting. On cream and charcoal, both fur variants preserve the single tail, face, hands, belly, feet and the red pedestal."
+    }
+  ],
+  "polish": [
+    "Ease the head turn into recoil if the owner revisits the acting. Dark contour blends into charcoal, but the silhouette is readable."
+  ]
+}

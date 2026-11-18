@@ -15,6 +15,7 @@ if Path(__file__).with_name("assets").is_dir():
     ASSETS = Path(__file__).with_name("assets")
 SLUG = re.compile(r"[a-z][a-z0-9_-]{0,47}\Z")
 SWATCH = re.compile(r"#[\da-fA-F]{6}\Z")
+FUR_MATERIALS = {"fur.shadow", "fur.base", "fur.highlight"}
 MAX_PACK = 8 * 1024 * 1024
 POSES = {
     "scene", "idle", "working", "resting", "inspecting", "editing", "executing",
@@ -41,6 +42,13 @@ class Pack:
         if not isinstance(colors, dict) or any(k not in {"body", "shadow", "accent"} or
                 not isinstance(v, str) or not SWATCH.fullmatch(v) for k, v in colors.items()):
             raise ValueError("Invalid palette roles")
+        fur_palettes = manifest.get("fur_palettes")
+        if fur_palettes is not None:
+            if (colors or not isinstance(fur_palettes, list) or not 1 <= len(fur_palettes) <= 32 or
+                    any(not isinstance(p, dict) or set(p) != FUR_MATERIALS or
+                        any(not isinstance(v, str) or not SWATCH.fullmatch(v) for v in p.values())
+                        for p in fur_palettes)):
+                raise ValueError("Fur palettes need three material colors and no legacy colors")
         poses = manifest.get("poses")
         if not isinstance(poses, dict) or ("idle" if kind == "character" else "scene") not in poses:
             raise ValueError("A character needs an idle pose and a habitat needs a scene")
@@ -60,16 +68,33 @@ class Pack:
                     raise ValueError(f"Invalid SVG in {source}") from error
                 if root.tag != "{http://www.w3.org/2000/svg}svg":
                     raise ValueError(f"Expected SVG artwork in {source}")
+                if fur_palettes is not None:
+                    for element in root.iter():
+                        material = element.get("data-material", "")
+                        if material.startswith("fur.") and material not in FUR_MATERIALS:
+                            raise ValueError("Unknown fur material")
                 files[local_name] = svg
                 mapping[source] = local_name
         packed = {"format": 1, "kind": kind, "id": key, "name": name, "colors": colors,
                   "poses": {pose: mapping[src] for pose, src in poses.items()}}
+        if fur_palettes is not None:
+            packed["fur_palettes"] = fur_palettes
         return cls(packed, files)
 
     def svg(self, pose: str, variant: int) -> bytes:
         poses = self.manifest["poses"]
         fallback = "scene" if self.manifest["kind"] == "habitat" else "idle"
         src = self.files[poses.get(pose, poses[fallback])]
+        if "fur_palettes" in self.manifest:
+            # Material identity, not an RGB match: brown props/skin stay fixed.
+            palette = self.manifest["fur_palettes"][variant % len(self.manifest["fur_palettes"])]
+            root = ElementTree.fromstring(src)
+            root.set("data-pose", pose)
+            for element in root.iter():
+                material = element.get("data-material")
+                if material in palette:
+                    element.set("fill", palette[material])
+            return ElementTree.tostring(root, encoding="utf-8")
         # The same slot maintains its color even while it is off screen. Extra
         # sessions get golden-angle hues instead of cycling a short color list.
         initial = [16, 168, 271, 43, 218, 326]

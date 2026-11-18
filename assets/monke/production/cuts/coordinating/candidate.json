@@ -1,0 +1,31 @@
+{
+  "activity": "coordinating",
+  "meaning": "Point at tasks while a helper quietly turns the map right-side up.",
+  "tile": [
+    80,
+    64
+  ],
+  "svg": "state.svg",
+  "brown": "brown.gif",
+  "teal": "teal.gif",
+  "timing": "timing.json",
+  "reference": "assets/concepts/monke/master-reference-v1.png",
+  "state_phases": [
+    "intro",
+    "waiting"
+  ],
+  "repeat_phase": "waiting",
+  "preview_phases": [
+    "intro",
+    "waiting"
+  ],
+  "reduced_pose": "4",
+  "locked_regions": [
+    [
+      33,
+      13,
+      66,
+      16
+    ]
+  ]
+}

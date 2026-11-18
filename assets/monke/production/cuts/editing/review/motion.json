@@ -1,0 +1,21 @@
+{
+  "candidate": "3a43142943d6cb765e71ac06aa83829df5f4478de4061a7c508a9a5951481dc3",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey alternates raised index fingers and fast keyboard pecks before a two-hand flourish.",
+  "inspection": "Reviewed the new native brown and teal exposures with the previously inspected runtime phase timing.",
+  "evidence": [
+    {
+      "pose": "160\u2013740 ms, alternating reaches",
+      "observation": "Each finger lifts as the opposite hand strikes. The keyboard lip and cord now stay in one position throughout the taps."
+    },
+    {
+      "pose": "740\u00e2\u20ac\u201c1080 ms",
+      "observation": "Both hands lift with accent marks for 220 ms, then return to the keys. The same keys-down drawing joins the loop."
+    }
+  ],
+  "blockers": []
+}

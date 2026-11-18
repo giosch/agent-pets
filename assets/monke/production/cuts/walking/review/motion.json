@@ -1,0 +1,21 @@
+{
+  "candidate": "43ff505b10dcc6ac4ba594519cc7b2f66a827832fce1dfd687f7f2baca6c725c",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Determined low knuckle-walk with alternating forearms and a bobbing torso.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "0\u2013310 ms",
+      "observation": "The leading knuckles remain planted while the trailing leg lifts through its passing pose. The low forward muzzle carries the weight."
+    },
+    {
+      "pose": "310\u2013620 ms",
+      "observation": "The other forward contact accepts the weight as the back foot swings. Forearm contacts separate cleanly at the return to the first exposure."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,21 @@
+{
+  "candidate": "c23f8522159262d4e2b5dd1eea28cc901aa61f6c82e1e8b686df120eaa24e13f",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey alternates raised index fingers and fast keyboard pecks before a two-hand flourish.",
+  "inspection": "Decoded the GIF and reconstructed timing from the native strip and state phases.",
+  "evidence": [
+    {
+      "pose": "160–740 ms",
+      "observation": "One hand strikes the keyboard while the opposite index finger is raised. Short, alternating exposures keep it readable as pecking."
+    },
+    {
+      "pose": "740–1080 ms",
+      "observation": "Both hands lift with accent marks for 220 ms, then return to the keys. The same keys-down drawing joins the loop."
+    }
+  ],
+  "blockers": []
+}

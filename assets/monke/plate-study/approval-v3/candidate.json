@@ -1,0 +1,46 @@
+{
+  "activity": "approval",
+  "meaning": "Monke needs permission before pressing the red button.",
+  "beats": [
+    "anticipate",
+    "reach",
+    "tail catches wrist",
+    "recoil",
+    "pleading wait"
+  ],
+  "contrast": "Question uses a raised hand and question-mark tail.",
+  "tile": [
+    80,
+    64
+  ],
+  "svg": "approval.svg",
+  "brown": "approval-brown.gif",
+  "teal": "approval-teal.gif",
+  "timing": "timing.json",
+  "reference": "assets/concepts/monke/master-reference-v1.png",
+  "state_phases": [
+    "intro",
+    "waiting"
+  ],
+  "repeat_phase": "waiting",
+  "preview_phases": [
+    "intro",
+    "waiting",
+    "demo_reset"
+  ],
+  "reduced_pose": "plead",
+  "locked_regions": [
+    [
+      0,
+      50,
+      58,
+      56
+    ],
+    [
+      59,
+      39,
+      79,
+      56
+    ]
+  ]
+}

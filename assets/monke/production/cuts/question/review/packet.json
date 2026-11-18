@@ -1,0 +1,10 @@
+{
+  "candidate": "636cbb72f306f0d32b758b69cea3c546d908b97b1b38d7219344c78474c7fd4a",
+  "state": "awaiting independent reviews",
+  "duration_ms": 3010,
+  "technical_command": "verify",
+  "reviewers": [
+    "art",
+    "motion"
+  ]
+}

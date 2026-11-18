@@ -1,0 +1,22 @@
+{
+  "candidate": "ad3f1fd7d5a0d093abb0f5f28a60a84f6434189582f210f9eccf984dcbe3b5c7",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The monkey raises an empty palm and its tail forms a large question mark.",
+  "evidence": [
+    {
+      "pose": "0.34–0.49 s / question",
+      "observation": "The raised palm turns outward and the tail curls above its dot. There is daylight between the mark and the body, so the question reads at native size."
+    },
+    {
+      "pose": "0.69 s / sustained pose",
+      "observation": "The brow angles upward and the outstretched hand stays open. A streak across the fingers and interior specks on the raised palm and ear turn teal and interrupt their warm skin shapes."
+    }
+  ],
+  "blockers": [
+    "Small skin details on the hand and ear recolor with the fur."
+  ]
+}

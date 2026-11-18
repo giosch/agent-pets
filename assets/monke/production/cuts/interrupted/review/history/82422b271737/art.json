@@ -1,0 +1,22 @@
+{
+  "candidate": "82422b27173748c1e0872ad143f87c8b4faaa7961a5bea46388bd2ddd3c05928",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "Typing interrupted by a startle and sustained freeze.",
+  "evidence": [
+    {
+      "pose": "1 / 2 / 3",
+      "observation": "The lowered curled fingers now have inked tips. The held pose has a planted heel and intact belly."
+    },
+    {
+      "pose": "0",
+      "observation": "Both hands share a ruler-straight bottom edge floating two native pixels over the keyboard, so the initial typing contact is missing."
+    }
+  ],
+  "blockers": [
+    "Restore actual key contact in the initial typing drawings, keeping the final hover and stationary keyboard."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "candidate": "caa9f50b6f19d2fe4dbbdab7b86b77a9efbdf9e653ac2abd04beebdadb701aea",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Two hands work side keyboards while the feet operate a third.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "190\u2013490 ms",
+      "observation": "The raised right hand alternates with a left-side reach. The side keyboard supports remain stable while the palms change sides."
+    },
+    {
+      "pose": "490\u20131060 ms",
+      "observation": "A foot lifts clear of the lower keyboard and the torso tilts to support that weight before the foot returns."
+    }
+  ],
+  "blockers": []
+}

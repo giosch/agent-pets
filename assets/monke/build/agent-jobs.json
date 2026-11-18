@@ -1,0 +1,312 @@
+{
+  "source_sha256": "ca3d975a0ffd1e1f9fa6f9d43233dceac902e5e02aecc05f79d12ab0fd366153",
+  "batch": "pilot-01",
+  "next_batch": "blocked_until_review",
+  "jobs": [
+    {
+      "animation": "idle",
+      "brief": {
+        "activity": "idle",
+        "story": "Scratch head, look around, discover absolutely nothing, settle.",
+        "props": [],
+        "loop": true,
+        "frames": [
+          {
+            "ticks": 8
+          },
+          {
+            "ticks": 2,
+            "look": -1
+          },
+          {
+            "ticks": 2,
+            "scratch": 1,
+            "look": -1
+          },
+          {
+            "ticks": 2,
+            "scratch": 2,
+            "look": -1
+          },
+          {
+            "ticks": 2,
+            "scratch": 1,
+            "look": -1
+          },
+          {
+            "ticks": 2,
+            "scratch": 2,
+            "look": 1
+          },
+          {
+            "ticks": 3,
+            "look": 1
+          },
+          {
+            "ticks": 1,
+            "blink": true
+          },
+          {
+            "ticks": 8
+          }
+        ]
+      },
+      "author": "tools/monke/art.py",
+      "compile": "passed",
+      "automated_review": "passed",
+      "visual_review": "pending_user",
+      "review_checklist": [
+        "E identity and proportions",
+        "activity readable at 1x",
+        "contact and tail attachment",
+        "comic timing",
+        "loop seam",
+        "all four palettes on light and dark backgrounds"
+      ],
+      "revision_policy": "until_acceptance_criteria_met"
+    },
+    {
+      "animation": "coding",
+      "brief": {
+        "activity": "editing",
+        "story": "Hammer a battered beige keyboard with two index fingers and enormous confidence.",
+        "props": [
+          "keyboard"
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "ticks": 1,
+            "key": 0
+          },
+          {
+            "ticks": 1,
+            "key": 1
+          },
+          {
+            "ticks": 1,
+            "key": 2
+          },
+          {
+            "ticks": 1,
+            "key": 3
+          },
+          {
+            "ticks": 1,
+            "key": 0
+          },
+          {
+            "ticks": 1,
+            "key": 1
+          },
+          {
+            "ticks": 1,
+            "key": 2
+          },
+          {
+            "ticks": 1,
+            "key": 3
+          },
+          {
+            "ticks": 2,
+            "key": 0,
+            "smug": true
+          },
+          {
+            "ticks": 1,
+            "key": 0
+          }
+        ]
+      },
+      "author": "tools/monke/art.py",
+      "compile": "passed",
+      "automated_review": "passed",
+      "visual_review": "pending_user",
+      "review_checklist": [
+        "E identity and proportions",
+        "activity readable at 1x",
+        "contact and tail attachment",
+        "comic timing",
+        "loop seam",
+        "all four palettes on light and dark backgrounds"
+      ],
+      "revision_policy": "until_acceptance_criteria_met"
+    },
+    {
+      "animation": "approval",
+      "brief": {
+        "activity": "approval",
+        "story": "Reach for red button, catch own wrist with tail, look outward pleadingly; never press it.",
+        "props": [
+          "button"
+        ],
+        "loop": true,
+        "invariants": [
+          "button stays unpressed",
+          "tail visibly wraps wrist",
+          "hand remains above button"
+        ],
+        "frames": [
+          {
+            "ticks": 3,
+            "reach": 0
+          },
+          {
+            "ticks": 2,
+            "reach": 1
+          },
+          {
+            "ticks": 2,
+            "reach": 2
+          },
+          {
+            "ticks": 2,
+            "reach": 3
+          },
+          {
+            "ticks": 7,
+            "reach": 3,
+            "plead": true
+          },
+          {
+            "ticks": 1,
+            "reach": 3,
+            "plead": true,
+            "blink": true
+          },
+          {
+            "ticks": 7,
+            "reach": 3,
+            "plead": true
+          },
+          {
+            "ticks": 2,
+            "reach": 2
+          },
+          {
+            "ticks": 2,
+            "reach": 1
+          },
+          {
+            "ticks": 3,
+            "reach": 0
+          }
+        ]
+      },
+      "author": "tools/monke/art.py",
+      "compile": "passed",
+      "automated_review": "passed",
+      "visual_review": "pending_user",
+      "review_checklist": [
+        "E identity and proportions",
+        "activity readable at 1x",
+        "contact and tail attachment",
+        "comic timing",
+        "loop seam",
+        "all four palettes on light and dark backgrounds"
+      ],
+      "revision_policy": "until_acceptance_criteria_met"
+    },
+    {
+      "animation": "walking",
+      "brief": {
+        "activity": "walking",
+        "story": "Knuckle-walk with unnecessary determination; cycle in place, host controls travel.",
+        "props": [],
+        "loop": true,
+        "frames": [
+          {
+            "ticks": 1,
+            "stride": 0
+          },
+          {
+            "ticks": 1,
+            "stride": 1
+          },
+          {
+            "ticks": 1,
+            "stride": 2
+          },
+          {
+            "ticks": 1,
+            "stride": 3
+          },
+          {
+            "ticks": 1,
+            "stride": 4
+          },
+          {
+            "ticks": 1,
+            "stride": 5
+          },
+          {
+            "ticks": 1,
+            "stride": 6
+          },
+          {
+            "ticks": 1,
+            "stride": 7
+          },
+          {
+            "ticks": 1,
+            "stride": 0
+          }
+        ]
+      },
+      "author": "tools/monke/art.py",
+      "compile": "passed",
+      "automated_review": "passed",
+      "visual_review": "pending_user",
+      "review_checklist": [
+        "E identity and proportions",
+        "activity readable at 1x",
+        "contact and tail attachment",
+        "comic timing",
+        "loop seam",
+        "all four palettes on light and dark backgrounds"
+      ],
+      "revision_policy": "until_acceptance_criteria_met"
+    },
+    {
+      "animation": "ready",
+      "brief": {
+        "activity": "ready",
+        "story": "Wait proudly with tail forming a checkmark; subtle blink and chest movement.",
+        "props": [],
+        "loop": true,
+        "frames": [
+          {
+            "ticks": 9
+          },
+          {
+            "ticks": 2,
+            "proud": true
+          },
+          {
+            "ticks": 9
+          },
+          {
+            "ticks": 1,
+            "blink": true
+          },
+          {
+            "ticks": 9
+          }
+        ]
+      },
+      "author": "tools/monke/art.py",
+      "compile": "passed",
+      "automated_review": "passed",
+      "visual_review": "pending_user",
+      "review_checklist": [
+        "E identity and proportions",
+        "activity readable at 1x",
+        "contact and tail attachment",
+        "comic timing",
+        "loop seam",
+        "all four palettes on light and dark backgrounds"
+      ],
+      "revision_policy": "until_acceptance_criteria_met"
+    }
+  ]
+}

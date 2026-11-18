@@ -1,0 +1,22 @@
+{
+  "candidate": "08629990e1a18df100afe10cdf0d3cc9ad27aa40fde0e42c670dad32b1e0121a",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The monkey appeared to join two vine plugs in front of its belly, then stared at the viewer beneath a jagged, slashed tail shape.",
+  "evidence": [
+    {
+      "pose": "0.00 s / two ends",
+      "observation": "The red and blue ends, each with its own curling vine, are separated by clear background. The lowered gaze is directed toward the gap."
+    },
+    {
+      "pose": "0.62 s and 1.09 s / near contact and stare",
+      "observation": "The red pins and white-blue end form one uninterrupted horizontal shape against the belly. While the monkey stares and the tail gains its red slash, this tiny assembly continues to read as coupled."
+    }
+  ],
+  "blockers": [
+    "The held plugs read as connected. A visible gap through their full height would preserve the offline state when the tail signal appears."
+  ]
+}

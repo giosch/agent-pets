@@ -1,0 +1,20 @@
+{
+  "candidate": "47ea925a516c940d4138cef29fc0e74b89add63b2d9e6443fda3c86233915621",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey forced a huge stack of paper into a tiny case and stood next to the closed drawer.",
+  "evidence": [
+    {
+      "pose": "0.30\u20130.78 s / lift and stuff",
+      "observation": "Paper briefly hides the muzzle, then folds down between both palms and the drawer mouth. The reduced stack on the left gives the action a starting point."
+    },
+    {
+      "pose": "1.27 s / closed cabinet",
+      "observation": "The gray front and brown shell are visibly separate from the monkey's warm hand. The shell keeps its brown color in teal; the tiny remaining paper pile makes the compression readable."
+    }
+  ],
+  "blockers": []
+}

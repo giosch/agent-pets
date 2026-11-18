@@ -1,0 +1,23 @@
+{
+  "candidate": "98ced2dfc59f0e888dd2af226b4ea73a094a95cc96925a2634764589cdefd030",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "Typing stops and both hands hover as the eyes open wide.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "0\u2013380 ms",
+      "observation": "The opening keystrokes lead into a startled look. The fingertips leave the keys, preserving the intended interruption."
+    },
+    {
+      "pose": "380 ms onward, pose 3",
+      "observation": "A second keyboard face appears above the first, and the planted foot lifts with the entire body during the freeze. Both defects remain visible through the long waiting hold."
+    }
+  ],
+  "blockers": [
+    "Register Monke to the grounded foot and erase the complete old keyboard before drawing the one locked board."
+  ]
+}

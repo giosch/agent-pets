@@ -1,0 +1,21 @@
+{
+  "candidate": "33600a1e6e7e69308e53a103e4ab6df103123769c0655e5098323d72dd03a888",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey strains on a gear, pulls it into halves, then freezes wide-eyed under the error mark.",
+  "inspection": "Reviewed the new native brown and teal exposures with the previously inspected runtime phase timing.",
+  "evidence": [
+    {
+      "pose": "0\u00e2\u20ac\u201c570 ms, poses 0 through 3",
+      "observation": "Stress ticks precede the separation. One half remains in each hand as the eyes widen. The feet hold x21\u00e2\u20ac\u201c32 and x41\u00e2\u20ac\u201c53 on y55 throughout the pull."
+    },
+    {
+      "pose": "2210\u00e2\u20ac\u201c2330 ms, pose 4",
+      "observation": "The blink changes only x35\u00e2\u20ac\u201c45, y14\u00e2\u20ac\u201c18. The broken halves and planted feet are steady through the freeze and its repeat."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,21 @@
+{
+  "candidate": "e6d0a26f8cede6dc5695ada4ff8cfa23f9b52ac0a068bb4457126faf73e2bf9f",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A small object catches the monkey\u2019s eye and it leans close with a magnifier.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "0\u2013710 ms",
+      "observation": "The eyes orient toward the sample, followed by a visible lens raise and a deep knee bend."
+    },
+    {
+      "pose": "710 ms onward",
+      "observation": "The magnified eye peers through the lens before the free finger reaches the sample. The alternating close examination keeps the sample base stable."
+    }
+  ],
+  "blockers": []
+}

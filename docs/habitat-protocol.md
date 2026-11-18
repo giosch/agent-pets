@@ -46,6 +46,15 @@ python host/habitat.py install-pack fox.zip
 
 The SVG renderer’s archive contains a format-1 `manifest.json` and its referenced SVG files. Install writes a validated copy in the local habitat’s `packs` directory. Restart the host to load it. Characters and habitats with separate IDs can be mixed freely. A new hardware renderer can use its own format and exporter. Its activity messages stay the same.
 
+Pixel-art characters can instead provide an optional `fur_palettes` list (1–32
+palettes). Each palette has exactly `fur.shadow`, `fur.base`, and `fur.highlight`
+hex colors. Set `colors` to `{}` when using this mode. SVG elements tagged with
+`data-material="fur.base"` (or either of the other fur roles) receive that role's
+fill; all other elements retain their source colors, even if their RGB values
+match fur. The session variant selects a palette modulo the list length. This
+optional format-1 extension leaves legacy `colors` packs unchanged. See the
+[Monke pilot pipeline](../../tools/monke/README.md) for authoring and previews.
+
 ## Physical transport work
 
 The live JSON meanings above are the common contract. A native TCP or USB serial binding can delimit complete records with newlines. A BLE binding also needs a tested fragmentation and reassembly scheme for the negotiated MTU. The first hardware milestone must verify discovery, framing, the initial snapshot, and resynchronization on disconnect on a real device. The existing board’s BLE service still speaks its documented [Clawd Tank protocol](protocol-changelog.md).

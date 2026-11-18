@@ -1,0 +1,22 @@
+{
+  "candidate": "5d593129a1f1384dafef60028d7df9d35fe122f385ddb9147fa902a2cf21999f",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The monkey handles green and yellow bananas at a sorting table, inspecting a bunch and lifting a single banana.",
+  "evidence": [
+    {
+      "pose": "0.32\u20130.80 s / green bunch",
+      "observation": "The monkey lifts the green bunch to eye height. In the next drawing it is back in its original spot on the left, while the opposite hand is already over the yellow pile."
+    },
+    {
+      "pose": "0.97\u20131.46 s / check",
+      "observation": "A single yellow banana is displayed, followed by the green bunch in the opposite hand. Neither bunch is visibly carried to and deposited in its sorted position; the piles reset between poses."
+    }
+  ],
+  "blockers": [
+    "The fruit jumps back to its starting pile after inspection, losing the contact and placement that would show the bunches being sorted."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "candidate": "8209c7ef089cdb9063d059ba404be02cd6b92f8f47e41fcd33162a03116e1377",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The seated monkey scratches its head, looks aside and settles.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "870\u20131690 ms",
+      "observation": "The fingers rise to the crown and alternate short rubs while the feet stay grounded."
+    },
+    {
+      "pose": "1860\u20132510 ms",
+      "observation": "The corrected sideways look has a clean ear edge. The final head turn returns to the original seated silhouette without a stray floating stroke."
+    }
+  ],
+  "blockers": []
+}

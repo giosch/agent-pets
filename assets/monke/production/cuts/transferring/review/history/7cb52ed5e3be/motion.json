@@ -1,0 +1,23 @@
+{
+  "candidate": "7cb52ed5e3be0983982892ef634c90ec9fe95caf94bdf0e5fc6852d9fe65e81f",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "One banana is carried from the left basket to the right.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "320\u20131010 ms",
+      "observation": "The banana leaves the left basket, passes in front of the torso and reaches the right basket ahead of the hands releasing it."
+    },
+    {
+      "pose": "1340 ms, return",
+      "observation": "When the monkey faces left, the front leg ends in a narrow vertical stump beside the source basket. Part of its planted sole has been cropped away. The full foot pops back at the loop seam."
+    }
+  ],
+  "blockers": [
+    "Restore the complete foot in the return pose and retain the source basket in front where their silhouettes overlap."
+  ]
+}

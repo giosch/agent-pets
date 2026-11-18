@@ -1,0 +1,21 @@
+{
+  "candidate": "79706f95162256cdfdebdb88b2bbcf27ed880f8fdc94a8e0f81aa90bd5ace46f",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A small monkey hauls a wrench up and carries it on its shoulder.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "310\u2013710 ms",
+      "observation": "The wrench tilts up while one foot kicks forward to counterbalance it, then the load comes to rest across the shoulder."
+    },
+    {
+      "pose": "1230 ms onward",
+      "observation": "A slight shoulder dip and alternating tiny foot lifts preserve the impression of a bulky load. The opposite sole stays grounded during each lift."
+    }
+  ],
+  "blockers": []
+}

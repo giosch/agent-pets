@@ -1,0 +1,21 @@
+{
+  "candidate": "4f066c4483dc6574cd337ad957df4b99bf9010461a298472657b7b98811726fe",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Typing stops and both hands hover as the eyes open wide.",
+  "inspection": "Compared the revised native exposures and enlarged brown GIF at the typing and frozen keys; inspected the existing intro/waiting timing.",
+  "evidence": [
+    {
+      "pose": "0\u2013380 ms",
+      "observation": "The opening keystrokes lead into a startled look. The fingertips leave the keys, preserving the intended interruption."
+    },
+    {
+      "pose": "380 ms onward, waiting freeze",
+      "observation": "The restored belly and supporting leg connect to the grounded foot. Both fingertips now hang above the same registered keyboard and remain suspended through the waiting blink."
+    }
+  ],
+  "blockers": []
+}

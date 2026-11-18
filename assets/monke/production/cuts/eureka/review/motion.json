@@ -1,0 +1,21 @@
+{
+  "candidate": "38f380921d232fe1a7e93fc02340e5ca57cbf44114229d601ea1971f26b66e80",
+  "agent": "/root/final_art",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Flickering bulb becomes giant banana, monkey jumps and points at it.",
+  "evidence": [
+    {
+      "pose": "1 / dim / 2",
+      "observation": "Two short bright flashes separated by a 100 ms dim exposure draw the eyes overhead before the bulb gains a brighter halo."
+    },
+    {
+      "pose": "3 / 4 / 5",
+      "observation": "A small crescent appears before the giant banana, then both feet leave the floor. The pointing pose holds for 1400 ms as the feet settle."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

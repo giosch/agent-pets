@@ -1,0 +1,22 @@
+{
+  "candidate": "4f066c4483dc6574cd337ad957df4b99bf9010461a298472657b7b98811726fe",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "Typing interrupted by a startle and sustained freeze.",
+  "evidence": [
+    {
+      "pose": "3 / 4",
+      "observation": "The planted heel now joins a continuous leg and the lower peach belly is intact above a single fixed keyboard."
+    },
+    {
+      "pose": "1 / 2",
+      "observation": "The screen-right hand has its lower outline abruptly clipped at the same horizontal height in both poses. In 2 the original raised, downward-pointing fingertip ends at the palm."
+    }
+  ],
+  "blockers": [
+    "Restore full fingertip contours of poses 1 and 2 over the corrected stationary keyboard."
+  ]
+}

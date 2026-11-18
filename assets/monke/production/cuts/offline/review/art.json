@@ -1,0 +1,20 @@
+{
+  "candidate": "3830bfad146b8480787a08be1e83c6ac194fe001c504d18ce714d2993dc183a8",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The two unplugged leads approach, then remain apart while the monkey faces the viewer with a slashed no-signal tail.",
+  "evidence": [
+    {
+      "pose": "0.00 s / open plugs",
+      "observation": "The warm hands grip the red and blue ends, with both dark pins visible against the background. The raised forearm stays attached to the shoulder, the single tail meets the hip, and the feet are whole in both coats."
+    },
+    {
+      "pose": "1.09 s / no-signal hold",
+      "observation": "When the eyes face front, background separates the plug ends throughout their height. Both short green leads hang individually, the red slash crosses the tail loop, and the earlier stray mark above the foot is gone."
+    }
+  ],
+  "blockers": []
+}

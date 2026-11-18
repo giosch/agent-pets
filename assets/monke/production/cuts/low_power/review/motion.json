@@ -1,0 +1,21 @@
+{
+  "candidate": "9ced44d5c081cd2d12dc1bed1ba18236b8e330eac3fc37ea5dbbe768481bdefb",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A nearly empty battery hangs above the monkey as it folds onto a walking stick, tail sinking to the floor.",
+  "inspection": "Reviewed the new native brown and teal exposures with the previously inspected runtime phase timing.",
+  "evidence": [
+    {
+      "pose": "0\u00e2\u20ac\u201c1600 ms, poses 0 through 4",
+      "observation": "As the grip takes the weight, the cane base remains at x58\u00e2\u20ac\u201c63 and both feet stay planted at x24\u00e2\u20ac\u201c37 and x44\u00e2\u20ac\u201c56 on y55. The drooping arm and lowering chin make the slump readable."
+    },
+    {
+      "pose": "1600\u20134450 ms, held slump and exhale",
+      "observation": "The tail joins the ground, the free hand hangs, and the mouth puff at 2950 ms leaves both soles and the ferrule fixed."
+    }
+  ],
+  "blockers": []
+}

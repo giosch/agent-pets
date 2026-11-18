@@ -1,0 +1,37 @@
+{
+  "format": 1,
+  "kind": "character",
+  "id": "monke-pilot",
+  "name": "Monke (pilot preview)",
+  "colors": {},
+  "fur_palettes": [
+    {
+      "fur.shadow": "#513023",
+      "fur.base": "#80482D",
+      "fur.highlight": "#AC7045"
+    },
+    {
+      "fur.shadow": "#204749",
+      "fur.base": "#34787A",
+      "fur.highlight": "#63A49D"
+    },
+    {
+      "fur.shadow": "#443052",
+      "fur.base": "#775183",
+      "fur.highlight": "#AC81B1"
+    },
+    {
+      "fur.shadow": "#303B4A",
+      "fur.base": "#546A7C",
+      "fur.highlight": "#8CA4AF"
+    }
+  ],
+  "poses": {
+    "idle": "svg/idle.svg",
+    "editing": "svg/coding.svg",
+    "approval": "svg/approval.svg",
+    "walking": "svg/walking.svg",
+    "ready": "svg/ready.svg",
+    "still": "svg/still.svg"
+  }
+}

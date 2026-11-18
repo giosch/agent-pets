@@ -1,0 +1,43 @@
+Generated using built-in image_gen with the three earlier direction boards as references.
+
+Use case: stylized-concept
+Asset type: FINAL UNIFIED PIXEL-ART MODEL SHEET, visual reference for all future animations of humorous coding desktop pet MONKE. Create a high-resolution landscape reference board.
+Input images: Image 1 character reference: use ONLY character E "MANAGER" as canonical identity; borrow ONLY body language from B "BIG CONFIDENCE", never B anatomy. Image 2 equipment reference: use ONLY middle T2 OFFICE SALVAGE column. Image 3 recurring details reference: use ONLY left P1 CHUNKY column. All provided image files are references, not edit targets.
+PRIMARY REQUIREMENT: unify EVERYTHING into one chunky low-resolution sprite style, consistent logical pixel size throughout all characters and props. Entire board pixel art, flat clean cream background, thin dark panel dividers and restrained dark brown pixel lettering. No aged paper texture, no gradients, no soft shadows, no antialiasing, no painterly/rendered surfaces, no isometric perspective.
+CANONICAL CHARACTER: E's upright pear-shaped belly, small head, low straight brow, long broad horizontal cream muzzle, confident flat mouth, round ears, short legs with broad feet, long arms and prehensile tail. Dark warm brown fur, tan muzzle/hands/feet and tan oval belly patch. No default clothing, NO tie, NO gorilla pectorals, NO enlarged B torso, NO change of species between poses. Default attitude: confidently clueless middle manager. Tail emerges consistently from lower back, same thickness/length across poses.
+DESIGN TARGET: standing body 48 logical pixels tall, head 16 high, torso 20 high, legs/feet 12 high. Arm length to knuckles 22 logical pixels; tail length 42 logical pixels and 3 pixels thick. Main action tile 80x64 logical pixels allowing props/tail. Draw every pose and prop at SAME integer enlarged pixel scale, 1 logical pixel dark stepped outline, max 3 flat tones per material, no isolated fur texture. Even in small props preserve same logical pixel scale. Display selected enlarged character exactly same size in every pose; crouching shortens silhouette without shrinking head.
+BOARD LAYOUT:
+Header exact text "MONKE / MASTER REFERENCE" and subtitle "E + T2 + P1".
+Top band: six side-by-side same-scale model poses each with short label:
+"FRONT" neutral E front standing;
+"3/4" canonical E hands on hips;
+"SIDE" side profile with curled tail;
+"BACK" rear construction view showing tail attachment;
+"CONFIDENCE" E chest lifted, chin up, broad planted feet, bent arms, B-inspired swagger but E anatomy;
+"EFFORT" same E leaning hard against giant dull-steel gear, full-body effort.
+Middle band: four same-scale action examples with useful clear storytelling:
+"CODE" seated E hammering beige keyboard with index fingers, intense brow;
+"APPROVAL" E reaching toward huge RED button on beige metal pedestal; its own tail visibly catches the reaching wrist, eyes looking outward for permission;
+"CLOUD" E beside gray pulley upright; small WHITE CLOUD above, rope bucket carrying question-mark note toward cloud, returned checkmarked note in other hand, smug proud expression;
+"READY" E waiting proudly with its attached brown tail shaped into a readable CHECKMARK.
+Bottom bands: neat complete shared PROP LIBRARY, clearly separated individual objects at same pixel scale as poses (not enlarged product illustrations). Show:
+battered beige keyboard; red-grip gray metal lever; giant red approval button; yellow oversized hard hat; stack of bright yellow banana-shaped building blocks; one whole banana and one peeled banana; two simple baskets with arrow and checkmark badges; shiny coconut; coconut drink; leaf document and folded map; tiny coconut filing cabinet overflowing with notes; small telescope and notepad; dull steel gear; Xbox-like beige twin-stick controller and beige headset; small beige CRT television; magnifying glass; oversized tool for helper; thinking cap; walking stick; leaf timecard; swinging vine and disconnected vine ends with red/blue connector tips.
+On right bottom a compact "SIGNALS" group with brown tail question mark, brown tail checkmark, broken-signal tail, red error badge, yellow low-battery icon. All attached-tail action samples elsewhere must have physically plausible joins.
+Footer: compact row of EXACTLY 16 flat palette swatches labelled with these hex codes:
+#261C19 outline
+#513023 fur shadow
+#80482D fur
+#AC7045 fur light
+#C68D58 skin shadow
+#E9B47B skin
+#FFE0A3 skin light
+#F4E7C8 cream beige
+#B6A78C beige shadow
+#63706B steel
+#F6CF35 banana
+#BB861C yellow shadow
+#65934B leaf
+#CB443B alert
+#68B5C5 lens
+#FFFFFF white
+Palette has shared tones reused across props; cream board background is #F4E7C8. Header/background excluded from sprite anatomy. Short labels only. Include small footer text "48 PX BODY / 80 x 64 ACTION TILE / 1 PX OUTLINE". All artwork fully visible with generous spacing, no overlaps, no giant banana decorative header motifs. Professional cohesive production model sheet emphasizing readable shapes and deadpan humor. This is an animation design reference board, not an animation frames atlas.

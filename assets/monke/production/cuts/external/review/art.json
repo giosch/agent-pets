@@ -1,0 +1,20 @@
+{
+  "candidate": "7ec5317c26b080ad812eb416c422360b08afd05e376c43fdb58f99b7283a95b0",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The bucket takes a question to the cloud and a marked answer comes back down; the monkey displays it and claps.",
+  "evidence": [
+    {
+      "pose": "0.27\u20130.83 s / ascent",
+      "observation": "The small card sits above the bucket rim and travels with it to the cloud. The brown and teal hands grip the diagonal rope without changing its hardware colors."
+    },
+    {
+      "pose": "1.09\u20131.99 s / answer and clap",
+      "observation": "The green check appears on the retrieved card before the hands separate and meet in front of the muzzle. Empty space beside the clapping hands distinguishes them from the checked card down at the bucket."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,23 @@
+{
+  "candidate": "1967adf91321b13e3e659b68622c5569c37b9890e8a51186f9da6ede39816f08",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "Monkey strains at a gear, pulls it in two, then freezes wide-eyed under an error badge and blinks.",
+  "inspection": "Inspected native and enlarged exposures, reconstructed playback from decoded GIF frames and durations, and checked the repeating phase in the runtime SVG.",
+  "evidence": [
+    {
+      "pose": "0–570 ms, poses 0 through 3",
+      "observation": "Stress ticks precede the complete separation at 400 ms. Both hands retain a half as the eyes widen. The feet slide roughly four native pixels left before the reaction, without a step."
+    },
+    {
+      "pose": "2210–2330 ms, waiting blink",
+      "observation": "The closed-eye drawing displaces the left sole from x19–31 to x17–30 and the right sole from x39–52 to x38–51 at y54. The torso and broken pieces also twitch back on reopening. The movement repeats every 2520 ms during the freeze."
+    }
+  ],
+  "blockers": [
+    "Register the pulling drawings to planted soles and build the waiting blink on the open-eye drawing so the body and held pieces remain still."
+  ]
+}

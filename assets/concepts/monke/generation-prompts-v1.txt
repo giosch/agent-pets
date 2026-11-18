@@ -1,0 +1,43 @@
+Generated with the built-in image_gen tool. Concept exploration only; no direction selected yet.
+
+CHARACTER SHEET
+Use case: stylized-concept
+Asset type: pixel-art character design exploration board for a humorous desktop coding pet named MONKE.
+Create one beautifully organized landscape reference sheet with SIX genuinely distinct monkey character candidates in a 3-column 2-row grid, labelled A through F with short pixel-font names. Warm light neutral background, generous separation. Each cell shows a large full-body three-quarter FRONT neutral standing/sitting character plus TWO smaller same-character poses: blank-faced upright head-scratch and two-finger keyboard hammering. All are MONKEYS WITH LONG PREHENSILE TAILS, not tailless apes. No clothes in base design. Large readable hands, feet, face and expressive tail which can form checkmark/question mark. Design for eventual small looping sprites; crisp square pixels, consistent pixel grid within each candidate, hard stepped contours, 1 logical pixel dark outlines, restrained flat pixel clusters and 3-tone shading, NO antialiasing gradients or smooth vector lines.
+A "NO THOUGHTS": squat round brown monkey, broad cream muzzle, close-set dot eyes, big ears, vacant meme expression; very chunky low-resolution circa 32px body.
+B "BIG CONFIDENCE": long arms, tiny legs, low brow, wide square muzzle, chest-forward silhouette, compact circa 48px body. Comically overconfident rather than menacing.
+C "SCRUNGLE": lanky slouch, oversized hands, narrow body, protruding ears, crooked tuft, exhausted empty stare, circa 48px body.
+D "POTATO": bean-shaped plump body, tiny crown tuft, enormous ears, tiny feet, mildly confused face, circa 32px body. Funny rather than excessively baby-cute.
+E "MANAGER": upright pear-shaped body, pronounced brow and muzzle, hands on hips, small head relative to torso, confidently clueless, circa 48px body.
+F "FERAL INTERN": small wiry monkey, wide eyes, wild little hair tuft, low crouch and very long tail, chaotic energy, circa 48px body.
+Each candidate recognizably distinct in anatomy and face; all warm brown fur/cream face/dark outlines with modest palette variations. Pixel-art game sprite style, internet monke humor expressed through anatomy and posture, not captions. Keep all art fully in frame. Header "MONKE / CHARACTER DIRECTIONS". Label only names and letters, no paragraphs. These are concept references, not a finished animation sprite sheet.
+
+EQUIPMENT SHEET
+Use case: stylized-concept
+Asset type: pixel-art prop comparison reference board for MONKE humorous coding desktop pet.
+Create landscape sheet headed "MONKE / EQUIPMENT DIRECTIONS". Three equal vertical columns clearly titled "T1 COCONUT ENGINEERING", "T2 OFFICE SALVAGE", "T3 ARCADE CHAOS". Seven aligned rows; each row has the SAME kind of prop reimagined in each of the three visual languages. Row labels: "KEYBOARD", "LEVER", "APPROVAL BUTTON", "BUILD KIT", "GAMING", "CLOUD SERVICE", "GEAR".
+T1: handmade jungle tech, coconut shells, bamboo, vine wires, leaf keycaps, wooden crank. T2: battered beige old office computers, chunky yellowed plastic, metal mechanisms, overlarge professional-looking red button. T3: black and purple arcade electronics, chunky bright buttons and cables, improvised neon banana accents, no actual glow gradients.
+KEYBOARD: clearly readable small keyboard with stout keys, no monitor needed.
+LEVER: comically oversized handle on small stable base.
+APPROVAL BUTTON: giant RED domed button on obvious pedestal, distinct from lever.
+BUILD KIT: oversized yellow hard hat beside stackable banana-shaped construction blocks.
+GAMING: separate Xbox-like twin-stick gamepad, over-ear headset and little television in each column; three readable objects, no logos.
+CLOUD SERVICE: small cloud overhead, a rope and bucket carrying a question-mark leaf upward, answer leaf with checkmark beside it. Clear simple vertically oriented pulley communication prop, cloud visual matches column theme.
+GEAR: one oversized gear with a graspable rim, wood/metal/arcade variant.
+Style: authentic chunky pixel art with consistent square pixel clusters, dark stepped outlines, restrained flat 3-tone shading, no smooth linework, no antialiasing, no gradients. Front/three-quarter side view usable in a side-on desktop pet scene, NOT isometric. Warm cream board background, very subtle grid separators, generous negative space; props individually clear and fully visible. Pixel-font labels only, no prose. No monkeys on this board. Props should feel ridiculous but their functions instantly readable. This is a design menu, not a finished sprite atlas.
+
+RECURRING DETAILS SHEET
+Use case: stylized-concept
+Asset type: pixel-art reusable organic prop and status-symbol design exploration board for MONKE desktop coding pet.
+One landscape reference sheet headed "MONKE / RECURRING DETAILS". Three equal columns labelled "P1 CHUNKY", "P2 JUNGLE", "P3 DEADPAN". Seven aligned rows labelled "BANANA", "BASKETS", "COCONUT", "NOTES", "TELESCOPE", "VINES", "TAIL SIGNALS".
+P1 CHUNKY: very simple bold 16/32-bit game sprite objects, thick stepped outline, broad bright yellow banana, minimal features, few colors.
+P2 JUNGLE: handcrafted bamboo/leaf/coconut details, slightly richer pixel clusters and warm natural colors, still readable and compact.
+P3 DEADPAN: mundane understated utilitarian shapes, muted ochre/olive palette, ridiculous solemnity, no cartoon faces on objects.
+BANANA row: each cell shows same banana whole and partly peeled; recognize curved silhouette at tiny size.
+BASKETS row: two side-by-side banana transfer baskets, one with single right arrow badge and one with checkmark badge; distinguish via symbols as well as color.
+COCONUT row: coconut drink with straw and separate shiny coconut with one bright mirror reflection stripe (monkey flexes at it).
+NOTES row: leaf document, small folded map, and coconut filing cabinet stuffed with papers; keep three individually readable.
+TELESCOPE row: comically serious small telescope on short tripod beside a tiny notebook, only telescope/no binoculars.
+VINES row: long simple climbable curved vine AND two disconnected vine cable ends with chunky contrasting connector tips. Useful for swinging entry and offline animation.
+TAIL SIGNALS row: brown monkey tail samples on little body-base stubs, forming a question mark, checkmark, and no-signal/broken-signal shape. A small separate red error badge beside them. Shapes should be readable, not elaborate typography.
+No full monkey character on board. Three stylistic options for every recurring element, consistent scale and pixel grid within each column, generous breathing room, fully visible objects. Crisp hard square pixels and flat palette, no gradients, no antialiasing, no smooth vector linework, no isometric view. Warm cream backdrop with subtle grid separators, dark brown pixel-font titles. This is a reference comparison board, not production sprites.

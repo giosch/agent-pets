@@ -1,0 +1,21 @@
+{
+  "candidate": "cb10d1a5aa07921a4bd1ed0136e7ad1c9d24f6b5b5b7dc1616f8efd587acc7b1",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Taps leaf on timeclock, waves, exits.",
+  "evidence": [
+    {
+      "pose": "1 / 2 / 3",
+      "observation": "The green leaf now stays in the clock slot when the hand lets go and raises to wave. The green edge survives in both fur variants."
+    },
+    {
+      "pose": "out / end",
+      "observation": "The final tail segment follows the torso off the right edge. The single clock and punched leaf remain visible after departure."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

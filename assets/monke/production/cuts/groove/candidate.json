@@ -1,0 +1,31 @@
+{
+  "activity": "groove",
+  "meaning": "Play a TV game with an Xbox-style controller and headset, then ragequit and throw the controller at the TV.",
+  "tile": [
+    80,
+    64
+  ],
+  "svg": "state.svg",
+  "brown": "brown.gif",
+  "teal": "teal.gif",
+  "timing": "timing.json",
+  "reference": "assets/concepts/monke/master-reference-v1.png",
+  "state_phases": [
+    "intro",
+    "waiting"
+  ],
+  "repeat_phase": "waiting",
+  "preview_phases": [
+    "intro",
+    "waiting"
+  ],
+  "reduced_pose": "5",
+  "locked_regions": [
+    [
+      54,
+      50,
+      70,
+      53
+    ]
+  ]
+}

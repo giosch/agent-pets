@@ -1,0 +1,21 @@
+{
+  "candidate": "33600a1e6e7e69308e53a103e4ab6df103123769c0655e5098323d72dd03a888",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Pulls gear apart then stares at red X.",
+  "evidence": [
+    {
+      "pose": "0 / 1",
+      "observation": "Both fists enclose the gray toothed disc with a hole in its center. The hub and teeth stay gray with teal fur."
+    },
+    {
+      "pose": "2 / 3",
+      "observation": "The two jagged broken edges separate over a contrasting gap and the eyes turn toward the red badge with a white X."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

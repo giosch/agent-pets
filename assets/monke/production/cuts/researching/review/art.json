@@ -1,0 +1,20 @@
+{
+  "candidate": "42c9b626f35b8d6026486cbdc7d71b1cd0e9cf4fa1a01c112bcaa40147c27d1b",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey consulted a tripod telescope and then took notes.",
+  "evidence": [
+    {
+      "pose": "0.00 s / sighting",
+      "observation": "The muzzle aligns with the telescope eyepiece while the white note and pencil sit below the throat. The three tripod legs and yellow telescope keep their colors."
+    },
+    {
+      "pose": "0.91 s / writing",
+      "observation": "The head and pencil lower toward the page, with enough room between the paper and telescope to separate writing from sighting. The long note-taking exposure makes the follow-up readable at native size."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,21 @@
+{
+  "candidate": "07b5025eb4e87adf1ceabf01d292efb3e4e9f25e9982258b5f9c3b4975861e02",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Hands on hips, the monkey whips its tail up into a checkmark and waits.",
+  "inspection": "Reviewed the new native brown and teal exposures with the previously inspected runtime phase timing.",
+  "evidence": [
+    {
+      "pose": "200\u00e2\u20ac\u201c600 ms",
+      "observation": "The loose curl dips before the long ascending stroke straightens into the check shape beside the body. The soles stay planted."
+    },
+    {
+      "pose": "2600\u20132720 ms, waiting blink",
+      "observation": "The eye briefly closes while the planted feet, hands and newly drawn checkmark remain fixed."
+    }
+  ],
+  "blockers": []
+}

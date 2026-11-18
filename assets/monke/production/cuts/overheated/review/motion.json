@@ -1,0 +1,21 @@
+{
+  "candidate": "3079b22a097182a907c0463a16c9230c496b8b0a37a13c41d8f1ee2b19fa68e8",
+  "agent": "/root/final_art",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Mashes keys angrily, clenches fists, exhales, then taps carefully.",
+  "evidence": [
+    {
+      "pose": "0 / 1",
+      "observation": "The rapid 100, 90, 80 and 90 ms alternating high/low hand exposures make the double-handed keyboard impact read before he stops."
+    },
+    {
+      "pose": "2 / 3 / 4 / 5",
+      "observation": "A 260 ms clench and small exhalation give way to one raised index finger. The 1100 ms single-key contact gives the careful press time to land."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

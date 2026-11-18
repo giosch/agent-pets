@@ -1,0 +1,22 @@
+{
+  "candidate": "c4c49afc780b597ea68e280651646518420af4e02d547323b153bdbfae0252e0",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "At native size the monkey sat upright, looking slightly up, both hands on its knees. It held that drawing throughout.",
+  "evidence": [
+    {
+      "pose": "pose 0 / silhouette",
+      "observation": "The single curled tail clears the shoulder, the knees frame the belly, and the flat muzzle and level brow give the sitter a blank expression."
+    },
+    {
+      "pose": "pose 0 / palette",
+      "observation": "Brown and teal preserve the warm face and belly. The brown tail nevertheless has a cyan dot halfway down its left edge at (20,33), with a green pixel just outside the heel at (27,54). Both dots persist for the full hold."
+    }
+  ],
+  "blockers": [
+    "The static drawing has isolated cyan and green pixels on its silhouette. They interrupt the otherwise continuous brown edge on cream."
+  ]
+}

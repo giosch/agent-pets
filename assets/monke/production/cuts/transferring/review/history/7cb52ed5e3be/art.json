@@ -1,0 +1,22 @@
+{
+  "candidate": "7cb52ed5e3be0983982892ef634c90ec9fe95caf94bdf0e5fc6852d9fe65e81f",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The monkey picks up one banana on the red side, takes it across, sets it down in the green basket and turns back.",
+  "evidence": [
+    {
+      "pose": "0.32\u20130.65 s / pickup and stride",
+      "observation": "The empty green basket, loaded red basket and warm banana remain distinct after the coat changes color. The lifting foot changes height as the fruit crosses the body."
+    },
+    {
+      "pose": "0.65 s and 1.34 s / placement and turn",
+      "observation": "At placement the rear foot ends at a straight vertical edge; in the mirrored turnaround the trailing shin ends in a narrow stump next to the red basket. The rest of the feet in the approach drawings are broad."
+    }
+  ],
+  "blockers": [
+    "Cropping cuts through the feet at placement and turnaround, visibly shortening the limbs."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "candidate": "579afaa0fdaaf59db1aac72dfbe888a621728c2c3f46cb41a4178b56f4bb86ef",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Monke checks its reflection in the shiny coconut, poses and flexes.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "260\u2013920 ms",
+      "observation": "The head lowers toward the coconut, then the torso straightens and the raised brow marks recognition. The coconut remains grounded beside the actor."
+    },
+    {
+      "pose": "920 ms onward",
+      "observation": "One forearm curls before the full double-biceps pose. A hand to the face breaks up the waits before the arm rises again."
+    }
+  ],
+  "blockers": []
+}

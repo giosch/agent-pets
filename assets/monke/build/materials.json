@@ -1,0 +1,147 @@
+{
+  "indices": [
+    "transparent",
+    "outline",
+    "fur.shadow",
+    "fur.base",
+    "fur.highlight",
+    "skin.shadow",
+    "skin.base",
+    "skin.light",
+    "beige",
+    "beige.shadow",
+    "steel",
+    "yellow",
+    "yellow.shadow",
+    "leaf",
+    "alert",
+    "lens",
+    "white",
+    "prop.wood"
+  ],
+  "palettes": {
+    "fixed": {
+      "outline": "#261C19",
+      "skin.shadow": "#C68D58",
+      "skin.base": "#E9B47B",
+      "skin.light": "#FFE0A3",
+      "beige": "#F4E7C8",
+      "beige.shadow": "#B6A78C",
+      "steel": "#63706B",
+      "yellow": "#F6CF35",
+      "yellow.shadow": "#BB861C",
+      "leaf": "#65934B",
+      "alert": "#CB443B",
+      "lens": "#68B5C5",
+      "white": "#FFFFFF",
+      "prop.wood": "#80482D"
+    },
+    "fur": {
+      "brown": {
+        "fur.shadow": "#513023",
+        "fur.base": "#80482D",
+        "fur.highlight": "#AC7045"
+      },
+      "teal": {
+        "fur.shadow": "#204749",
+        "fur.base": "#34787A",
+        "fur.highlight": "#63A49D"
+      },
+      "purple": {
+        "fur.shadow": "#443052",
+        "fur.base": "#775183",
+        "fur.highlight": "#AC81B1"
+      },
+      "slate": {
+        "fur.shadow": "#303B4A",
+        "fur.base": "#546A7C",
+        "fur.highlight": "#8CA4AF"
+      }
+    }
+  },
+  "timing": {
+    "idle": {
+      "durations_ms": [
+        1000,
+        250,
+        250,
+        250,
+        250,
+        250,
+        375,
+        125,
+        1000
+      ],
+      "anchor": [
+        40,
+        55
+      ]
+    },
+    "coding": {
+      "durations_ms": [
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        250,
+        125
+      ],
+      "anchor": [
+        40,
+        55
+      ]
+    },
+    "approval": {
+      "durations_ms": [
+        375,
+        250,
+        250,
+        250,
+        875,
+        125,
+        875,
+        250,
+        250,
+        375
+      ],
+      "anchor": [
+        40,
+        55
+      ]
+    },
+    "walking": {
+      "durations_ms": [
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125
+      ],
+      "anchor": [
+        40,
+        55
+      ]
+    },
+    "ready": {
+      "durations_ms": [
+        1125,
+        250,
+        1125,
+        125,
+        1125
+      ],
+      "anchor": [
+        40,
+        55
+      ]
+    }
+  }
+}

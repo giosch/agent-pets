@@ -1,0 +1,21 @@
+{
+  "candidate": "3fc17e41f771904973e51cfe947416fe300d31e1a1f5e4fefd36b2cf01ee3a92",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Static seated monkey watching to the right.",
+  "evidence": [
+    {
+      "pose": "0, upper silhouette",
+      "observation": "The brow is level and the projecting muzzle is closed. The curl behind the ear connects down around to the hip once."
+    },
+    {
+      "pose": "0, lower silhouette",
+      "observation": "The peach belly separates the bent arms from the knees; both feet sit on a shared baseline in brown and teal, on charcoal and cream."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

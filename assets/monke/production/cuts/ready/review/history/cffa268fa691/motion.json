@@ -1,0 +1,21 @@
+{
+  "candidate": "cffa268fa691c31c5429b4b33f30560ffc61024a81374414b5bf8eda380bff2e",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Hands on hips, the monkey whips its tail up into a checkmark and waits.",
+  "inspection": "Decoded the GIF and reconstructed timing from the native strip and state phases.",
+  "evidence": [
+    {
+      "pose": "200–600 ms",
+      "observation": "The loose curl dips before the long ascending stroke straightens into the check shape beside the body. The soles stay planted."
+    },
+    {
+      "pose": "2600–2720 ms",
+      "observation": "The blink changes only the eye area at x41–53, y13–18. The check and hands stay still through the waiting repeat."
+    }
+  ],
+  "blockers": []
+}

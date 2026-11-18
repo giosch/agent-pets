@@ -1,0 +1,20 @@
+{
+  "candidate": "adab82a18aa8486373bd14da0d7065fa2b33442bef66d8fc297f540d0ddbcfe6",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A hard-hatted monkey stacks two yellow blocks, catches the wobble and salutes.",
+  "evidence": [
+    {
+      "pose": "0.30\u20130.69 s / placement",
+      "observation": "The top block moves from between the hands to sit on the lower studs. The release leaves the stack clear of the monkey."
+    },
+    {
+      "pose": "1.05 s / hold",
+      "observation": "The raised hand meets the oversized hard-hat brim while the other stays at its hip. The yellow hard hat and blocks hold their colors in both coats."
+    }
+  ],
+  "blockers": []
+}

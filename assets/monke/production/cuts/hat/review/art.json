@@ -1,0 +1,21 @@
+{
+  "candidate": "579afaa0fdaaf59db1aac72dfbe888a621728c2c3f46cb41a4178b56f4bb86ef",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Inspects a round object and admires its biceps.",
+  "evidence": [
+    {
+      "pose": "0 / 1",
+      "observation": "The monkey directs its gaze down to a round, highlighted brown coconut beside the toes; a face-like patch is visible within the highlight."
+    },
+    {
+      "pose": "3 / 4",
+      "observation": "One fist is lifted beside a small burst; the double-biceps silhouette opens above the shoulders. The coconut remains brown when fur turns teal."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

@@ -1,0 +1,21 @@
+{
+  "candidate": "26ae036bed569a2683e55a99251bde0e46f5653394f5e8d7bed514298effee0f",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A celebratory jump and kick give way to a formal bow.",
+  "inspection": "Reinspected the revised native brown and teal exposures plus enlarged brown GIF drawings through the runtime phases.",
+  "evidence": [
+    {
+      "pose": "0\u2013530 ms",
+      "observation": "Bent knees precede the two-fist hop. The extended leg and pointing finger give the landing a separate kick beat."
+    },
+    {
+      "pose": "670\u20131190 ms, incline and bow",
+      "observation": "The new shallow and deep bowed drawings share the same grounded feet. The shoulders descend into the 330 ms formal bow and the hands return to the upright waiting pose."
+    }
+  ],
+  "blockers": []
+}

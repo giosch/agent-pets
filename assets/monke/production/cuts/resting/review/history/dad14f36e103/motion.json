@@ -1,0 +1,21 @@
+{
+  "candidate": "dad14f36e1039ab25e8fb873cc55bd3f71c80f4cfd0a2ff30573cf370efd0de5",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Seated monkey grows drowsy, nods forward, tips the head up with a tiny breath or note and sags again.",
+  "inspection": "Inspected native and enlarged exposures, reconstructed playback from decoded GIF frames and durations, and checked the repeating phase in the runtime SVG.",
+  "evidence": [
+    {
+      "pose": "270–1190 ms, poses 3 and 4",
+      "observation": "The eyelids sink before the muzzle tilts down toward the chest. Both feet stay planted along y55 as the shoulders fold."
+    },
+    {
+      "pose": "2090–2870 ms, pose 5",
+      "observation": "The chin and chest lift together for a breath marked by a small mouth tick. Pose 4 then returns, and both ends of the waiting cycle hold the same dozing drawing."
+    }
+  ],
+  "blockers": []
+}

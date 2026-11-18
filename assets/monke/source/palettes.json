@@ -1,0 +1,15 @@
+{
+  "fixed": {
+    "outline": "#261C19", "skin.shadow": "#C68D58", "skin.base": "#E9B47B",
+    "skin.light": "#FFE0A3", "beige": "#F4E7C8", "beige.shadow": "#B6A78C",
+    "steel": "#63706B", "yellow": "#F6CF35", "yellow.shadow": "#BB861C",
+    "leaf": "#65934B", "alert": "#CB443B", "lens": "#68B5C5", "white": "#FFFFFF",
+    "prop.wood": "#80482D"
+  },
+  "fur": {
+    "brown": {"fur.shadow": "#513023", "fur.base": "#80482D", "fur.highlight": "#AC7045"},
+    "teal": {"fur.shadow": "#204749", "fur.base": "#34787A", "fur.highlight": "#63A49D"},
+    "purple": {"fur.shadow": "#443052", "fur.base": "#775183", "fur.highlight": "#AC81B1"},
+    "slate": {"fur.shadow": "#303B4A", "fur.base": "#546A7C", "fur.highlight": "#8CA4AF"}
+  }
+}

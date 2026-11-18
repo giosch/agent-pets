@@ -1,0 +1,22 @@
+{
+  "candidate": "1967adf91321b13e3e659b68622c5569c37b9890e8a51186f9da6ede39816f08",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The mechanism in the monkey's hands split in two. The monkey looked up in alarm and held the pieces under a red cross.",
+  "evidence": [
+    {
+      "pose": "pose 0 / 0.00 s",
+      "observation": "The round, toothed part sits between both hands. Cyan pixels at (13,25) and (13,26) make a short stripe down the brown tail, visible against the cream ground."
+    },
+    {
+      "pose": "poses 2 and 3 / 0.40 and 0.57 s",
+      "observation": "A gap opens between the toothed halves, each held in a fist. The enlarged eyes turn up toward the X after the break. The white cross and warm hands remain distinct in both coat colors."
+    }
+  ],
+  "blockers": [
+    "Cyan flecks move through the tail and face as the gear comes apart. These read as colored edge noise on the brown sprite."
+  ]
+}

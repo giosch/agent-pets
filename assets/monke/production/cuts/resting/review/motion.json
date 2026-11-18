@@ -1,0 +1,21 @@
+{
+  "candidate": "cc4cbf034ce01fae06097350aad7106c44e7a68be0d650e2fc4333b4e3467410",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The seated monkey nods off, takes a small upward breath, and nods back down.",
+  "inspection": "Reviewed the new native brown and teal exposures with the previously inspected runtime phase timing.",
+  "evidence": [
+    {
+      "pose": "270\u00e2\u20ac\u201c1190 ms, poses 3 and 4",
+      "observation": "The lids droop then the chin tucks forward. Each foot remains in its initial floor position."
+    },
+    {
+      "pose": "2090\u00e2\u20ac\u201c3590 ms, poses 5 and 4",
+      "observation": "The breath lifts the chin and shows a small mouth tick for 780 ms. The waiting cycle settles into the same chin-down pose at both ends."
+    }
+  ],
+  "blockers": []
+}

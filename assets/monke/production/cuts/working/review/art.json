@@ -1,0 +1,20 @@
+{
+  "candidate": "73bffea57e638495b7c66ac7f2022f7d10a1fef289b752f0b5cb0803e40e2847",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey lifts a bunch from the middle, checks it near its face, and places it with the yellow or green bunches at the sides.",
+  "evidence": [
+    {
+      "pose": "ripe0 / 0.00 s",
+      "observation": "The short muzzle again has an unbroken dark underside between chin and neck. The forearms bend to reach the center bunch without cutting into the head."
+    },
+    {
+      "pose": "ripe6 and green6 / deposit",
+      "observation": "Each curved bunch remains in the fingers until it meets the matching side pile. The warm hands and both banana colors remain distinct from either coat on cream and charcoal."
+    }
+  ],
+  "blockers": []
+}

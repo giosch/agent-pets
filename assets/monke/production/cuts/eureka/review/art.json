@@ -1,0 +1,20 @@
+{
+  "candidate": "38f380921d232fe1a7e93fc02340e5ca57cbf44114229d601ea1971f26b66e80",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A flickering lightbulb grew into a huge glowing banana and the monkey jumped beneath it.",
+  "evidence": [
+    {
+      "pose": "0.26\u20130.78 s / idea",
+      "observation": "The brow stays angled toward a small bulb as it dims and brightens. A banana shape then appears directly above the same gaze."
+    },
+    {
+      "pose": "0.91\u20131.09 s / reveal",
+      "observation": "The feet lift clear of the ground as the banana expands, and the monkey lands pointing at it. Bright rays and the fruit's shape survive both grounds and both fur variants."
+    }
+  ],
+  "blockers": []
+}

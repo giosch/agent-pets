@@ -1,0 +1,21 @@
+{
+  "candidate": "f7eab321bcb807ebb11417c6c583a0b5aa575796edf057895f3b400144b97d84",
+  "agent": "/root/final_art",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Paces back and forth with thinking cap and clasped hands.",
+  "evidence": [
+    {
+      "pose": "r1 / r2 / r3",
+      "observation": "The hips move through a planted sole spanning x28–36 at y56; the opposite foot reaches a second floor contact at x40–48."
+    },
+    {
+      "pose": "r8 / l0 / l1",
+      "observation": "The 300 ms endpoint and 300 ms facing-left hold separate the return from the outward stroll. Arms remain clasped and the bulb rides the head."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

@@ -1,0 +1,43 @@
+{
+  "activity": "parallel",
+  "meaning": "Operate two keyboards with the hands and a third with the feet.",
+  "tile": [
+    80,
+    64
+  ],
+  "svg": "state.svg",
+  "brown": "brown.gif",
+  "teal": "teal.gif",
+  "timing": "timing.json",
+  "reference": "assets/concepts/monke/master-reference-v1.png",
+  "state_phases": [
+    "intro",
+    "waiting"
+  ],
+  "repeat_phase": "waiting",
+  "preview_phases": [
+    "intro",
+    "waiting"
+  ],
+  "reduced_pose": "4",
+  "locked_regions": [
+    [
+      10,
+      38,
+      26,
+      51
+    ],
+    [
+      54,
+      38,
+      70,
+      51
+    ],
+    [
+      26,
+      50,
+      55,
+      57
+    ]
+  ]
+}

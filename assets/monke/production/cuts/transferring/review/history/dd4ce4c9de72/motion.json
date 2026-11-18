@@ -1,0 +1,21 @@
+{
+  "candidate": "dd4ce4c9de722878d65009d0ee8fd961003f2e8ac916c559bb683fbb762396bf",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "One banana is carried from the left basket to the right.",
+  "inspection": "Reinspected the revised native and enlarged drawings and actual waiting exposures after the initial blind review.",
+  "evidence": [
+    {
+      "pose": "320\u20131010 ms, carry",
+      "observation": "The banana leaves the left basket, passes in front of the torso and reaches the right basket before release."
+    },
+    {
+      "pose": "1340\u20131530 ms, return",
+      "observation": "Both soles now survive the turn toward the source. The nearer basket occludes the foot naturally and the returning silhouette carries no cut-off stump."
+    }
+  ],
+  "blockers": []
+}

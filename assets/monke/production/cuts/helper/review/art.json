@@ -1,0 +1,21 @@
+{
+  "candidate": "79706f95162256cdfdebdb88b2bbcf27ed880f8fdc94a8e0f81aa90bd5ace46f",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Hefts a huge wrench from waist height onto shoulder.",
+  "evidence": [
+    {
+      "pose": "2 / 3",
+      "observation": "The ring and open jaw are separate against the background; hands bear the shaft and the raised near foot shows the effort of tipping it."
+    },
+    {
+      "pose": "5 / step",
+      "observation": "The shaft passes behind the neck onto the shoulder and stays gray in both palettes; the curled tail is visibly separate below the ring end."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

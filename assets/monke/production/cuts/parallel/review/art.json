@@ -1,0 +1,20 @@
+{
+  "candidate": "caa9f50b6f19d2fe4dbbdab7b86b77a9efbdf9e653ac2abd04beebdadb701aea",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey operates three small keyboards with both hands and a foot.",
+  "evidence": [
+    {
+      "pose": "0.19 s / alternating hands",
+      "observation": "One palm stays above the left keyboard while the other clears the right key bed. The platform posts and three separate key beds remain easy to count on charcoal and cream."
+    },
+    {
+      "pose": "0.68 s / lower keyboard",
+      "observation": "Both hands drop onto the raised keyboards while the foot reaches the third below. The hands stay warm and all three keyboard casings remain beige in teal."
+    }
+  ],
+  "blockers": []
+}

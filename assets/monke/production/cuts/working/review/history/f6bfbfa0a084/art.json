@@ -1,0 +1,22 @@
+{
+  "candidate": "f6bfbfa0a084bae2abf8e48a2a6e246f7f5f9de821727b6240a9647ce3396536",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The monkey picks up ripe and unripe bunches from the middle, examines them, and deposits them in the respective side piles.",
+  "evidence": [
+    {
+      "pose": "ripe0\u2013ripe6",
+      "observation": "The ripe bunch follows the hands from center, up to the muzzle, then to the right pile. The green bunch travels to the other pile in the second half. The banana and worktop colors stay fixed."
+    },
+    {
+      "pose": "ripe0 and green8 / head",
+      "observation": "At x48, y25 the lower-right muzzle abruptly loses its underside. The upper muzzle remains as a squared-off protrusion with no bottom outline; this shape persists while both arms move."
+    }
+  ],
+  "blockers": [
+    "A rectangular body cut erases the lower muzzle and its dark outline."
+  ]
+}

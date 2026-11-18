@@ -1,0 +1,23 @@
+{
+  "candidate": "9f86549cec49a57093cf76e344ce3a74dea237d44ecdc7cbce898b045289902a",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blockers": [],
+  "context": "Retrospective calibration; prior versions identified by paths. No blinded initial read claimed.",
+  "role": "motion",
+  "agent": "/root/motion_review",
+  "evidence": [
+    {
+      "pose": "touch, 0.93 s / hook, 1.05 s",
+      "observation": "Tail touches the underside of the extended wrist and then crosses over it. The finger remains above the red cap."
+    },
+    {
+      "pose": "recoil, 1.16 s / waiting",
+      "observation": "The hand lifts only after contact. The 2.90 s waiting cycle holds the caught pose through a 210 ms blink and has identical poses across its boundary."
+    }
+  ],
+  "polish": [
+    "Tail silhouette jumps more during the GIF's reset. This reset is outside the actual approval state."
+  ]
+}

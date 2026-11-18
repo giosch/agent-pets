@@ -1,0 +1,21 @@
+{
+  "candidate": "eeb96402e03358008e6d36603882531b2fc3b969166a206409b0ba8d0a619be3",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Typing interrupted by a startle and sustained freeze.",
+  "evidence": [
+    {
+      "pose": "0 / 1",
+      "observation": "The two outlined index fingers now reach the same beige keyboard in the initial drawing. In the next drawing one finger stays on the row while the other hand lifts."
+    },
+    {
+      "pose": "2 / 3 / 4",
+      "observation": "The lifted curled fingers retain their outlines. A clean gap opens below the pointing hand in the hold and blink, with the belly intact, heel grounded and keyboard fixed in both fur colors."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Checked the reconstructed native exposures on dark and light backgrounds, then all six decoded GIF drawings enlarged 4\u00d7."
+}

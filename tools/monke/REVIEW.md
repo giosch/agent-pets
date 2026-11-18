@@ -1,0 +1,34 @@
+# Monke plate review
+
+Use the user's preferred approval v3 as the visual benchmark. The benchmark sets a level of acting, legibility and continuity. Every activity has its own performance. In particular, still, waiting, sleeping and low-power poses benefit from restraint.
+
+## Build a candidate
+
+1. Select one agreed activity. Write down its trigger, what the viewer should infer at 1×, the comic beat, prop contacts, and whether it loops, holds or exits. Include the approved character sheet, prop design and a contrast case such as question versus approval or inspecting versus researching.
+2. Generate as many plate panels or supplemental plates as the motion needs. Reuse good drawings. Cut to a shared logical grid, register intentional anchors and assign material IDs. Keep E's identity, B's confidence where appropriate, T2 hardware and P1 detail. Only the three dark-fur roles may recolor.
+3. Assemble timings at playback speed. Stage an important action in silhouette. Use anticipation, arcs, overlap, follow-through, settling and holds when the action calls for them. Check contact and eye direction through transitions. Protect the timing and drawings of beats that already work.
+4. Produce the state SVG, timed review GIFs in brown and teal, exposure timings and candidate.json. See the executable example under assets/monke/plate-study/approval-v3. The material IDs in the SVG are the source of expected palette changes. Define locked regions only for anchors or props that are actually meant to stay fixed.
+5. Run `python -m tools.monke.plate_review <candidate-dir> verify --browser <chrome-path>`. This creates a digest, a strip at native and enlarged sizes, and a technical receipt. The current verifier covers plate SVGs using discrete material-tagged drawings and seekable SVG time. It samples every state exposure, checks the two rendered palette previews against the material raster, checks repeated poses, declared locks and reduced motion. For a new renderer or playback behavior, add the appropriate executable check. For a deliberate exit, enter the intended final exposure in the timeline. GIF demo resets are separate from state behavior.
+
+## Dispatch the two reviewers
+
+The coordinator starts two fresh agents using model `gpt-6.2-astra`, reasoning effort `high`, and no inherited chat. The animator and the two reviewers must have distinct identities. Give each reviewer the same candidate digest and rendered material, without the author's rationale or the other's verdict. When comparing several versions, use neutral labels and randomize their order. The coordinator records each actual agent ID from the dispatch result. Review records are local provenance, not authenticated signatures.
+
+**Motion reviewer prompt.** Watch the unlabeled clip at native size first. Say what happened, in order, and where the weight went. Inspect frames and durations at 2–4×. Check whether anticipation prepares the action, the cause precedes the reaction, contact is visible, the punchline has time to land, and the loop or hold serves its state. Cite specific exposures and observed motion. Inspect the real state separately from the demonstration reset. Report what you could actually inspect. If playback is unavailable, reconstruct timing from all decoded frames and identify any remaining uncertainty.
+
+**Art and state reviewer prompt.** Describe the initial action and final state at native size before reading the intended brief. Then compare with the brief and master sheet. Check the muzzle, brow, belly and limbs, exactly one attached tail, silhouette, prop scale, contact, eye direction and shape-based status cues. Compare fur variants on light and dark backgrounds. A misclassified patch of skin can pass a material-ID test. Check for stray tinted pixels and altered props. Cite a pose or timestamp for every blocker and explain its consequence at the target size.
+
+Use two stages for a genuinely blind read. First send the anonymized playback and ask for the observed meaning. Then send the brief, reference, review strip and runtime SVG. Store the first impression along with the final report. If the second-stage explanation is the only way to recognize the action, revise its staging.
+
+## Decision and revision
+
+- **Revise** when the action is mistaken for another, a required beat is missing, an unmotivated volume or registration jump is visible, a contact floats or penetrates, a limb or prop pops, or runtime state/palette behavior is wrong. In a walk, inspect the planted support *during its contact interval*. A moving swing foot is expected.
+- **Pass** when the action reads at native size, the character and props remain consistent, timing conveys the intended performance, and all brief-specific invariants hold. Record at least two concrete pose observations per reviewer and any optional polish. A stylistic preference alone is not a defect.
+- **Uncertain** means a reviewer needs better evidence. Supply it, replay the clip or use another fresh specialist to examine the disputed interval. Two reviewers sharing the same model can share a blind spot. An extra vote never erases a reproducible defect.
+- Require passing technical checks and independent passes from both specialists on the *same digest*. Write review/motion.json and review/art.json from actual agent returns. Use `decide` to compute acceptance. A review pass permits the coordinator to continue the batch. Keep publication, hardware deployment and claims of human sign-off separate.
+- **Iterate as often as necessary.** A concrete failure sends the smallest relevant change back to the animator. Rebuild and re-review the resulting candidate, including previously good neighboring beats. Keep a brief history of defect, evidence, intervention and outcome. If a fix keeps failing, change the plate, camera, key poses or acting choice. Keep other independent animations moving. Bring the user a decision only when the brief leaves a material creative tradeoff unresolved. Time spent or number of attempts never grants a pass.
+
+Review JSON fields are `candidate` (packet SHA-256), `agent`, `role` (motion or art), `model`, `effort`, `verdict` (pass, revise or uncertain), `evidence` (list of objects with pose and observation), `blockers` (list), and optional `polish`. Evidence must describe the visible consequence, for example “touch, 0.93 s: the fingertip stays above the dome while the tail tip first meets the underside of the wrist.” The decision tool checks receipt structure and provenance fields. The coordinator remains responsible for the truth of observations.
+
+Archive receipts with the candidate before revising it. Changed playback, timing, brief, palette, reference or review rules invalidate old decisions. Keep a browsable batch gallery and use user corrections to update the examples and rerun affected cuts. A personal preference from the user takes precedence over a model consensus.
+

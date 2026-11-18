@@ -1,0 +1,21 @@
+{
+  "candidate": "636cbb72f306f0d32b758b69cea3c546d908b97b1b38d7219344c78474c7fd4a",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A raised open palm and a question-mark tail accompany a questioning tilt of the head.",
+  "inspection": "Reviewed the new native brown and teal exposures with the previously inspected runtime phase timing.",
+  "evidence": [
+    {
+      "pose": "0\u2013690 ms, arm rise and question curl",
+      "observation": "The palm lifts before the tail forms a question mark. Both soles now stay in the same position along y55 during the arm lift and the head tilt."
+    },
+    {
+      "pose": "690 ms onward",
+      "observation": "The head tips back and the tail holds the large question curve. Blink changes only x34\u00e2\u20ac\u201c45, y11\u00e2\u20ac\u201c18."
+    }
+  ],
+  "blockers": []
+}

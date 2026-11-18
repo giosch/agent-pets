@@ -1,0 +1,37 @@
+{
+  "activity": "transferring",
+  "meaning": "Shuttle one banana at a time between two labeled baskets.",
+  "tile": [
+    80,
+    64
+  ],
+  "svg": "state.svg",
+  "brown": "brown.gif",
+  "teal": "teal.gif",
+  "timing": "timing.json",
+  "reference": "assets/concepts/monke/master-reference-v1.png",
+  "state_phases": [
+    "intro",
+    "waiting"
+  ],
+  "repeat_phase": "waiting",
+  "preview_phases": [
+    "intro",
+    "waiting"
+  ],
+  "reduced_pose": "2",
+  "locked_regions": [
+    [
+      9,
+      48,
+      27,
+      56
+    ],
+    [
+      54,
+      48,
+      70,
+      56
+    ]
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "activity": "failure",
+  "meaning": "Freeze holding a broken gear in each hand with an error badge.",
+  "tile": [
+    80,
+    64
+  ],
+  "svg": "state.svg",
+  "brown": "brown.gif",
+  "teal": "teal.gif",
+  "timing": "timing.json",
+  "reference": "assets/concepts/monke/master-reference-v1.png",
+  "state_phases": [
+    "intro",
+    "waiting"
+  ],
+  "repeat_phase": "waiting",
+  "preview_phases": [
+    "intro",
+    "waiting"
+  ],
+  "reduced_pose": "3",
+  "locked_regions": []
+}

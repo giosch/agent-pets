@@ -1,0 +1,21 @@
+{
+  "candidate": "90cdb3a839f938d930136c6038d732b70432e1c84db60b2443048ed67c39fb3b",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A headset-wearing gamer loses, throws its controller at the TV, and slumps.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "0\u20131200 ms",
+      "observation": "Alternating thumb taps precede the large red X. Monke still holds the controller while registering the loss."
+    },
+    {
+      "pose": "1200\u20132010 ms",
+      "observation": "Wind-up, release, airborne controller, screen contact and rebound occur in order. The controller reaches the floor and the hunched figure holds the aftermath."
+    }
+  ],
+  "blockers": []
+}

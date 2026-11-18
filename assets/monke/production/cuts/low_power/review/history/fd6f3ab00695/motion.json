@@ -1,0 +1,23 @@
+{
+  "candidate": "fd6f3ab00695c73e8c80183e520ffb06fdd25b4b5feb6b0dd775d46288488769",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "Monkey progressively slumps onto a cane under a nearly empty battery. The free arm and tail drop before a faint exhalation.",
+  "inspection": "Inspected native and enlarged exposures, reconstructed playback from decoded GIF frames and durations, and checked the repeating phase in the runtime SVG.",
+  "evidence": [
+    {
+      "pose": "0–1600 ms, poses 0 through 4",
+      "observation": "The ferrule contacts the floor throughout, but the center of its bottom edge shifts from x60.5 to x51 as the knees bend. The soles slide left alongside it. The floor contacts drift while the character transfers weight onto the stick."
+    },
+    {
+      "pose": "1600–4450 ms, waiting poses 4, 5, 4",
+      "observation": "The muzzle settles against the hand, the tail lies along the floor and a breath puff appears at 2950 ms. The repeat keeps the exhausted silhouette."
+    }
+  ],
+  "blockers": [
+    "Fix the floor registration of the ferrule and the weight-bearing feet across the intro. Let the upper body settle onto those contacts."
+  ]
+}

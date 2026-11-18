@@ -1,0 +1,20 @@
+{
+  "candidate": "90f66f56417f952b0a6a2f68dc6b1731dddc37d87def6a6fc95526d1332cfbab",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The big monkey points at a chart while the small one turns its map right-side up.",
+  "evidence": [
+    {
+      "pose": "0.28 s / direction",
+      "observation": "The pointing finger touches the lower part of the upside-down route while the small helper reaches toward the bottom edge. Both characters have their own tail."
+    },
+    {
+      "pose": "0.90\u20131.23 s / rotate and reveal",
+      "observation": "The sheet tips diagonally in the helper's hands and settles with the tree at the top, inside a stationary easel. The green tree and red route keep their colors in teal."
+    }
+  ],
+  "blockers": []
+}

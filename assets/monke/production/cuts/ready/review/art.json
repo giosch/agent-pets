@@ -1,0 +1,21 @@
+{
+  "candidate": "07b5025eb4e87adf1ceabf01d292efb3e4e9f25e9982258b5f9c3b4975861e02",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Hands on hips as tail turns into a check mark.",
+  "evidence": [
+    {
+      "pose": "0 / 1",
+      "observation": "The planted feet, hands on the hips and forward muzzle establish a confident waiting pose."
+    },
+    {
+      "pose": "3 / 4",
+      "observation": "The tail has a short descending stroke and long ascending stroke against empty space. Its root still joins the hip and both fur palettes leave the belly clear."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

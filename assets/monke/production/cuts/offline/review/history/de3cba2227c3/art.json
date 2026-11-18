@@ -1,0 +1,22 @@
+{
+  "candidate": "de3cba2227c3c2ef13269e09a9e93535e15009e13019ca3480b68ee8ea355018",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The plugs approach but retain a gap; the monkey looks out from under the slashed tail.",
+  "evidence": [
+    {
+      "pose": "0.00 s / separation",
+      "observation": "The red and blue connectors now show an unmistakable opening. The warm hands still grip the vine ends."
+    },
+    {
+      "pose": "1.09 s / held stare",
+      "observation": "A straight-sided background notch cuts through the right half of the belly into the hip below the red pins. A dark dash also floats just above the blue wrist. Both persist for the extended hold."
+    }
+  ],
+  "blockers": [
+    "The background cutout interrupts the body behind the now-separated plugs."
+  ]
+}

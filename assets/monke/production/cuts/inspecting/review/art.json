@@ -1,0 +1,20 @@
+{
+  "candidate": "e6d0a26f8cede6dc5695ada4ff8cfa23f9b52ac0a068bb4457126faf73e2bf9f",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey took a magnifier, crouched over a little part and tested it.",
+  "evidence": [
+    {
+      "pose": "0.53 s / sightline",
+      "observation": "The magnifying glass crosses the muzzle as the monkey bends toward the object. The blue lens remains visible on both light and dark grounds."
+    },
+    {
+      "pose": "0.71\u20131.44 s / close inspection",
+      "observation": "An enlarged eye appears inside the lens, then the free hand reaches for the small test piece. Its position relative to the lens makes the target clear and keeps the gesture distinct from distant observation."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,198 @@
+{
+  "inspecting": {
+    "beats": [
+      "notice screw",
+      "lift glass",
+      "lean in",
+      "enlarged pupil",
+      "nudge and wobble",
+      "peer again"
+    ],
+    "ms": [
+      320,
+      190,
+      160,
+      370,
+      210,
+      610
+    ],
+    "loop": [
+      3,
+      4,
+      5,
+      3
+    ],
+    "registration": "Align beige block corners. Keep panel 5 wobble in the screw only. Enlarge eye with white/pupil kept as fixed materials. Panel 1 is an introduction; subsequent inspections can retain the glass."
+  },
+  "executing": {
+    "beats": [
+      "measure lever",
+      "reach",
+      "grip and strain",
+      "pull through stop",
+      "brace",
+      "peek"
+    ],
+    "ms": [
+      310,
+      130,
+      230,
+      110,
+      340,
+      520
+    ],
+    "registration": "The lever base drifts upon reaching in the raw art. Align the base/pivot and keep it fixed through the throw. If the lever arc feels fast add an intermediate shaft rotation around the pivot; shoulders follow hand. Protect the red handle as a fixed material."
+  },
+  "researching": {
+    "beats": [
+      "eyepiece",
+      "adjust focus",
+      "pull back and see",
+      "open pad",
+      "write deliberate stroke",
+      "present result"
+    ],
+    "ms": [
+      350,
+      230,
+      160,
+      170,
+      320,
+      520
+    ],
+    "registration": "Tripod stays planted. Register on its feet, retain notebook/pencil/paper marks and green or blue lens as fixed material. Inspect panel 1 where hand and tube contact."
+  },
+  "coordinating": {
+    "beats": [
+      "study inverted map",
+      "point at marker",
+      "boast as helper takes corner",
+      "map rotates",
+      "point at corrected route",
+      "helper steps back"
+    ],
+    "ms": [
+      300,
+      330,
+      280,
+      230,
+      370,
+      570
+    ],
+    "registration": "Register on board frame and map pins. Leafy tree tops and red route arrow should flip together. The helper is a separate, smaller monkey; both tails belong to their corresponding figures. Avoid collapsing two characters at 1x."
+  },
+  "parallel": {
+    "beats": [
+      "hover",
+      "left strike",
+      "right strike",
+      "lift foot",
+      "three-way contact",
+      "smug rebound"
+    ],
+    "ms": [
+      260,
+      130,
+      140,
+      170,
+      110,
+      360
+    ],
+    "registration": "Freeze the bases of all three keyboards. Pose 5 offers simultaneous contact with the front floor keyboard and both upper keyboards. Hold foot-up before impact. The beige keycaps, gray stands, steel stool and skin are fixed."
+  },
+  "compacted": {
+    "beats": [
+      "assess mountain",
+      "scoop towering load",
+      "feed drawer",
+      "squash flat",
+      "push drawer shut",
+      "poke last note"
+    ],
+    "ms": [
+      300,
+      250,
+      210,
+      250,
+      210,
+      540
+    ],
+    "registration": "Key on cabinet shell at right. Allow drawer movement and paper overlap at its left. Paper pile is drawn cut-flat at left edge of its cell in initial poses; select a subset/round the exposed margin if clipping reads at 1x. Watch pile conservation. End on pose 6 before state returns."
+  },
+  "working": {
+    "beats": [
+      "survey two piles",
+      "select green bunch",
+      "hold bunch up for inspection",
+      "set bunch down",
+      "check classification on fingers",
+      "smug nod"
+    ],
+    "ms": [
+      330,
+      165,
+      285,
+      180,
+      305,
+      380
+    ],
+    "registration": "Anchor on the table feet and front edge. Preserve ownership of each bunch: when a bunch leaves the table its resting spot should be empty. Green/yellow banana fills and the table are fixed colors."
+  },
+  "building": {
+    "beats": [
+      "inspect stack",
+      "grip next block",
+      "lift",
+      "align studs",
+      "press block down",
+      "admire handiwork"
+    ],
+    "ms": [
+      285,
+      170,
+      210,
+      255,
+      135,
+      450
+    ],
+    "registration": "Align bottom block and floor across poses. Keep hard hat and yellow blocks fixed under fur recoloring. The straight yellow blocks read as bricks; if the banana motif vanishes at 1x, add a curved banana stamp to their front faces."
+  },
+  "transferring": {
+    "beats": [
+      "look at source",
+      "reach into left basket",
+      "lift single banana",
+      "cross toward right basket",
+      "deposit banana",
+      "survey delivery"
+    ],
+    "ms": [
+      220,
+      170,
+      170,
+      225,
+      165,
+      385
+    ],
+    "registration": "Keep both basket bases pinned and badge symbols legible. Allow feet to translate with the carry. Last pose faces the destination; if replaying, stage a return step before reaching into the source basket."
+  },
+  "external": {
+    "beats": [
+      "load question card",
+      "raise bucket",
+      "question reaches cloud",
+      "lower answer",
+      "inspect check mark",
+      "applaud self"
+    ],
+    "ms": [
+      290,
+      200,
+      330,
+      240,
+      335,
+      435
+    ],
+    "registration": "Keep pulley sheave and feet fixed across all six panels. Pin the cloud at the top and keep the card linked to the bucket until retrieval. In the raw sixth pose the checked card returns to the bucket; stage that hand-off if it pops at playback. Keep white cloud, green check, beige bucket and rope fixed."
+  }
+}

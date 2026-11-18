@@ -1,0 +1,21 @@
+{
+  "candidate": "7ec5317c26b080ad812eb416c422360b08afd05e376c43fdb58f99b7283a95b0",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A bucket hoist delivers a question to a cloud and brings a check back. Monke appears to applaud.",
+  "inspection": "Reinspected the revised native and enlarged drawings and actual waiting exposures after the initial blind review.",
+  "evidence": [
+    {
+      "pose": "270\u20131450 ms, hoist and answer",
+      "observation": "The question rises on the rope. The bucket returns a check, which is shown in the hand before it leaves toward the bucket."
+    },
+    {
+      "pose": "1660 ms onward, waiting",
+      "observation": "The two palms now separate, with air between the raised hand and the opposite hand. They come together again with the contact accents, giving the applause a distinct rhythm."
+    }
+  ],
+  "blockers": []
+}

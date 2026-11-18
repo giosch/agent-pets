@@ -1,0 +1,21 @@
+{
+  "candidate": "47ea925a516c940d4138cef29fc0e74b89add63b2d9e6443fda3c86233915621",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A tall pile of papers gets stuffed into a tiny cabinet.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "300\u2013780 ms",
+      "observation": "The top stack transfers to both arms, travels across the chest and bends over the open drawer. The source pile shrinks while the machine stays on the ground."
+    },
+    {
+      "pose": "780\u20132020 ms",
+      "observation": "The last sheets disappear into the drawer and the torso straightens. A small paper edge flicks back up during the compacted hold."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,20 @@
+{
+  "candidate": "e038396ecacc5eaa84405e724de131e4e9a40722ab526e0e3c4de4b2c074f1e9",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey leaned into a large gear, turned it and exhaled with the effort.",
+  "evidence": [
+    {
+      "pose": "0.23\u20130.64 s / load",
+      "observation": "The feet spread and the torso drives forward, with the higher hand reaching a tooth and the lower hand pushing below it. The treads turn around a stable hub."
+    },
+    {
+      "pose": "1.21 s / effort",
+      "observation": "The monkey shifts its hands up the gear as a small white breath appears near its muzzle. The metal stays neutral in teal and silhouette space remains around the tail."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,23 @@
+{
+  "candidate": "440c4a7c777d01a18996c6c8caa6cae51f7d78f15f6a7bd631ed9c6575214deb",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "Seated monkey scratches its head, looks aside and settles.",
+  "inspection": "Reviewed the new native brown and teal exposures with the previously inspected runtime phase timing.",
+  "evidence": [
+    {
+      "pose": "870\u00e2\u20ac\u201c1690 ms",
+      "observation": "The hand lifts to the crown before alternating small rubs. Both feet stay planted."
+    },
+    {
+      "pose": "1860\u00e2\u20ac\u201c2510 ms, sideways look",
+      "observation": "When the head turns, an isolated vertical dark column remains beyond the right ear. Enlarging that 650 ms drawing confirms the detached mark."
+    }
+  ],
+  "blockers": [
+    "Remove the residual sliver from the right edge of the sideways head drawing."
+  ]
+}

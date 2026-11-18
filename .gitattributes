@@ -1,0 +1,10 @@
+# These inputs are signed off together by their exact byte digest.
+/assets/monke/production/cuts/*/candidate.json -text
+/assets/monke/production/cuts/*/timing.json -text
+/assets/monke/production/cuts/*/state.svg -text
+/assets/monke/plate-study/approval-v3/candidate.json -text
+/assets/monke/plate-study/approval-v3/timing.json -text
+/assets/monke/plate-study/approval-v3/approval.svg -text
+/assets/monke/source/palettes.json -text
+/tools/monke/REVIEW.md -text
+/tools/monke/plate_review.py -text

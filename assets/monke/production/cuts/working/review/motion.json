@@ -1,0 +1,21 @@
+{
+  "candidate": "73bffea57e638495b7c66ac7f2022f7d10a1fef289b752f0b5cb0803e40e2847",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Monke sorts bunches and singles between piles on a workbench.",
+  "inspection": "Rechecked the exact revised native exposures and enlarged brown GIFs after material and contact corrections, against the existing state timeline.",
+  "evidence": [
+    {
+      "pose": "0\u20131420 ms, ripe bunch",
+      "observation": "The hands take a ripe bunch up from the center pile to eye height for inspection, then lower it to the right. The fur, hands and ripe fruit remain individually readable through the carry."
+    },
+    {
+      "pose": "1700\u20133400 ms, green fruit",
+      "observation": "The second action follows the green bunch from the central pile into the left pile. Both destination groups stay stable while the empty hands return."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,44 @@
+{
+  "automated": "passed",
+  "errors": [],
+  "checks": [
+    {
+      "animation": "idle",
+      "frames": 9,
+      "duration_ms": 3750,
+      "palette_changed_pixels": 14454,
+      "loop_endpoints_match": true
+    },
+    {
+      "animation": "coding",
+      "frames": 10,
+      "duration_ms": 1375,
+      "palette_changed_pixels": 11730,
+      "loop_endpoints_match": true
+    },
+    {
+      "animation": "approval",
+      "frames": 10,
+      "duration_ms": 3875,
+      "palette_changed_pixels": 17028,
+      "loop_endpoints_match": true
+    },
+    {
+      "animation": "walking",
+      "frames": 9,
+      "duration_ms": 1125,
+      "palette_changed_pixels": 13953,
+      "loop_endpoints_match": true
+    },
+    {
+      "animation": "ready",
+      "frames": 5,
+      "duration_ms": 3750,
+      "palette_changed_pixels": 7656,
+      "loop_endpoints_match": true
+    }
+  ],
+  "visual_review": "pending_user",
+  "next_batch": "blocked_until_review",
+  "source_sha256": "ca3d975a0ffd1e1f9fa6f9d43233dceac902e5e02aecc05f79d12ab0fd366153"
+}

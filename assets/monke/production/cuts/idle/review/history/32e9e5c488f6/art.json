@@ -1,0 +1,22 @@
+{
+  "candidate": "32e9e5c488f6ada0708b006622252ac519dcd7600a4fa65741a8a77a0e7b6359",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The seated monkey scratched its head, glanced aside, then settled.",
+  "evidence": [
+    {
+      "pose": "0.87–1.69 s / lift and rub",
+      "observation": "The raised hand clears the resting knee, makes contact with the crown and makes two short rubbing motions. The seated silhouette remains easy to distinguish from the arched arm."
+    },
+    {
+      "pose": "0.00 s / resting palm",
+      "observation": "The isolated finger-crease pixel on the hand at the viewer's right turns teal with the coat at (54,41). The same palette issue returns with the held seated drawing."
+    }
+  ],
+  "blockers": [
+    "The finger crease and scattered ear/hand pixels cycle with the fur."
+  ]
+}

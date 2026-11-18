@@ -1,0 +1,26 @@
+{
+  "candidate": "5ff0ae4adb5eac62f5bb802ee4a41d56f06afdc211b17084e817ef16fe974926",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The monkey's eyes shut and its weight sinks onto its hooked cane as the battery empties.",
+  "evidence": [
+    {
+      "pose": "pose 0 / 0 s",
+      "observation": "The upright head clears the battery, the hand wraps the cane handle, and the tail curves behind the body."
+    },
+    {
+      "pose": "poses 3 and 4 / 1.16 and 1.60 s",
+      "observation": "As the body leans right the battery overlaps the brow and scalp. The floor-level tail tip has exposed background inside its outline near (22–25,51). The cane foot now stays on one baseline and its earlier cyan strip is gone."
+    },
+    {
+      "pose": "pose 4 / teal",
+      "observation": "Finger creases and interior ear shading turn teal. A red pixel appears on the dangling fingers even in the brown drawing."
+    }
+  ],
+  "blockers": [
+    "The battery cuts into the head in the lean. The flattened tail tip is hollow, and the fixed skin colors contain stray coat and alert colors."
+  ]
+}

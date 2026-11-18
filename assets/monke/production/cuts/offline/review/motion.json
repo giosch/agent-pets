@@ -1,0 +1,21 @@
+{
+  "candidate": "3830bfad146b8480787a08be1e83c6ac194fe001c504d18ce714d2993dc183a8",
+  "agent": "/root/final_art",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "First cut read as loose cables brought together, then a turn to the viewer and a crossed signal. On this revision the ends remain visibly disconnected.",
+  "evidence": [
+    {
+      "pose": "0 / 1 / 2, 0\u2013940 ms",
+      "observation": "The far hand draws the blue socket inward in two steps. Monke looks down at the red prongs before straightening his gaze. A cream gap still separates the prongs and socket at closest approach."
+    },
+    {
+      "pose": "turn / 3 / blink, from 940 ms",
+      "observation": "The face turns to the viewer for 150 ms before the tail forms crossed signal arcs. Both hands keep the connectors apart throughout the 1850 ms signal hold and 130 ms blink. The runtime repeats the signal hold and blink with the feet planted."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Reviewed all seven decoded exposures at native size and 4\u00d7. Reconstructed timing from GIF durations and checked intro and repeat in the SVG."
+}

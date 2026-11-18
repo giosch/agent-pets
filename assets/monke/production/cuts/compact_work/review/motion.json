@@ -1,0 +1,21 @@
+{
+  "candidate": "f7a59088ff59fb6757717077ff7251df8c2566da190dc1d74411e9fd3d9a4b29",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Rapid keyboard tapping with a raised fist and emphatic key strike.",
+  "inspection": "Reinspected the revised native brown and teal exposures plus enlarged brown GIF drawings through the runtime phases.",
+  "evidence": [
+    {
+      "pose": "130\u2013850 ms",
+      "observation": "The short fingertip lifts alternate over the keyboard and the eyes remain trained on the work."
+    },
+    {
+      "pose": "850\u20131070 ms, fist",
+      "observation": "The clenched hand rises above the shoulder, then lands on the keys for the short impact before Monke regains the typing pose."
+    }
+  ],
+  "blockers": []
+}

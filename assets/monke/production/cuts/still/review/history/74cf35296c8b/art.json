@@ -1,0 +1,22 @@
+{
+  "candidate": "74cf35296c8b6421a1f51915999a180b8f502f09cc44a105073dacb40101122b",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The seated monkey held an alert, neutral expression with its hands resting on its knees.",
+  "evidence": [
+    {
+      "pose": "pose 0 / silhouette",
+      "observation": "The loose tail makes a single arc behind the left shoulder, the brow and muzzle face right, and the broad feet and bent knees clearly read as sitting."
+    },
+    {
+      "pose": "pose 0 / teal on cream",
+      "observation": "The cyan tail speck and green mark beside the heel from the previous drawing are gone. A brown crease within the hand on the viewer's right changes to teal at (54,41). It is separated from the sleeve by surrounding skin pixels."
+    }
+  ],
+  "blockers": [
+    "The finger crease in the static drawing still recolors with the coat."
+  ]
+}

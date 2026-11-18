@@ -1,0 +1,21 @@
+{
+  "candidate": "7a4c99f3f1f6e4391cd95a088831e2d418b4d21e925d83e3de110d41979dd133",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A celebratory jump and kick give way to a formal bow.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "0\u2013530 ms",
+      "observation": "Bent knees precede the two-fist hop. The extended leg and pointing finger give the landing a separate kick beat."
+    },
+    {
+      "pose": "670\u20131190 ms",
+      "observation": "The torso inclines over grounded feet, stays folded for 330 ms, then comes back upright. The formal hands-together pose holds."
+    }
+  ],
+  "blockers": []
+}

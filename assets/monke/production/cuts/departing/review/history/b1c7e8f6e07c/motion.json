@@ -1,0 +1,23 @@
+{
+  "candidate": "b1c7e8f6e07cb514fa137fc604664db224d89277c1ee4be2968cd3dd10ed9539",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "A leaf goes into a timeclock, the monkey waves and runs offscreen.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "280\u2013690 ms",
+      "observation": "The leaf meets the slot, then withdraws carrying a mark. The raised hand follows the transaction."
+    },
+    {
+      "pose": "out, 1530 ms",
+      "observation": "As the runner moves right, a second vertical piece of clock housing travels with its silhouette immediately to the right of the fixed clock. The final empty hold drops it."
+    }
+  ],
+  "blockers": [
+    "Isolate the running figure from the clock before translating it through the exit."
+  ]
+}

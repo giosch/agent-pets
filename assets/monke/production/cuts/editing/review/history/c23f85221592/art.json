@@ -1,0 +1,22 @@
+{
+  "candidate": "c23f8522159262d4e2b5dd1eea28cc901aa61f6c82e1e8b686df120eaa24e13f",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The monkey alternates single-finger keyboard pokes with a proud pause and both fingers up.",
+  "evidence": [
+    {
+      "pose": "0.16 and 0.30 s / alternating strikes",
+      "observation": "One finger lifts while the opposite hand reaches toward the beige keys. The extended index finger and impact ticks read against both grounds."
+    },
+    {
+      "pose": "0.42 s / keyboard",
+      "observation": "The top row of keys and several interior marks on the board turn teal in the alternate variant. This crosses the fixed prop boundary and makes the keyboard appear flecked."
+    }
+  ],
+  "blockers": [
+    "Keys and casing pixels change with the coat."
+  ]
+}

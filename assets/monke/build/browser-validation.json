@@ -1,0 +1,13 @@
+{
+  "browser": "passed",
+  "source_sha256": "ca3d975a0ffd1e1f9fa6f9d43233dceac902e5e02aecc05f79d12ab0fd366153",
+  "checks": [
+    "all frame intervals have exactly one visible frame",
+    "fixed materials unaffected by fur selection",
+    "pause and frame scrub",
+    "1x logical size",
+    "24 themed pack documents decode",
+    "reduced motion"
+  ],
+  "errors": []
+}

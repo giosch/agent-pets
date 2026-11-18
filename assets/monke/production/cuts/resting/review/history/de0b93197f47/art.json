@@ -1,0 +1,22 @@
+{
+  "candidate": "de0b93197f471831f2fc023ff64a2ce3d421a72d03b52803cf7f50db350bba33",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The seated monkey nodded off and drew a small breath before its head sank again.",
+  "evidence": [
+    {
+      "pose": "pose 3 / 0.27 s",
+      "observation": "Lowered eyelids precede the hanging head, while both feet remain on the same baseline. The earlier vertical cyan stripe beside the heel is gone."
+    },
+    {
+      "pose": "pose 4 / 0.79 s",
+      "observation": "The slumped, closed-eyed face reads clearly. Some pixels inside the warm ear and on the mouth line become teal, seen against either ground. In the lifted-chin breath the ear shading changes pattern again."
+    }
+  ],
+  "blockers": [
+    "Interior skin and mouth detail still follow the fur ramp and appear as scattered colored marks in the teal variant."
+  ]
+}

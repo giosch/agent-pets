@@ -1,0 +1,21 @@
+{
+  "candidate": "eeb96402e03358008e6d36603882531b2fc3b969166a206409b0ba8d0a619be3",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Typing stops and both hands hover as the eyes open wide.",
+  "inspection": "Rechecked the exact revised native exposures and enlarged brown GIFs after material and contact corrections, against the existing state timeline.",
+  "evidence": [
+    {
+      "pose": "0\u2013380 ms, rhythm interrupted",
+      "observation": "Both index tips visibly meet the key surface in the opening drawing. The next hand strikes before the wide-eyed pose lifts the fingertips clear of the same keyboard."
+    },
+    {
+      "pose": "380 ms onward, waiting freeze",
+      "observation": "The restored belly and supporting leg connect to the grounded foot. Both fingertips now hang above the same registered keyboard and remain suspended through the waiting blink."
+    }
+  ],
+  "blockers": []
+}

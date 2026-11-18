@@ -1,0 +1,23 @@
+{
+  "candidate": "32e9e5c488f6ada0708b006622252ac519dcd7600a4fa65741a8a77a0e7b6359",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "Seated monkey scratches its head, looks aside and settles.",
+  "inspection": "Decoded the GIF and reconstructed timing from the native strip and state phases.",
+  "evidence": [
+    {
+      "pose": "870–1690 ms",
+      "observation": "The hand lifts to the crown before alternating small rubs. Both feet stay planted."
+    },
+    {
+      "pose": "1860–2510 ms, sideways look",
+      "observation": "A dark vertical sliver floats at the right of the newly turned head for the whole 650 ms look. It pops away when the head faces forward."
+    }
+  ],
+  "blockers": [
+    "Remove the residual sliver from the right edge of the sideways head drawing."
+  ]
+}

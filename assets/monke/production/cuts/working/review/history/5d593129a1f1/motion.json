@@ -1,0 +1,21 @@
+{
+  "candidate": "5d593129a1f1384dafef60028d7df9d35fe122f385ddb9147fa902a2cf21999f",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Monke sorts bunches and singles between piles on a workbench.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "320\u2013800 ms",
+      "observation": "The left pile clears while the green bunch lifts toward the muzzle, maintaining continuous hand contact."
+    },
+    {
+      "pose": "800\u20131270 ms",
+      "observation": "The green bunch returns to the left and the other hand selects a single yellow banana from the right pile. The bench face stays registered."
+    }
+  ],
+  "blockers": []
+}

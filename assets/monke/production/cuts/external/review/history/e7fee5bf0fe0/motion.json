@@ -1,0 +1,23 @@
+{
+  "candidate": "e7fee5bf0fe0c6bc03a494da8e6527c0a4d0baed559e7ba1b8f0aff531e2e2f7",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "A bucket hoist delivers a question to a cloud and brings a check back. Monke appears to applaud.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "270\u20131450 ms",
+      "observation": "The bucket travels up the line with a question, descends with a check and puts the answer in reach of the hand."
+    },
+    {
+      "pose": "1660 ms onward, waiting",
+      "observation": "The hands stay pressed together through the supposed clap cycle. Only the tiny marks beyond them change, so subsequent beats have no separation or hand contact."
+    }
+  ],
+  "blockers": [
+    "Add a waiting drawing with the palms apart, then put the existing contact drawing and accent on the clap."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "candidate": "fd6f3ab00695c73e8c80183e520ffb06fdd25b4b5feb6b0dd775d46288488769",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "An upright monkey slowly folded over a cane. Its tail fell, its eyes shut and it looked exhausted under an almost empty battery.",
+  "evidence": [
+    {
+      "pose": "pose 0 / 0.00 s",
+      "observation": "One hand rests on the hooked cane, the other starts at the hip, and the curled tail balances an upright silhouette. The depleted battery shape is clearer on cream than charcoal."
+    },
+    {
+      "pose": "poses 4 and 5 / 1.60 and 2.95 s",
+      "observation": "The tail lies on the floor, the fingers drape over the cane, and the closed brow sits near the hand. A three-pixel cyan strip across the cane foot at (52–54,55) shifts position in the breath drawing."
+    }
+  ],
+  "blockers": [
+    "Cyan specks shift along character edges and the base of the cane. The blue line under the cane is visible during the long, otherwise still lean."
+  ]
+}

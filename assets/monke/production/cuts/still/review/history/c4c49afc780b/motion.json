@@ -1,0 +1,21 @@
+{
+  "candidate": "c4c49afc780b597ea68e280651646518420af4e02d547323b153bdbfae0252e0",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A blank-faced seated monkey, hands settled on knees, tail curled. The pose stayed still.",
+  "inspection": "Inspected native and enlarged exposures, reconstructed playback from decoded GIF frames and durations, and checked the repeating phase in the runtime SVG.",
+  "evidence": [
+    {
+      "pose": "0 ms, pose 0",
+      "observation": "Both soles share the ground line, and both bent elbows rest beside the belly. The weight reads as seated at native size."
+    },
+    {
+      "pose": "1000 ms, waiting boundary",
+      "observation": "The same drawing persists across the full exposure and repeats without displacement of the head, hands or curled tail."
+    }
+  ],
+  "blockers": []
+}

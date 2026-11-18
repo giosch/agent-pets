@@ -1,0 +1,22 @@
+{
+  "candidate": "cffa268fa691c31c5429b4b33f30560ffc61024a81374414b5bf8eda380bff2e",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The monkey plants both hands on its hips and raises its tail into a confident checkmark.",
+  "evidence": [
+    {
+      "pose": "0.20–0.60 s / check",
+      "observation": "The initial curved tail dips and then folds into a check that clears the ear. Its connection to the hip is visible on cream and charcoal."
+    },
+    {
+      "pose": "0.94 s / hold",
+      "observation": "The feet and hands rest in a confident stance. In the teal version there are colored specks inside the feet, right palm and ear; the soles and ears should retain the warm skin palette."
+    }
+  ],
+  "blockers": [
+    "The fur ramp tints skin details in the final stance."
+  ]
+}

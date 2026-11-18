@@ -1,0 +1,23 @@
+{
+  "candidate": "ad3f1fd7d5a0d093abb0f5f28a60a84f6434189582f210f9eccf984dcbe3b5c7",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "A raised open palm and a question-mark tail accompany a questioning tilt of the head.",
+  "inspection": "Decoded the GIF and reconstructed timing from the native strip and state phases.",
+  "evidence": [
+    {
+      "pose": "0–490 ms",
+      "observation": "Both feet drift while the palm rises despite no visible step. The near sole starts at x42–54 on y55 and slides to x39–51 by the extended arm at 340 ms."
+    },
+    {
+      "pose": "690 ms onward",
+      "observation": "The head tips back and the tail holds the large question curve. Blink changes only x34–45, y11–18."
+    }
+  ],
+  "blockers": [
+    "Anchor the soles while raising the arm and drawing the tail sign."
+  ]
+}

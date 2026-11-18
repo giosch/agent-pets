@@ -1,0 +1,20 @@
+{
+  "candidate": "f7eab321bcb807ebb11417c6c583a0b5aa575796edf057895f3b400144b97d84",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey paced from side to side with its hands behind its back and a bulb shining on its cap.",
+  "evidence": [
+    {
+      "pose": "rightward stride / r2\u2013r6",
+      "observation": "The feet cross and open while the hands remain tucked behind the belly. The cream cap and yellow bulb sit above the silhouette and stay legible on charcoal."
+    },
+    {
+      "pose": "turn / r8 to l0",
+      "observation": "The head and cap reverse direction with the body and the tail follows behind. The bulb and cap keep their fixed colors through the teal return stride."
+    }
+  ],
+  "blockers": []
+}

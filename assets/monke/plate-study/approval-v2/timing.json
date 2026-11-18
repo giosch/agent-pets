@@ -1,0 +1,19 @@
+{
+  "contact_plate": {
+    "file": "catch-plate.png",
+    "columns": 2,
+    "rows": 2,
+    "panels": [
+      {"name": "touch", "cell": 0, "heel": [169, 441], "scale": 0.115},
+      {"name": "hook", "cell": 1, "heel": [141, 441], "scale": 0.119},
+      {"name": "recoil", "cell": 2, "heel": [191, 433], "scale": 0.118},
+      {"name": "side_eye", "cell": 3, "heel": [140, 433], "scale": 0.116}
+    ]
+  },
+  "intro": [
+    ["neutral", 480], ["idea", 340], ["swing", 80], ["reach", 90],
+    ["touch", 110], ["hook", 150], ["recoil", 130], ["side_eye", 220], ["plead", 1050]
+  ],
+  "waiting": [["plead", 1380], ["blink", 130], ["plead", 1640]],
+  "demo_reset": [["cuff", 160], ["swing", 110], ["idea", 190], ["neutral", 300]]
+}

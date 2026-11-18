@@ -1,0 +1,20 @@
+{
+  "candidate": "e7fee5bf0fe0c6bc03a494da8e6527c0a4d0baed559e7ba1b8f0aff531e2e2f7",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey hoisted a bucket to a cloud, retrieved a green ticket and applauded.",
+  "evidence": [
+    {
+      "pose": "0.27\u20130.83 s / hoist",
+      "observation": "The bucket travels up the right side of the crane while the monkey pulls the rope on the left. A little question card is visible just above the bucket before it reaches the cloud."
+    },
+    {
+      "pose": "1.09\u20131.66 s / answer",
+      "observation": "The monkey displays a green check card at face height, then brings its hands together. The card and hardware remain distinct from the teal coat and the bucket returns to the floor."
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,21 @@
+{
+  "candidate": "a88fd470d1bf0a2963cdc0d06b86870681ffd5d96ba9555b688140c246e2e9e9",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Picks banana up, holds it like a phone, then peels and eats.",
+  "evidence": [
+    {
+      "pose": "1 / 2 / 3",
+      "observation": "The yellow arc rests beside the ear and muzzle; the wrist turns it outward for inspection and the eyes widen."
+    },
+    {
+      "pose": "4 / bite / 5",
+      "observation": "The peel opens below the cream fruit, the fruit reaches the mouth, and the final puffed cheeks hold over the lowered peel in both palettes."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

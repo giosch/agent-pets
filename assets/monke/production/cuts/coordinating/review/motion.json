@@ -1,0 +1,21 @@
+{
+  "candidate": "90f66f56417f952b0a6a2f68dc6b1731dddc37d87def6a6fc95526d1332cfbab",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "A little helper fixes a chart while Monke points at it.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "280\u2013900 ms",
+      "observation": "The extended index finger points at the upside-down route before the helper reaches into the lower corner."
+    },
+    {
+      "pose": "900\u20131230 ms",
+      "observation": "The paper passes through a clear diagonal drawing under the helper\u2019s hand. The corrected orientation remains in place while Monke alternates its presentation gesture."
+    }
+  ],
+  "blockers": []
+}

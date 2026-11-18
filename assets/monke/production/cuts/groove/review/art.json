@@ -1,0 +1,21 @@
+{
+  "candidate": "90cdb3a839f938d930136c6038d732b70432e1c84db60b2443048ed67c39fb3b",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Seated gamer loses, throws controller into television and slumps.",
+  "evidence": [
+    {
+      "pose": "0 / lost",
+      "observation": "Both hands enclose the light gamepad below the dark headset. The green TV field changes to a distinctly shaped red X."
+    },
+    {
+      "pose": "flying / 4 / 5",
+      "observation": "The pad leaves the extended palms, crosses the screen edge, and ends on the ground between the lowered hands and the TV. Hardware colors hold in teal."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

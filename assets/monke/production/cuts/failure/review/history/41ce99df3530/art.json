@@ -1,0 +1,22 @@
+{
+  "candidate": "41ce99df3530be0bfcd2efc24ae3a4fe4cd5398280c9e2d64d98dd5e1b3e8477",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The monkey broke a toothed part in two, then looked up at the red cross and froze with a half in each fist.",
+  "evidence": [
+    {
+      "pose": "poses 1–2 / 0.22–0.40 s",
+      "observation": "The hands close around opposite sides of the toothed part, then a space opens between the halves under the error badge. The shape of the gear and the red cross both survive at native size."
+    },
+    {
+      "pose": "pose 3 / 0.57 s",
+      "observation": "The wide eyes turn up toward the X. Two lines inside the detached-side fist (y34 and y37), the foot soles (y54), and a pixel in the badge itself (y15) change with the coat. The hand stripes are particularly conspicuous against warm skin."
+    }
+  ],
+  "blockers": [
+    "The fur ramp colors the skin inside the far hand, the flat soles and part of the red badge."
+  ]
+}

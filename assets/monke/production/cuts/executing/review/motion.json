@@ -1,0 +1,21 @@
+{
+  "candidate": "f30a22be7a9eaf24ade281a1b45377f5e30a21c93e8a1f5bc1c2e1054194202d",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The monkey pulls a big lever and immediately braces.",
+  "inspection": "Reviewed native decoded brown GIFs while blinded, then enlarged the exposures and checked the current intro and waiting timing against the brief.",
+  "evidence": [
+    {
+      "pose": "300\u2013840 ms",
+      "observation": "The reaching hand closes over the red handle before pulling. The shaft pivots at the fixed base as the knees bend."
+    },
+    {
+      "pose": "840 ms onward",
+      "observation": "Both hands leave the handle and the head ducks. The new lever angle stays unchanged while Monke peeks."
+    }
+  ],
+  "blockers": []
+}

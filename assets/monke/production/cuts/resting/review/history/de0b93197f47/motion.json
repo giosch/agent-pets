@@ -1,0 +1,21 @@
+{
+  "candidate": "de0b93197f471831f2fc023ff64a2ce3d421a72d03b52803cf7f50db350bba33",
+  "agent": "/root/batch01_motion",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "The seated monkey nods off, takes a small upward breath, and nods back down.",
+  "inspection": "Original blind read retained. Rechecked revised exposures at native size and decoded brown GIF frames against the previously inspected intro and waiting phases.",
+  "evidence": [
+    {
+      "pose": "270–1190 ms, poses 3 and 4",
+      "observation": "The lids droop then the chin tucks forward. Each foot remains in its initial floor position."
+    },
+    {
+      "pose": "2090–3590 ms, poses 5 and 4",
+      "observation": "The breath lifts the chin and shows a small mouth tick for 780 ms. The waiting cycle settles into the same chin-down pose at both ends."
+    }
+  ],
+  "blockers": []
+}

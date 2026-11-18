@@ -1,0 +1,21 @@
+{
+  "candidate": "9ced44d5c081cd2d12dc1bed1ba18236b8e330eac3fc37ea5dbbe768481bdefb",
+  "agent": "/root/final_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Slumps onto cane below low battery.",
+  "evidence": [
+    {
+      "pose": "0 / 2",
+      "observation": "Fingers wrap the hooked cane and the near shoulder lowers toward it; the red part of the battery occupies only a short strip."
+    },
+    {
+      "pose": "3 / 4",
+      "observation": "The muzzle sinks onto the supporting hand and the tail droops to the ground. The shaft and battery remain neutral across fur variants."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Inspected the decoded GIF exposures at native size, fur variants on cream and charcoal, and magnified drawings. Timing reconstructed from exposure durations; examined runtime hold/repeat and reduced-pose definitions."
+}

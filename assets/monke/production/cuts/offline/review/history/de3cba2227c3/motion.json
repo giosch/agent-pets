@@ -1,0 +1,21 @@
+{
+  "candidate": "de3cba2227c3c2ef13269e09a9e93535e15009e13019ca3480b68ee8ea355018",
+  "agent": "/root/final_art",
+  "role": "motion",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "pass",
+  "blind_read": "Originally read the ends as joined, then saw the turn to the viewer and crossed signal.",
+  "evidence": [
+    {
+      "pose": "0 / 1 / 2, 0\u2013940 ms",
+      "observation": "Monke studies the separated plug ends and lowers his gaze as the blue end approaches the red prongs. The revised art leaves a visible opening between them at closest approach."
+    },
+    {
+      "pose": "turn / 3 / blink",
+      "observation": "The face turns toward the viewer before the tail unfurls into crossed signal arcs. The contrasting gap between the tips persists across the 1850 ms hold, 130 ms blink and 750 ms hold."
+    }
+  ],
+  "blockers": [],
+  "inspection": "Reviewed decoded native exposures in brown and teal and a 4\u00d7 enlargement of the approach and hold. Timing reconstructed from GIF exposures and checked against the runtime intro and repeating wait."
+}

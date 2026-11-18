@@ -1,0 +1,22 @@
+{
+  "candidate": "dad14f36e1039ab25e8fb873cc55bd3f71c80f4cfd0a2ff30573cf370efd0de5",
+  "agent": "/root/batch01_art",
+  "role": "art",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "verdict": "revise",
+  "blind_read": "The seated monkey lowered its eyelids, nodded off, lifted its chin for a short breath, then settled back into a doze.",
+  "evidence": [
+    {
+      "pose": "pose 3 / 0.27 s",
+      "observation": "The lowering brow starts the nod while the hands stay supported on the knees. Two cyan pixels at (27,53) and (27,54) form a small vertical stripe beside the left heel; the stripe disappears in the next pose."
+    },
+    {
+      "pose": "poses 4 and 5 / 0.79 and 2.09 s",
+      "observation": "The head hangs forward with closed eyes, then the muzzle tips up on the breath. Hands, belly and feet remain warm and clearly separated from the recolored coat."
+    }
+  ],
+  "blockers": [
+    "In the second exposure the cyan stripe beside the heel flashes against the cream ground. Stray cyan dots shift to the head and tail on the following exposures."
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "character": "Monke",
+  "direction": {
+    "base": "E Manager",
+    "pose_influence": "B Big Confidence; preserve E anatomy",
+    "equipment": "T2 Office Salvage",
+    "details": "P1 Chunky"
+  },
+  "purpose": "Animation design reference. Generated sheet is illustrative; these numeric specifications govern production sprites. Sheet lettering, colors and pixel alignment are not a machine-validated sprite atlas.",
+  "logical_pixels": {
+    "standing_body_height": 48,
+    "head_height": 16,
+    "torso_height": 20,
+    "legs_and_feet_height": 12,
+    "arm_length_to_knuckles": 22,
+    "tail_length": 42,
+    "tail_thickness": 3,
+    "outline": 1,
+    "default_action_tile": {
+      "width": 80,
+      "height": 64
+    }
+  },
+  "rendering": {
+    "scaling": "Integer nearest-neighbor only",
+    "shading": "At most three flat tones per material",
+    "background": "Transparent for production sprites",
+    "pixel_grid": "One shared logical pixel grid for character and props; larger scenes may expand canvas without resizing character",
+    "identity": "Pear-shaped E torso, small head, broad horizontal muzzle, low brow, round ears, short legs, broad feet; tail attached to lower back",
+    "confidence": "Pose changes only: chin up, chest lifted, planted feet, exaggerated gestures; no anatomy changes"
+  },
+  "palette": {
+    "outline": "#261C19",
+    "fur_shadow": "#513023",
+    "fur": "#80482D",
+    "fur_light": "#AC7045",
+    "skin_shadow": "#C68D58",
+    "skin": "#E9B47B",
+    "skin_light": "#FFE0A3",
+    "cream_beige": "#F4E7C8",
+    "beige_shadow": "#B6A78C",
+    "steel": "#63706B",
+    "banana": "#F6CF35",
+    "yellow_shadow": "#BB861C",
+    "leaf": "#65934B",
+    "alert": "#CB443B",
+    "lens": "#68B5C5",
+    "white": "#FFFFFF"
+  },
+  "story_constraints": {
+    "approval": "Tail catches its own reaching wrist before button press; waits for user permission",
+    "external": "Question travels up to cloud in bucket; answer returns; monke applauds itself",
+    "ready": "Attached tail forms checkmark",
+    "question": "Raised hand and question-mark tail",
+    "offline": "Disconnected vine ends and no-signal tail"
+  }
+}
