@@ -1,5 +1,7 @@
 """Reduce agent observations into durable sessions and transient display events."""
 import json
+import time
+from collections import deque
 from copy import deepcopy
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -120,7 +122,8 @@ class Habitat:
     def __init__(self, path: Path | None = None):
         self.path = path
         self.lock = Lock()
-        self.listeners: set[Queue] = set()
+        self.listeners: dict[Queue, bool] = {}
+        self.feed = deque(maxlen=200)
         self.sessions: dict[str, Session] = {}
         self.closed: list[str] = []
         self.sequence = 0
@@ -146,16 +149,19 @@ class Habitat:
         with self.lock:
             return self._snapshot()
 
-    def subscribe(self) -> Queue:
+    def subscribe(self, include_feed=False) -> Queue:
         with self.lock:
             messages = Queue(maxsize=64)
-            messages.put_nowait(self._snapshot())
-            self.listeners.add(messages)
+            snapshot = self._snapshot()
+            if include_feed:
+                snapshot["feed"] = list(self.feed)
+            messages.put_nowait(snapshot)
+            self.listeners[messages] = include_feed
             return messages
 
     def unsubscribe(self, messages: Queue) -> None:
         with self.lock:
-            self.listeners.discard(messages)
+            self.listeners.pop(messages, None)
 
     def _transition(self, signal):
         sid = f"{signal.source}:{signal.session}"
@@ -194,15 +200,15 @@ class Habitat:
         with self.lock:
             if checkpoint and self.checkpoint[0] == checkpoint[0] and self.checkpoint[1] >= checkpoint[1]:
                 return
-            change = self._transition(signal)
-            if change is None and observed is None:
-                return
+            sid = f"{signal.source}:{signal.session}"
+            old = self.sessions.get(sid)
+            change = None if signal.kind == "observe" else self._transition(signal)
             sessions, closed, next_order, message = change or (self.sessions, self.closed, self.next_order, None)
             sequence = self.sequence + int(message is not None)
             last_events = self.last_events.copy()
             if observed is not None:
                 last_events[signal.source] = {"time": observed, "kind": signal.kind}
-            if self.path:
+            if self.path and (change or observed is not None):
                 write_json_atomic(self.path, {
                     "version": VERSION, "sequence": sequence, "next_order": next_order,
                     "closed": closed, "sessions": [asdict(s) for s in sessions.values()],
@@ -214,12 +220,20 @@ class Habitat:
             self.closed = closed
             self.next_order = next_order
             self.sequence = sequence
-            if message is None:
-                return
-            message.update(version=VERSION, sequence=sequence)
-            for queue in self.listeners:
+            current = sessions.get(sid)
+            entry = {"time": observed if observed is not None else time.time(),
+                     "source": signal.source, "event": signal.event, "kind": signal.kind,
+                     "pet": (current or old).order + 1 if current or old else None,
+                     "arrived": old is None and current is not None,
+                     "before": old.public() if old else None, "after": current.public() if current else None,
+                     "moment": message.get("moment") if message else None}
+            self.feed.append(entry)
+            frame = dict(message or {"type": "observation"}, version=VERSION, sequence=sequence)
+            for queue, include_feed in self.listeners.items():
+                if message is None and not include_feed:
+                    continue
                 try:
-                    queue.put_nowait(message)
+                    queue.put_nowait(dict(frame, observation=entry) if include_feed else frame)
                 except Full:
                     # A slow endpoint can recover current truth without playing stale reactions.
                     while True:
@@ -227,4 +241,7 @@ class Habitat:
                             queue.get_nowait()
                         except Empty:
                             break
-                    queue.put_nowait(self._snapshot())
+                    snapshot = self._snapshot()
+                    if include_feed:
+                        snapshot["feed"] = list(self.feed)
+                    queue.put_nowait(snapshot)

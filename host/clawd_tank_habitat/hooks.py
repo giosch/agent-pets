@@ -10,7 +10,7 @@ import sqlite3
 import sys
 
 from clawd_tank_daemon.session_store import write_json_atomic
-from .adapters import HOOKS, normalize
+from .adapters import HOOKS, Signal, normalize
 
 LAUNCHER = Path(__file__).resolve().parents[1] / "habitat.py"
 STATUS = "Updating Clawd Tank habitat"
@@ -127,7 +127,9 @@ def forward(source: str, state_dir: Path, stream) -> None:
             return
         signal = normalize(source, payload)
         if signal is None:
-            return
+            if not isinstance(payload, dict) or payload.get("hook_event_name") not in HOOKS[source]:
+                return
+            signal = Signal(source, payload.get("session_id"), "observe", event=payload["hook_event_name"])
         from .inbox import enqueue
         try:
             info = json.loads((state_dir / "connection.json").read_text(encoding="utf-8"))
@@ -140,7 +142,11 @@ def forward(source: str, state_dir: Path, stream) -> None:
         connection = http.client.HTTPConnection("127.0.0.1", info["port"], timeout=0.8)
         try:
             target = "/internal/drain" if info.get("inbox") else "/internal/activity"
-            connection.request("POST", target, b"" if info.get("inbox") else json.dumps(asdict(signal)),
+            legacy = asdict(signal)
+            legacy.pop("event")
+            if not info.get("inbox") and signal.kind == "observe":
+                return
+            connection.request("POST", target, b"" if info.get("inbox") else json.dumps(legacy),
                                {"Content-Type": "application/json", "Authorization": "Bearer " + info["key"]})
             response = connection.getresponse()
             response.read()

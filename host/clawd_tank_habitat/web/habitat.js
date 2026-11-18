@@ -24,6 +24,51 @@ const departures = new Map();
 
 const idlePoses = ["coffee", "groove", "hat"];
 
+const reactions = {completed: "Celebrates the finished turn.", forked: "Splits briefly as the chat forks.",
+  compacted: "Tidies up as context is compacted.", interrupted: "Pauses after an interruption.",
+  setback: "Reacts to a setback."};
+const attentionText = {approval: "Shows the approval symbol.", question: "Shows the question symbol.",
+  failure: "Signals that you need to intervene.", ready: "Keeps the ready symbol until you resume."};
+
+function meaning({before, after, arrived, moment}) {
+  if (!after) return before ? "Leaves the habitat." : "No pet is active for this session.";
+  const parts = [];
+  if (arrived) parts.push("Arrives in the habitat.");
+  if (moment && !blocking.has(after.attention)) parts.push(reactions[moment]);
+  if (before?.helpers !== after.helpers && (before || after.helpers))
+    parts.push(after.helpers ? "Now has " + after.helpers + (after.helpers === 1 ? " helper." : " helpers.") : "The last helper leaves.");
+  if (after.attention !== "none" && (before?.attention !== after.attention || moment))
+    parts.push(attentionText[after.attention]);
+  if (before && before.attention !== "none" && after.attention === "none") parts.push("Clears the attention symbol.");
+  if (after.attention === "none") {
+    if (after.active_calls > 1 && before?.active_calls !== after.active_calls)
+      parts.push("Juggles " + after.active_calls + " active tools.");
+    else if (before?.activity !== after.activity || before?.active_calls > 1 && after.active_calls <= 1)
+      parts.push("Activity: " + after.activity + ".");
+  }
+  return parts.join(" ") || "Keeps its current pose and symbols.";
+}
+
+const feedTime = new Intl.DateTimeFormat(undefined, {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+function addObservation(entry) {
+  const list = byId("feed");
+  const row = document.createElement("li");
+  const time = document.createElement("time");
+  const date = new Date(entry.time * 1000);
+  time.dateTime = date.toISOString();
+  time.textContent = feedTime.format(date);
+  const who = document.createElement("strong");
+  who.textContent = (entry.source === "codex" ? "Codex" : "Claude Code") + (entry.pet ? " · Pet " + entry.pet : "");
+  const event = document.createElement("code");
+  event.textContent = entry.event || entry.kind;
+  const effect = document.createElement("span");
+  effect.textContent = meaning(entry);
+  row.append(time, who, event, effect);
+  list.prepend(row);
+  if (list.children.length > 200) list.lastElementChild.remove();
+  byId("feed-empty").hidden = true;
+}
+
 function art(pose, order) {
   return "/art/character/" + selectors.character.value + "/" + pose + "?variant=" + order;
 }
@@ -275,7 +320,7 @@ async function start() {
     });
   }
   window.addEventListener("storage", event => { if (event.key === preferenceKey) applyAppearance(); });
-  const events = new EventSource("/v1/events");
+  const events = new EventSource("/v1/events?feed=1");
   events.onmessage = ({ data }) => {
     const message = JSON.parse(data);
     if (message.version !== 1) {
@@ -284,6 +329,9 @@ async function start() {
       return;
     }
     if (message.type === "snapshot") {
+      byId("feed").replaceChildren();
+      byId("feed-empty").hidden = false;
+      for (const entry of message.feed || []) addObservation(entry);
       sessions.clear();
       for (const pet of pets.values()) { clearMoment(pet); pet.travelUntil = 0; pet.failures = []; }
       for (const ghost of departures.values()) ghost.remove();
@@ -292,6 +340,8 @@ async function start() {
       connected = true;
       connection(demo ? "demo" : "live", demo ? "Demo" : "Live");
     } else {
+      if (message.observation) addObservation(message.observation);
+      if (message.type === "observation") return;
       if (message.sequence <= sequence) return;
       if (message.type === "remove") sessions.delete(message.id);
       if (message.type === "update") sessions.set(message.session.id, message.session);

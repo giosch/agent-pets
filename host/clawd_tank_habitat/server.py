@@ -89,7 +89,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         url = urlsplit(self.path)
         if url.path == "/v1/events":
-            self._events()
+            self._events(parse_qs(url.query).get("feed") == ["1"])
         elif url.path == "/v1/snapshot":
             self._send(json.dumps(self.server.habitat.snapshot()).encode(), "application/json")
         elif url.path == "/v1/connections" and self.server.directory and not self.server.demo:
@@ -125,14 +125,14 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self.send_error(404)
 
-    def _events(self):
+    def _events(self, include_feed):
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Accel-Buffering", "no")
         self.end_headers()
         self.connection.settimeout(15)
-        queue = self.server.habitat.subscribe()
+        queue = self.server.habitat.subscribe(include_feed)
         try:
             while True:
                 try:

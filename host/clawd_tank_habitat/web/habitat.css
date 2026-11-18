@@ -1,4 +1,15 @@
 * { box-sizing: border-box; }
+.event-feed { margin: 2rem 0; }
+.event-feed h2 { margin-bottom: .6rem; }
+#feed { padding: 0; margin: 0; list-style: none; max-height: 22rem; overflow: auto; }
+#feed li { display: grid; grid-template-columns: 6rem 9rem minmax(8rem, 1fr) 2fr; gap: .65rem;
+  align-items: baseline; border-top: 1px solid #cbd1c2; padding: .7rem .2rem; }
+#feed time, #feed code { font: .85rem "IBM Plex Mono", Consolas, monospace; }
+#feed time { color: #50645b; }
+@media (max-width: 720px) {
+  #feed li { grid-template-columns: auto 1fr; }
+  #feed code, #feed li > span { grid-column: 1 / -1; }
+}
 a { color: #275d50; }
 a.connection { text-decoration: none; }
 main.connections { max-width: 840px; }

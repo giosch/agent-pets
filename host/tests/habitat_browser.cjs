@@ -98,6 +98,10 @@ async function main() {
   const color = await pet(page, "claude:a").getAttribute("data-palette");
   hook("codex", "d", "PermissionRequest", { tool_name: "Bash", tool_use_id: "d" });
   await pet(page, "codex:d").locator(".signal[data-kind=approval]").waitFor();
+  await page.locator("#feed li").first().getByText("Shows the approval symbol.").waitFor();
+  hook("codex", "d", "PostModelRequest", {status: "completed"});
+  await page.locator("#feed li").first().getByText("Keeps its current pose and symbols.").waitFor();
+  assert.match(await page.locator("#feed li").first().innerText(), /PostModelRequest/);
   assert.equal(await pet(page, "claude:c").count(), 0);
   hook("claude", "a", "Stop");
   await page.locator('[data-session="claude:a"][data-moment=completed]').waitFor();
@@ -105,6 +109,8 @@ async function main() {
   const second = await context.newPage();
   await second.goto(url, { waitUntil: "domcontentloaded" });
   await pet(second, "claude:a").locator(".signal[data-kind=ready]").waitFor();
+  assert.equal(await second.locator("#feed li").count(), 15);
+  assert.match(await second.locator("#feed li").first().innerText(), /Celebrates the finished turn/);
   assert.equal(await second.locator("[data-moment]").count(), 0);
   assert.equal(await pet(second, "claude:a").getAttribute("data-palette"), color);
   await page.locator('[data-session="claude:a"][data-moment]').waitFor({ state: "detached" });

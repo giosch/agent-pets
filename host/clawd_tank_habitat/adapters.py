@@ -24,7 +24,7 @@ ACTIVITIES = {
 KINDS = {
     "open", "close", "prompt", "tool", "done", "question", "approval", "tool_error",
     "ready", "idle_reminder", "failure", "compact", "helper_join", "helper_leave",
-    "retry", "interrupt", "fork",
+    "retry", "interrupt", "fork", "observe",
 }
 
 _INSPECT_COMMANDS = {
@@ -70,6 +70,7 @@ class Signal:
     ref: str = ""
     tool: str = ""
     activity: str = ""
+    event: str = ""
 
     def __post_init__(self):
         fields = (self.session, self.turn, self.ref, self.tool)
@@ -77,6 +78,8 @@ class Signal:
             raise ValueError("Invalid hook identifier")
         if self.source not in SOURCES or self.kind not in KINDS or not self.session:
             raise ValueError("Unknown source, session or event")
+        if self.event and self.event not in HOOKS[self.source]:
+            raise ValueError("Unknown hook name")
         if self.activity not in {"", "working", "external", "building", "transferring", *ACTIVITIES.values()}:
             raise ValueError("Unknown activity")
 
@@ -121,4 +124,4 @@ def normalize(source: str, hook: dict) -> Signal | None:
     if kind == "done" and tool == "request_user_input_async":
         # The tool has queued the question. The answer arrives as a later user message.
         return None
-    return Signal(source, session, kind, hook.get("turn_id") or "", ref, tool, activity)
+    return Signal(source, session, kind, hook.get("turn_id") or "", ref, tool, activity, event)

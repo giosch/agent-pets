@@ -27,6 +27,8 @@ See the [vision, requirements, and roadmap](docs/habitat-vision.md) for the PC a
 
 The browser's Clawd pack uses all 32 original SVGs. A pet wakes on the first arrival, walks between slots or into overflow, and burrows on session close. A reported fork briefly splits the new pet into two silhouettes. Active helpers appear as miniature companions. Overlapping tools trigger juggling, recognized builds stack blocks, and file transfers carry a box.
 
+The event feed below the live habitat and demo shows the latest 200 observations received in this host run, newest first. Each row names the agent, hook, and pet (when one exists), and explains its response. Hooks that leave the scene unchanged still get a row. Opening a new tab restores recent rows without replaying animations. The feed omits prompts, commands, and tool output.
+
 An idle Clawd occasionally plays with a coffee cup, grooves, or loses its hat. Sustained generic work alternates thinking and pushing. Repeated setbacks trigger overheating, and alternate completions show a lightbulb. Narrow displays use miniature typing. The browser shows a broken link on loss of contact and a drowsy pose when the display device reports a discharging battery at 15% or less. Reduced-motion mode uses the static base and preserves attention badges.
 
 ## Original hardware and macOS simulator
