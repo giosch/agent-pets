@@ -347,7 +347,16 @@ def uninstall(directory, purge=False):
     if purge:
         for filename in ["sessions.json","connection.json","activity.sqlite3","activity.sqlite3-journal",
                          "setup-complete","host.lock","host.log"]:
-            (directory / filename).unlink(missing_ok=True)
+            # The host removes connection.json before its Windows launcher closes
+            # inherited log handles. Retry only transient file-sharing errors.
+            for attempt in range(60):
+                try:
+                    (directory / filename).unlink(missing_ok=True)
+                    break
+                except PermissionError as error:
+                    if getattr(error, "winerror", None) not in (32, 33) or attempt == 59:
+                        raise
+                    time.sleep(.1)
         packs = directory/"packs"
         if packs.is_dir():
             for pack in packs.glob("*.json"):

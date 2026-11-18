@@ -8,10 +8,27 @@ from unittest.mock import patch
 from clawd_tank_habitat.adapters import Signal
 from clawd_tank_habitat.hooks import configure
 from clawd_tank_habitat.inbox import drain, enqueue
+from clawd_tank_habitat import installation
 from clawd_tank_habitat.model import Habitat
 
 
 class DesktopTests(unittest.TestCase):
+    def test_interrupted_candidate_preserves_running_installation(self):
+        with TemporaryDirectory() as temp:
+            directory = Path(temp)
+            root = directory / "app"
+            root.mkdir()
+            (root / ".habitat-install").write_text(installation.MARKER)
+            (root / "current").write_text("a" * 20)
+            payload = directory / "incomplete"
+            payload.mkdir()
+            (payload / "release.json").write_text(json.dumps({"version":"0.2.0","files":{"missing":"digest"}}))
+            with patch.object(installation, "install_root", return_value=root), patch.object(installation, "stop_for_upgrade") as stop:
+                with self.assertRaises(FileNotFoundError):
+                    installation.activate(payload, directory / "state")
+                stop.assert_not_called()
+            self.assertEqual((root / "current").read_text(), "a" * 20)
+
     def test_first_real_event_can_arrive_after_its_session_was_closed(self):
         with TemporaryDirectory() as temp:
             directory = Path(temp)

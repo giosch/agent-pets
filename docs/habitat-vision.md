@@ -46,6 +46,12 @@ Local Claude Code terminal sessions and local sessions in the desktop Code tab s
 
 ## Delivery order and acceptance
 
+The browser milestone includes everyday desktop installation. A person can install under their own account, choose either agent, observe a real chat, and reopen the same habitat from the application menu. Git and Python are build dependencies for contributors. The desktop package bundles the runtime for users.
+
+Each installation has a stable hook command and a durable local activity inbox. A display reconnects from current state even if an agent closed during host downtime. The Connections page distinguishes registration, a synthetic command check, and the most recent real activity. Optional sign-in startup belongs to the host, so opening more display tabs never starts another host.
+
+Desktop release acceptance covers migrating live checkout sessions, interrupted staging, upgrades, rollback, sign-in registration, and uninstall with retained or erased data. Exercise packaged builds on Windows, Ubuntu, and both Mac architectures, then verify a signed production install with real local agents. The [desktop guide](../desktop/README.md) covers installation and recovery.
+
 1. **Local browser habitat.** Drive the browser with local Claude Code and Codex hooks, independent characters and scenery, persistent palette identities, and snapshot recovery. Test four sessions on three visible slots. Promote a hidden session that requests approval, complete a different turn, resume it, switch scenery, and reconnect a second tab. Exercise the installed commands and rendered scene on Windows, macOS, and Linux.
 2. **Physical endpoints.** Bring the same activity vocabulary to the existing Waveshare board first. Validate BLE payload sizes, disconnect recovery, palette rendering, and memory on the physical device. Define and test transport-specific framing for BLE, TCP, and USB serial. Make a second board implementable from the protocol and fixtures. Each endpoint owns its rendering. Clock, brightness, LED, and button behavior are optional device features.
 3. **Installable hardware artwork.** For hardware supporting custom art, export the character or habitat once per renderer and transfer the pack independently of live activity. The user must be able to replace artwork without rebuilding firmware. Test interrupted transfers and preserve the previous working pack. The browser export/install command and SVG pack format are the first working example.

@@ -77,13 +77,14 @@ def main(first, second):
             (home/profile/file).write_text(json.dumps(original))
         # Exercise the real source-based host that predates the desktop installer.
         checkout=Path(__file__).resolve().parents[1]/"legacy-checkout/host/habitat.py"
-        run([sys.executable,checkout,"install-hooks","claude"],env=env)
+        run([sys.executable,checkout,"install-hooks","both"],env=env)
         with subprocess.Popen([sys.executable,checkout,"serve"],env=env) as legacy:
             try:
                 until(lambda:(state/"connection.json").exists())
                 event("claude","migrating","SessionStart")
+                event("codex","other-migrating","SessionStart")
                 original_scene=get("v1/snapshot")["sessions"]
-                assert len(original_scene)==1
+                assert len(original_scene)==2
                 install(first)
                 assert legacy.poll() is not None
             finally:
@@ -97,11 +98,11 @@ def main(first, second):
         data=get("v1/connections")
         assert data["agents"]["claude"]["state"]=="installed", (data["agents"]["claude"],
             json.loads((home/"claude/settings.json").read_text())["hooks"]["SessionStart"])
-        assert data["agents"]["codex"]["state"]=="available"
-        assert manage("install",source="codex")["verified"]
+        assert data["agents"]["codex"]["state"]=="installed"
         assert manage("probe",source="claude")["verified"]
         assert get("v1/connections")["agents"]["claude"]["last"] is None
         event("claude","migrating","SessionEnd")
+        event("codex","other-migrating","SessionEnd")
         manage("login",enabled=True)
         manage("finish")
         event("codex","keep","SessionStart")
@@ -167,6 +168,8 @@ def main(first, second):
         install(second)
         cli("launch","--background")
         assert all(a["state"]=="available" for a in get("v1/connections")["agents"].values())
+        assert manage("install",source="codex")["verified"]
+        assert get("v1/connections")["agents"]["claude"]["state"]=="available"
         sentinel = state/"unrelated-user-file"
         sentinel.write_text("keep me")
         cli("uninstall-desktop","--purge-data")
