@@ -17,6 +17,11 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: 7858e75280815d8c6d462ade93987ca4e3c7bf57
+          path: legacy-checkout
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

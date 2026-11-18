@@ -92,6 +92,7 @@ def main():
     commands.add_parser("unregister", help="Remove installed hooks and sign-in startup")
     setup = commands.add_parser("desktop-install", help="Install or update this bundled desktop release")
     setup.add_argument("--no-open", action="store_true")
+    commands.add_parser("rollback-desktop", help="Restore the previous installed release")
     uninstall = commands.add_parser("uninstall-desktop", help="Uninstall the desktop app")
     uninstall.add_argument("--purge-data", action="store_true", help="Also erase saved sessions and installed packs")
     uninstall.add_argument("--choose-data", action="store_true", help="Ask whether to keep saved habitat data")
@@ -118,6 +119,9 @@ def main():
         if not getattr(sys, "frozen", False):
             parser.error("Run the downloaded desktop installer")
         activate(Path(sys.executable).parent, directory, not args.no_open)
+    elif args.command == "rollback-desktop":
+        from clawd_tank_habitat.installation import rollback
+        rollback(directory)
     elif args.command == "uninstall-desktop":
         from clawd_tank_habitat.installation import uninstall
         purge = args.purge_data

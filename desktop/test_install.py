@@ -1,6 +1,8 @@
 """Black-box release acceptance on a disposable OS user (GitHub hosted runners)."""
 import json
 import os
+import plistlib
+import shlex
 from pathlib import Path
 import subprocess
 import sys
@@ -73,20 +75,33 @@ def main(first, second):
         for profile,file in [("claude","settings.json"),("codex","hooks.json")]:
             (home/profile).mkdir()
             (home/profile/file).write_text(json.dumps(original))
-        # Install the previous checkout's command shapes to exercise migration on first install.
-        checkout=Path(__file__).resolve().parents[1]/"host/habitat.py"
+        # Exercise the real source-based host that predates the desktop installer.
+        checkout=Path(__file__).resolve().parents[1]/"legacy-checkout/host/habitat.py"
         run([sys.executable,checkout,"install-hooks","claude"],env=env)
-        install(first)
+        with subprocess.Popen([sys.executable,checkout,"serve"],env=env) as legacy:
+            try:
+                until(lambda:(state/"connection.json").exists())
+                event("claude","migrating","SessionStart")
+                original_scene=get("v1/snapshot")["sessions"]
+                assert len(original_scene)==1
+                install(first)
+                assert legacy.poll() is not None
+            finally:
+                if legacy.poll() is None:
+                    legacy.terminate()
+        assert get("v1/snapshot")["sessions"]==original_scene
         cli("launch","--background")
         pid=info()["pid"]
         cli("launch","--background")
         assert pid==info()["pid"]
         data=get("v1/connections")
-        assert data["agents"]["claude"]["state"]=="installed"
+        assert data["agents"]["claude"]["state"]=="installed", (data["agents"]["claude"],
+            json.loads((home/"claude/settings.json").read_text())["hooks"]["SessionStart"])
         assert data["agents"]["codex"]["state"]=="available"
         assert manage("install",source="codex")["verified"]
         assert manage("probe",source="claude")["verified"]
         assert get("v1/connections")["agents"]["claude"]["last"] is None
+        event("claude","migrating","SessionEnd")
         manage("login",enabled=True)
         manage("finish")
         event("codex","keep","SessionStart")
@@ -96,7 +111,18 @@ def main(first, second):
         cli("stop")
         until(lambda:not (state/"connection.json").exists())
         event("claude","close","SessionEnd")
-        cli("launch","--background")
+        if os.name=="nt":
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER,r"Software\Microsoft\Windows\CurrentVersion\Run") as key:
+                registered=winreg.QueryValueEx(key,"ClawdTankHabitat")[0]
+            subprocess.run(registered,env=env,check=True,timeout=30)
+        elif sys.platform=="darwin":
+            entry=home/"Library/LaunchAgents/io.clawdtank.habitat.plist"
+            run(plistlib.loads(entry.read_bytes())["ProgramArguments"],env=env)
+        else:
+            entry=home/"config/autostart/clawd-tank-habitat.desktop"
+            command=next(line[5:] for line in entry.read_text().splitlines() if line.startswith("Exec="))
+            run(shlex.split(command),env=env)
         assert get("v1/snapshot")["sessions"]==[before[0]]
         pointer=(root/"current").read_bytes()
         old_hooks=(home/"codex/hooks.json").read_bytes()
@@ -106,7 +132,12 @@ def main(first, second):
         assert (home/"codex/hooks.json").read_bytes()==old_hooks
         assert get("v1/connections")["login"]
         event("codex","keep","Stop")
-        assert get("v1/snapshot")["sessions"][0]["attention"]=="ready"
+        after = get("v1/snapshot")["sessions"]
+        assert after[0]["attention"]=="ready", (after, get("v1/connections")["agents"]["codex"])
+        cli("rollback-desktop")
+        assert (root/"current").read_bytes()==pointer
+        assert get("v1/snapshot")["sessions"]==after
+        assert (home/"codex/hooks.json").read_bytes()==old_hooks
         cli("uninstall-desktop")
         until(lambda:not stable.exists())
         for profile,file in [("claude","settings.json"),("codex","hooks.json")]:

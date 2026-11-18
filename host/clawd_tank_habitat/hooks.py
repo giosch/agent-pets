@@ -36,7 +36,7 @@ def config_path(source: str) -> Path:
 
 def launch_command():
     if getattr(sys, "frozen", False):
-        return [os.environ.get("CLAWD_TANK_LAUNCHER", sys.executable)]
+        return [str(Path(os.environ.get("CLAWD_TANK_LAUNCHER", sys.executable)).resolve())]
     return [sys.executable, str(LAUNCHER)]
 
 

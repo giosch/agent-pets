@@ -20,7 +20,7 @@ RESOURCES = Path(__file__).with_name("install_resources")
 
 def install_root():
     if os.name == "nt":
-        return Path(os.environ["LOCALAPPDATA"]) / "Programs/ClawdTankHabitat"
+        return (Path(os.environ["LOCALAPPDATA"]) / "Programs/ClawdTankHabitat").resolve()
     if sys.platform == "darwin":
         return Path.home() / "Library/Application Support/ClawdTankDesktop"
     return Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local/share")) / "clawd-tank-desktop"
@@ -275,6 +275,44 @@ def activate(payload, directory, open_window=True):
                     launch(directory, background=True)
             raise
     return manifest["version"]
+
+
+def rollback(directory):
+    """Switch back to a previously validated release, retaining the user profile."""
+    from habitat import state_owner
+    root = install_root()
+    if (root / ".habitat-install").read_text() != MARKER:
+        raise ValueError("Unrecognized installation directory")
+    with state_owner(root):
+        pointer = root / "current"
+        previous = root / "previous"
+        if not previous.is_file():
+            raise ValueError("No earlier installed release is available")
+        target = previous.read_bytes()
+        active = pointer.read_bytes()
+        if len(target) != 20 or any(byte not in b"0123456789abcdef" for byte in target):
+            raise ValueError("Invalid previous release")
+        release = root / "releases" / target.decode("ascii")
+        if hashlib.sha256((release / "release.json").read_bytes()).hexdigest()[:20] != target.decode():
+            raise ValueError("The previous release manifest has changed")
+        check_payload(release)
+        exe = release / ("habitat-runtime.exe" if os.name == "nt" else "habitat-runtime")
+        subprocess.run([str(exe), "self-test"], check=True, timeout=25)
+        running = stop_for_upgrade(directory)
+        try:
+            atomic(pointer, target)
+            desktop_entry(root)
+            if running:
+                launch(directory, background=True)
+            atomic(previous, active)
+        except Exception:
+            if pointer.read_bytes() == target:
+                stop_for_upgrade(directory)
+            atomic(pointer, active)
+            desktop_entry(root)
+            if running:
+                launch(directory, background=True)
+            raise
 
 
 def uninstall_from_settings(directory, purge):
