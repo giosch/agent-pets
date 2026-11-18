@@ -10,7 +10,32 @@ A pet habitat for local Claude Code and Codex sessions, with a portable browser 
 
 Each chat gets a palette, a working pose, and a symbol when it needs you. The browser shows up to three pets, with approvals and questions first. Choose the character and habitat independently. The local Python host supports multiple display tabs and restores active sessions after a restart.
 
-For packaged installs, see the [desktop installation and recovery guide](desktop/README.md). The desktop app bundles its runtime and opens this same habitat. Desktop release tags begin with `desktop-v`.
+### Early testers: from install to first pet
+
+On Windows, macOS, or Linux, start with Python 3.10+ and [pipx](https://pipx.pypa.io/stable/installation/). Run `pipx ensurepath` and open a new terminal if this is your first pipx application. Install from the fork’s early-tester branch archive:
+
+```sh
+pipx install https://github.com/giosch/clawd-tank/archive/refs/heads/master.zip
+clawd-tank
+```
+
+1. The first launch opens **Connections** in your browser. Choose **Connect** for Claude Code, Codex, or both. If you already run a checkout host, stop it first, then run `clawd-tank install-hooks both` and `clawd-tank` to switch the registered commands to pipx. Your existing habitat data stays in your user profile.
+2. Review the new commands if your coding client prompts you. Codex provides **Settings → Hooks** or `/hooks`. **Check command** tests the wiring without spawning a pet.
+3. Select **Open habitat**. In a new local coding chat, send a prompt such as “What files are in this project?” A pet appears for that session. Its row in the event feed identifies the agent and what the pet is doing. If the habitat stays empty, return to **Connections** and check the agent’s last real activity.
+
+**Update** from the same archive with the commands below. Keep the same pipx environment. Both clients register absolute paths inside it, so an in-place upgrade preserves their hook commands. The restarted host reads saved sessions and any activity queued during the update.
+
+```sh
+clawd-tank stop
+pipx upgrade clawd-tank-habitat
+clawd-tank
+```
+
+**Remove** with `clawd-tank unregister` followed by `pipx uninstall clawd-tank-habitat`. This disconnects the agents, removes sign-in startup, and keeps saved habitat data.
+
+### Other installation options
+
+For packaged desktop installs, see the [desktop installation and recovery guide](desktop/README.md). The desktop app bundles its runtime and opens this same habitat. Desktop release tags begin with `desktop-v`.
 
 To run from a checkout, use Python 3.10 or newer on Windows, macOS, or Linux. On systems where Python is called `python3`, substitute `python3` below.
 

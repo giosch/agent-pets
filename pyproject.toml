@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling>=1.26,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clawd-tank-habitat"
+version = "0.1.0a1"
+description = "A local browser pet habitat for Claude Code and Codex"
+readme = "README.md"
+requires-python = ">=3.10"
+license-files = ["LICENSE"]
+
+[project.scripts]
+clawd-tank = "clawd_tank_habitat.cli:main"
+
+[tool.hatch.build.targets.sdist]
+include = ["/host/habitat.py", "/host/clawd_tank_habitat", "/host/clawd_tank_daemon/__init__.py",
+           "/host/clawd_tank_daemon/protocol.py", "/host/clawd_tank_daemon/session_store.py",
+           "/assets/habitat", "/assets/svg-animations"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["host/clawd_tank_habitat"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"host/habitat.py" = "clawd_tank_habitat/cli.py"
+"host/clawd_tank_daemon/__init__.py" = "clawd_tank_daemon/__init__.py"
+"host/clawd_tank_daemon/protocol.py" = "clawd_tank_daemon/protocol.py"
+"host/clawd_tank_daemon/session_store.py" = "clawd_tank_daemon/session_store.py"
+"assets/habitat" = "clawd_tank_habitat/assets/habitat"
+"assets/svg-animations" = "clawd_tank_habitat/assets/svg-animations"

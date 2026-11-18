@@ -37,7 +37,9 @@ def config_path(source: str) -> Path:
 def launch_command():
     if getattr(sys, "frozen", False):
         return [str(Path(os.environ.get("CLAWD_TANK_LAUNCHER", sys.executable)).resolve())]
-    return [sys.executable, str(LAUNCHER)]
+    packaged_cli = Path(__file__).with_name("cli.py")
+    # Keep the venv interpreter path (resolving it can escape the venv on Unix).
+    return [sys.executable, str(packaged_cli if packaged_cli.is_file() else LAUNCHER)]
 
 
 def _our_hook(handler, source):
@@ -61,7 +63,7 @@ def _our_hook(handler, source):
         return False
     if len(args) == 5 and isinstance(args[0], str):
         path = Path(args[0])
-        return path.parts[-2:] == ("host", "habitat.py") and args[1] == "--state-dir"
+        return path.parts[-2:] in {("host", "habitat.py"), ("clawd_tank_habitat", "cli.py")} and args[1] == "--state-dir"
     return len(args) == 4 and args[0] == "--state-dir" and Path(exe).stem == "clawd-tank"
 
 
