@@ -12,7 +12,7 @@
 #include "button.h"
 #include "esp_heap_caps.h"
 
-static const char *TAG = "clawd-tank";
+static const char *TAG = "agent-pets";
 
 #define EVT_QUEUE_LEN 16
 
@@ -36,7 +36,7 @@ static void ui_task(void *arg) {
 }
 
 void app_main(void) {
-    ESP_LOGI(TAG, "Clawd Tank starting...");
+    ESP_LOGI(TAG, "Agent Pets starting...");
 
     // Create event queue (BLE -> UI)
     s_evt_queue = xQueueCreate(EVT_QUEUE_LEN, sizeof(ble_evt_t));
@@ -67,7 +67,7 @@ void app_main(void) {
         abort();
     }
 
-    ESP_LOGI(TAG, "Clawd Tank running — free heap: %lu bytes (internal: %lu, PSRAM: %lu)",
+    ESP_LOGI(TAG, "Agent Pets running — free heap: %lu bytes (internal: %lu, PSRAM: %lu)",
              (unsigned long)esp_get_free_heap_size(),
              (unsigned long)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
              (unsigned long)heap_caps_get_free_size(MALLOC_CAP_SPIRAM));

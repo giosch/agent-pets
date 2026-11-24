@@ -1,7 +1,7 @@
 # PR #5 Comments Analysis Report
 
 Generated: 2026-03-16
-PR: https://github.com/marciogranzotto/clawd-tank/pull/5
+PR: https://api.github.com/repositories/1179885968/pulls/5
 
 ---
 
@@ -13,7 +13,7 @@ PR #5 is the v1.3.0 multi-session display feature. Copilot left 4 review comment
 
 ## Comments Analysis
 
-### Comment 1: Copilot on `host/clawd_tank_daemon/daemon.py:210`
+### Comment 1: Copilot on `host/agent_pets_daemon/daemon.py:210`
 
 **Original Comment:**
 > `subagents` in the v2 `set_sessions` payload is documented as the total active subagent count across all sessions, but `_compute_display_state()` currently increments `total_subagents` only for the first 4 visible sessions (`_session_order[:4]`). This will undercount when there are overflow sessions with active subagents, causing the HUD counter to be wrong. Compute `total_subagents` independently over all active sessions.
@@ -137,7 +137,7 @@ This is a developer-facing CLI tool where the default output directory is alread
 
 #### 1. Fix subagent undercount for overflow sessions
 - **Issue:** `total_subagents` only counts visible sessions, missing overflow sessions
-- **Files affected:** `host/clawd_tank_daemon/daemon.py`
+- **Files affected:** `host/agent_pets_daemon/daemon.py`
 - **Implementation:** Compute `total_subagents` from all `_session_states` before or after the `[:4]` loop
 - **Rationale:** Real bug — HUD counter would show wrong number with 5+ sessions
 

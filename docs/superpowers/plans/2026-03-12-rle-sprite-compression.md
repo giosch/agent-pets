@@ -762,7 +762,7 @@ Expected: build succeeds with no linker overflow errors. The `.flash.rodata` sec
 
 - [ ] **Step 2: Check binary size**
 
-Run: `ls -lh firmware/build/clawd-tank.bin`
+Run: `ls -lh firmware/build/agent-pets.bin`
 
 Expected: binary should be well under 7.9 MB (the new partition size).
 
@@ -777,7 +777,7 @@ Expected: simulator builds successfully — it compiles the same `scene.c` and i
 - [ ] **Step 4: Run simulator headless smoke test**
 
 ```bash
-./simulator/build/clawd-tank-sim --headless \
+./simulator/build/agent-pets-sim --headless \
   --events 'connect; wait 500; notify "Test" "RLE sprites"; wait 2000; disconnect' \
   --screenshot-dir ./shots/ --screenshot-on-event
 ```

@@ -6,7 +6,7 @@ import time
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from clawd_tank_daemon.daemon import ClawdDaemon
+from agent_pets_daemon.daemon import ClawdDaemon
 
 
 def make_daemon():
@@ -1250,11 +1250,11 @@ async def test_message_without_pid_field_does_not_crash():
 
 def test_init_stamps_monotonic_on_loaded_sessions(tmp_path):
     """After daemon restart, loaded sessions get fresh last_event_monotonic."""
-    from clawd_tank_daemon.session_store import save_sessions
+    from agent_pets_daemon.session_store import save_sessions
     sessions_path = tmp_path / "sessions.json"
     save_sessions({"s1": {"state": "idle", "last_event": time.time()}}, sessions_path)
 
-    from clawd_tank_daemon.daemon import ClawdDaemon
+    from agent_pets_daemon.daemon import ClawdDaemon
     d = ClawdDaemon(sim_only=True, sessions_path=sessions_path)
     d._transports.clear()
     d._transport_queues.clear()
@@ -1267,7 +1267,7 @@ def test_init_stamps_monotonic_on_loaded_sessions(tmp_path):
 def test_init_prunes_wall_clock_stale_sessions(tmp_path):
     """Startup prune: sessions with wall-clock last_event older than 10min
     are removed at init (their Claude Code process is almost certainly dead)."""
-    from clawd_tank_daemon.session_store import save_sessions
+    from agent_pets_daemon.session_store import save_sessions
     sessions_path = tmp_path / "sessions.json"
     save_sessions(
         {
@@ -1279,7 +1279,7 @@ def test_init_prunes_wall_clock_stale_sessions(tmp_path):
         next_id=3,
     )
 
-    from clawd_tank_daemon.daemon import ClawdDaemon
+    from agent_pets_daemon.daemon import ClawdDaemon
     d = ClawdDaemon(sim_only=True, sessions_path=sessions_path)
     d._transports.clear()
     d._transport_queues.clear()
@@ -1430,7 +1430,7 @@ def test_liveness_evicts_dead_pid():
     }
     d._session_order = [("s1", 1)]
 
-    with patch("clawd_tank_daemon.daemon.os.kill", side_effect=ProcessLookupError):
+    with patch("agent_pets_daemon.daemon.os.kill", side_effect=ProcessLookupError):
         d._check_liveness()
 
     assert "s1" not in d._session_states
@@ -1446,7 +1446,7 @@ def test_liveness_keeps_alive_pid():
         "last_event_monotonic": time.monotonic(), "pid": 4242,
     }
 
-    with patch("clawd_tank_daemon.daemon.os.kill", return_value=None):
+    with patch("agent_pets_daemon.daemon.os.kill", return_value=None):
         d._check_liveness()
 
     assert "s1" in d._session_states
@@ -1461,7 +1461,7 @@ def test_liveness_skips_sessions_without_pid():
         "last_event_monotonic": time.monotonic(),
     }
 
-    with patch("clawd_tank_daemon.daemon.os.kill", side_effect=ProcessLookupError):
+    with patch("agent_pets_daemon.daemon.os.kill", side_effect=ProcessLookupError):
         d._check_liveness()
 
     assert "s1" in d._session_states
@@ -1476,7 +1476,7 @@ def test_liveness_treats_permission_error_as_alive():
         "last_event_monotonic": time.monotonic(), "pid": 4242,
     }
 
-    with patch("clawd_tank_daemon.daemon.os.kill", side_effect=PermissionError):
+    with patch("agent_pets_daemon.daemon.os.kill", side_effect=PermissionError):
         d._check_liveness()
 
     assert "s1" in d._session_states
@@ -1485,7 +1485,7 @@ def test_liveness_treats_permission_error_as_alive():
 def test_liveness_persists_after_eviction(tmp_path):
     """After evicting a dead session, the persisted sessions.json reflects it."""
     from unittest.mock import patch
-    from clawd_tank_daemon.daemon import ClawdDaemon
+    from agent_pets_daemon.daemon import ClawdDaemon
 
     d = ClawdDaemon(sim_only=True, sessions_path=tmp_path / "sessions.json")
     d._transports.clear()
@@ -1496,7 +1496,7 @@ def test_liveness_persists_after_eviction(tmp_path):
     }
     d._session_order = [("s1", 1)]
 
-    with patch("clawd_tank_daemon.daemon.os.kill", side_effect=ProcessLookupError):
+    with patch("agent_pets_daemon.daemon.os.kill", side_effect=ProcessLookupError):
         d._check_liveness()
 
     # Persist file should not contain s1

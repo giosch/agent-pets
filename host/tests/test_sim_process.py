@@ -4,26 +4,26 @@ import os
 import sys
 import pytest
 from unittest.mock import patch
-from clawd_tank_daemon.sim_process import SimProcessManager
+from agent_pets_daemon.sim_process import SimProcessManager
 
 def test_find_binary_in_app_bundle():
     """When running inside an .app bundle, finds sim in Contents/Resources/."""
     mgr = SimProcessManager()
     # isfile returns True only for the Resources path
     def fake_isfile(path):
-        return path.endswith("Contents/Resources/clawd-tank-sim")
+        return path.endswith("Contents/Resources/agent-pets-sim")
     with patch.object(os.path, "isfile", side_effect=fake_isfile):
         path = mgr._find_binary()
         # On macOS, NSBundle is available and returns a real bundle path
         assert path is not None
-        assert path.endswith("Contents/Resources/clawd-tank-sim")
+        assert path.endswith("Contents/Resources/agent-pets-sim")
 
 def test_find_binary_fallback_to_which():
     mgr = SimProcessManager()
     with patch.object(os.path, "isfile", return_value=False):
-        with patch("shutil.which", return_value="/usr/local/bin/clawd-tank-sim"):
+        with patch("shutil.which", return_value="/usr/local/bin/agent-pets-sim"):
             path = mgr._find_binary()
-            assert path == "/usr/local/bin/clawd-tank-sim"
+            assert path == "/usr/local/bin/agent-pets-sim"
 
 def test_find_binary_returns_none():
     mgr = SimProcessManager()

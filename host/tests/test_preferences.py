@@ -2,7 +2,7 @@
 import json
 import pytest
 from pathlib import Path
-from clawd_tank_menubar.preferences import load_preferences, save_preferences, DEFAULTS
+from agent_pets_menubar.preferences import load_preferences, save_preferences, DEFAULTS
 
 @pytest.fixture
 def prefs_file(tmp_path):

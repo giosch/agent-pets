@@ -2,7 +2,7 @@
 import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from clawd_tank_daemon.daemon import ClawdDaemon, DaemonObserver
+from agent_pets_daemon.daemon import ClawdDaemon, DaemonObserver
 
 
 class MockObserver:

@@ -15,7 +15,7 @@
 ### Task 1: Guard `_ble_sender` against ValueError from unknown events
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:77`
+- Modify: `host/agent_pets_daemon/daemon.py:77`
 - Test: `host/tests/test_daemon.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -34,7 +34,7 @@ async def test_unknown_event_does_not_crash_sender():
     # _ble_sender should process both without raising.
     # We can't easily run the full sender loop, so call the conversion directly
     # to confirm the ValueError path exists, then verify the daemon handles it.
-    from clawd_tank_daemon.protocol import daemon_message_to_ble_payload
+    from agent_pets_daemon.protocol import daemon_message_to_ble_payload
     with pytest.raises(ValueError):
         daemon_message_to_ble_payload({"event": "bogus"})
 
@@ -85,7 +85,7 @@ Expected: FAIL — `ValueError: Unknown event: bogus` kills the sender task.
 
 - [ ] **Step 5: Implement the fix**
 
-In `host/clawd_tank_daemon/daemon.py`, wrap the `daemon_message_to_ble_payload` call in `_ble_sender` with a try/except:
+In `host/agent_pets_daemon/daemon.py`, wrap the `daemon_message_to_ble_payload` call in `_ble_sender` with a try/except:
 
 ```python
     async def _ble_sender(self) -> None:
@@ -123,7 +123,7 @@ Expected: ALL PASS
 - [ ] **Step 8: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_daemon.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_daemon.py
 git commit -m "fix: catch ValueError in _ble_sender for unknown events
 
 An unknown event type passed through _handle_message would raise
@@ -160,7 +160,7 @@ Change in `notification_write_cb`:
 Change in `ble_service_init` — declare `int rc` once and reuse for all three calls:
 
 ```c
-    int rc = ble_svc_gap_device_name_set("Clawd Tank");
+    int rc = ble_svc_gap_device_name_set("Agent Pets");
     if (rc != 0) {
         ESP_LOGW(TAG, "Failed to set GAP device name: %d", rc);
     }
@@ -189,7 +189,7 @@ static void ble_on_sync(void) {
         ESP_LOGE(TAG, "Failed to ensure address: %d", rc);
         return;
     }
-    ESP_LOGI(TAG, "BLE synced, starting advertising as 'Clawd Tank'");
+    ESP_LOGI(TAG, "BLE synced, starting advertising as 'Agent Pets'");
     start_advertising();
 }
 ```
@@ -291,17 +291,17 @@ Replace the full contents of `host/install-hooks.sh`:
 
 ```bash
 #!/bin/bash
-# install-hooks.sh — Installs Clawd Tank notification hooks into Claude Code settings.
+# install-hooks.sh — Installs Agent Pets notification hooks into Claude Code settings.
 # Usage: ./install-hooks.sh
 
 set -eu
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CLAWD_NOTIFY="$SCRIPT_DIR/clawd-tank-notify"
+CLAWD_NOTIFY="$SCRIPT_DIR/agent-pets-notify"
 SETTINGS_FILE="${SETTINGS_FILE:-$HOME/.claude/settings.json}"
 
 if [ ! -f "$CLAWD_NOTIFY" ]; then
-    echo "Error: clawd-tank-notify not found at $CLAWD_NOTIFY"
+    echo "Error: agent-pets-notify not found at $CLAWD_NOTIFY"
     exit 1
 fi
 
@@ -358,12 +358,12 @@ fi
 UPDATED=$(jq --argjson hooks "$HOOKS_JSON" '.hooks = (.hooks // {}) * $hooks' "$SETTINGS_FILE")
 echo "$UPDATED" > "$SETTINGS_FILE"
 
-echo "Clawd Tank hooks installed into $SETTINGS_FILE"
+echo "Agent Pets hooks installed into $SETTINGS_FILE"
 echo "Hook command: $CLAWD_NOTIFY"
 echo ""
 echo "NOTE: The 'matcher' field filters which notification types trigger the hook."
 echo "If your Claude Code version doesn't support 'matcher', remove it —"
-echo "clawd-tank-notify already filters by notification_type in protocol.py."
+echo "agent-pets-notify already filters by notification_type in protocol.py."
 ```
 
 - [ ] **Step 2: Verify the script is executable**
@@ -390,7 +390,7 @@ Expected: The temp file contains both the original `env`/`statusLine` keys AND t
 git add host/install-hooks.sh
 git commit -m "feat: auto-merge hooks into Claude Code settings.json
 
-install-hooks.sh now uses jq to merge Clawd Tank hooks into
+install-hooks.sh now uses jq to merge Agent Pets hooks into
 ~/.claude/settings.json, preserving existing settings. Also adds
 set -u for safer variable handling.
 

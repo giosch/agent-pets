@@ -1,12 +1,12 @@
-# macOS Menu Bar App for Clawd Tank
+# macOS Menu Bar App for Agent Pets
 
 ## Summary
 
-A macOS status bar application that wraps the existing Clawd Tank daemon, providing a GUI for device configuration (brightness, sleep timeout) and status monitoring (connection state, notification count). The daemon code becomes a reusable library with two entry points: the existing headless CLI and the new menu bar app.
+A macOS status bar application that wraps the existing Agent Pets daemon, providing a GUI for device configuration (brightness, sleep timeout) and status monitoring (connection state, notification count). The daemon code becomes a reusable library with two entry points: the existing headless CLI and the new menu bar app.
 
 ## Goals
 
-- Single-click launch experience for Clawd Tank on macOS
+- Single-click launch experience for Agent Pets on macOS
 - Configure device settings (brightness, sleep timeout) from the menu bar
 - At-a-glance connection and notification status via the status bar icon
 - Preserve headless daemon mode for users who don't want the GUI
@@ -22,11 +22,11 @@ A macOS status bar application that wraps the existing Clawd Tank daemon, provid
 
 ### Hybrid Embed with Headless Fallback
 
-The daemon code (`clawd_tank_daemon/`) is a library that can run either embedded in the status bar app or standalone via CLI. Both entry points use the same `ClawdDaemon` class.
+The daemon code (`agent_pets_daemon/`) is a library that can run either embedded in the status bar app or standalone via CLI. Both entry points use the same `ClawdDaemon` class.
 
 ```
 ┌─────────────────────┐      ┌─────────────────────┐
-│  clawd-tank-menubar │  OR  │  clawd-tank-daemon   │
+│  agent-pets-menubar │  OR  │  agent-pets-daemon   │
 │  (rumps + asyncio)  │      │  (headless CLI)      │
 │                     │      │                      │
 │  embeds daemon lib  │      │  same daemon lib     │
@@ -47,7 +47,7 @@ The daemon code (`clawd_tank_daemon/`) is a library that can run either embedded
                     └──────────────┘
 ```
 
-The existing file lock (`~/.clawd-tank/daemon.lock`) prevents both entry points from running simultaneously.
+The existing file lock (`~/.agent-pets/daemon.lock`) prevents both entry points from running simultaneously.
 
 ### Threading Model
 
@@ -57,7 +57,7 @@ The menu bar app uses `rumps`, which requires the PyObjC/NSApplication main loop
 
 ### New Config Characteristic
 
-A second GATT characteristic is added under the existing Clawd Tank service for device configuration.
+A second GATT characteristic is added under the existing Agent Pets service for device configuration.
 
 - **UUID**: `E9F6E626-5FCA-4201-B80C-4D2B51C40F51`
 - **Flags**: `READ | WRITE | WRITE_NO_RSP`
@@ -174,7 +174,7 @@ class DaemonObserver(Protocol):
 - **`on_connection_change(True)`** — called in `_ble_sender` after `ensure_connected()` succeeds (first connect or reconnect). Also requires a new `_on_ble_disconnect` callback registered with `ClawdBleClient` that calls `on_connection_change(False)`.
 - **`on_notification_change(count)`** — called at the end of `_handle_message` after updating `_active_notifications`, with `len(self._active_notifications)` as the count.
 
-### New Package: `host/clawd_tank_menubar/`
+### New Package: `host/agent_pets_menubar/`
 
 - **`app.py`** — `rumps.App` subclass implementing `DaemonObserver`
   - Creates `ClawdDaemon` with itself as observer
@@ -192,8 +192,8 @@ class DaemonObserver(Protocol):
 
 Defined in `setup.py` / `pyproject.toml`:
 
-- `clawd-tank-daemon` — existing, unchanged
-- `clawd-tank-menubar` — new, launches `clawd_tank_menubar.app:main`
+- `agent-pets-daemon` — existing, unchanged
+- `agent-pets-menubar` — new, launches `agent_pets_menubar.app:main`
 
 ### New Dependencies
 
@@ -204,7 +204,7 @@ Defined in `setup.py` / `pyproject.toml`:
 ### Menu Structure (Connected)
 
 ```
-🦀● Clawd Tank                    Connected
+🦀● Agent Pets                    Connected
    2 active notifications
 ─────────────────────────────────────────
    Brightness                        40%
@@ -222,7 +222,7 @@ Defined in `setup.py` / `pyproject.toml`:
 ─────────────────────────────────────────
    Reconnect
 ─────────────────────────────────────────
-   Quit Clawd Tank
+   Quit Agent Pets
 ```
 
 ### Menu Structure (Disconnected)
@@ -248,7 +248,7 @@ Implemented as a custom `NSSlider` inside an `NSView` embedded in an `NSMenuItem
 ### Launch at Login
 
 Implemented via a `launchd` user agent plist:
-- `~/Library/LaunchAgents/com.clawd-tank.menubar.plist`
+- `~/Library/LaunchAgents/com.agent-pets.menubar.plist`
 - Toggle writes/removes the plist and uses `launchctl bootstrap`/`bootout` (the modern API on macOS 10.15+) to load/unload the agent
 
 ## Testing

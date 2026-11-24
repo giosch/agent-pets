@@ -4,7 +4,7 @@ Bundle the native simulator inside the macOS Menu Bar app so users without hardw
 
 ## Context
 
-The simulator (`clawd-tank-sim`) compiles the same firmware source files against SDL2 and runs as a standalone native binary. The menu bar app (`Clawd Tank.app`) is a Python/rumps application packaged via py2app. Currently the simulator must be built and launched separately — users run `clawd-tank-sim --listen` and toggle "Enable Simulator" in the menu bar to connect over TCP.
+The simulator (`agent-pets-sim`) compiles the same firmware source files against SDL2 and runs as a standalone native binary. The menu bar app (`Agent Pets.app`) is a Python/rumps application packaged via py2app. Currently the simulator must be built and launched separately — users run `agent-pets-sim --listen` and toggle "Enable Simulator" in the menu bar to connect over TCP.
 
 This design eliminates that manual step: the simulator binary ships inside the `.app` bundle and the menu bar app manages its lifecycle directly.
 
@@ -91,14 +91,14 @@ On startup, the daemon reads preferences and only creates transports that are en
 
 ### Simulator Process Manager
 
-New class `SimProcessManager` in `clawd_tank_daemon/`:
+New class `SimProcessManager` in `agent_pets_daemon/`:
 
-- **Spawning**: launches `clawd-tank-sim --listen --hidden` as a subprocess
-- **Binary discovery**: looks for the binary using `NSBundle.mainBundle().bundlePath` + `/Contents/MacOS/clawd-tank-sim` when running inside a `.app` bundle, falls back to `os.path.join(os.path.dirname(sys.executable), 'clawd-tank-sim')`, then `shutil.which('clawd-tank-sim')` for development
+- **Spawning**: launches `agent-pets-sim --listen --hidden` as a subprocess
+- **Binary discovery**: looks for the binary using `NSBundle.mainBundle().bundlePath` + `/Contents/MacOS/agent-pets-sim` when running inside a `.app` bundle, falls back to `os.path.join(os.path.dirname(sys.executable), 'agent-pets-sim')`, then `shutil.which('agent-pets-sim')` for development
 - **Window control**: sends show/hide/pinned TCP commands via `SimClient.send_command()` (new method for non-notification JSON payloads)
 - **Event handling**: receives `window_hidden` events from `SimClient`'s background reader and updates the menu bar toggle state
 - **Process monitoring**: if the process crashes, logs it and updates status. No auto-restart.
-- **Port conflict handling**: before spawning, attempts a TCP connect to the target port. If something is already listening, logs a warning and connects `SimClient` to the existing instance without spawning a new process. This handles the case where a standalone `clawd-tank-sim --listen` is already running.
+- **Port conflict handling**: before spawning, attempts a TCP connect to the target port. If something is already listening, logs a warning and connects `SimClient` to the existing instance without spawning a new process. This handles the case where a standalone `agent-pets-sim --listen` is already running.
 - **Clean shutdown**: SIGTERM → wait → SIGKILL on disable or app quit
 
 ### SimClient Changes
@@ -124,7 +124,7 @@ Session Timeout         ▸
 Install Claude Code Hooks
 Launch at Login
 ─────────────────────────
-Quit Clawd Tank
+Quit Agent Pets
 ```
 
 **BLE submenu (enabled):**
@@ -195,18 +195,18 @@ No special handling. The submenu status shows "Disabled" for each, and the menu 
 ## App Bundle Structure
 
 ```
-Clawd Tank.app/
+Agent Pets.app/
   Contents/
     MacOS/
-      Clawd Tank          (py2app stub launcher)
+      Agent Pets          (py2app stub launcher)
       python              (Python interpreter)
-      clawd-tank-sim      (simulator binary — NEW)
+      agent-pets-sim      (simulator binary — NEW)
     Frameworks/
       libpython3.11.dylib, libcrypto, libssl, etc.
     Resources/
       lib/python3.11/
-        clawd_tank_daemon/
-        clawd_tank_menubar/
+        agent_pets_daemon/
+        agent_pets_menubar/
       icons/
       AppIcon.icns
     Info.plist
@@ -218,10 +218,10 @@ The simulator binary is placed in `Contents/MacOS/` per macOS conventions for ex
 
 Triggered on tag push (e.g., `v1.2.0`):
 
-1. **Build simulator** — checkout repo, `cmake -B build -DSTATIC_SDL2=ON`, `cmake --build build`. Produces self-contained `clawd-tank-sim` arm64 binary.
-2. **Build menu app** — `cd host && python setup.py py2app`. Produces `Clawd Tank.app`.
-3. **Inject simulator** — `cp simulator/build/clawd-tank-sim "host/dist/Clawd Tank.app/Contents/MacOS/"`.
-4. **Package** — `cd host/dist && zip -r clawd-tank-macos-arm64.zip "Clawd Tank.app"`.
+1. **Build simulator** — checkout repo, `cmake -B build -DSTATIC_SDL2=ON`, `cmake --build build`. Produces self-contained `agent-pets-sim` arm64 binary.
+2. **Build menu app** — `cd host && python setup.py py2app`. Produces `Agent Pets.app`.
+3. **Inject simulator** — `cp simulator/build/agent-pets-sim "host/dist/Agent Pets.app/Contents/MacOS/"`.
+4. **Package** — `cd host/dist && zip -r agent-pets-macos-arm64.zip "Agent Pets.app"`.
 5. **Release** — attach zip to the GitHub release.
 
 macOS runner: `macos-14` (arm64 Apple Silicon).

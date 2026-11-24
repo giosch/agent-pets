@@ -3,7 +3,7 @@ import asyncio
 import json
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from clawd_tank_daemon.ble_client import (
+from agent_pets_daemon.ble_client import (
     ClawdBleClient,
     CONFIG_CHR_UUID,
     VERSION_CHR_UUID,
@@ -115,7 +115,7 @@ async def test_ping_times_out_and_drops_client(monkeypatch):
     """A read that hangs on a stale-connected dead link must NOT block forever.
     The bounded timeout makes ping() fail fast, drop the client, and let the
     sender reconnect — without holding _lock for bleak's full default timeout."""
-    import clawd_tank_daemon.ble_client as bc
+    import agent_pets_daemon.ble_client as bc
     monkeypatch.setattr(bc, "GATT_READ_TIMEOUT_SECS", 0.05)
     client = ClawdBleClient()
     underlying = MagicMock()

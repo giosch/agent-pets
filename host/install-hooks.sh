@@ -1,15 +1,15 @@
 #!/bin/bash
-# install-hooks.sh — Installs Clawd Tank notification hooks into Claude Code settings.
+# install-hooks.sh — Installs Agent Pets notification hooks into Claude Code settings.
 # Usage: ./install-hooks.sh
 
 set -eu
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CLAWD_NOTIFY="$SCRIPT_DIR/clawd-tank-notify"
+CLAWD_NOTIFY="$SCRIPT_DIR/agent-pets-notify"
 SETTINGS_FILE="${SETTINGS_FILE:-$HOME/.claude/settings.json}"
 
 if [ ! -f "$CLAWD_NOTIFY" ]; then
-    echo "Error: clawd-tank-notify not found at $CLAWD_NOTIFY"
+    echo "Error: agent-pets-notify not found at $CLAWD_NOTIFY"
     exit 1
 fi
 
@@ -66,9 +66,9 @@ fi
 UPDATED=$(jq --argjson hooks "$HOOKS_JSON" '.hooks = (.hooks // {}) * $hooks' "$SETTINGS_FILE")
 echo "$UPDATED" > "$SETTINGS_FILE"
 
-echo "Clawd Tank hooks installed into $SETTINGS_FILE"
+echo "Agent Pets hooks installed into $SETTINGS_FILE"
 echo "Hook command: $CLAWD_NOTIFY"
 echo ""
 echo "NOTE: The 'matcher' field filters which notification types trigger the hook."
 echo "If your Claude Code version doesn't support 'matcher', remove it —"
-echo "clawd-tank-notify already filters by notification_type in protocol.py."
+echo "agent-pets-notify already filters by notification_type in protocol.py."

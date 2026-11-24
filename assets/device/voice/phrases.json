@@ -1,0 +1,12 @@
+{
+  "voice": "Microsoft Zira Desktop",
+  "rate": 1,
+  "sample_rate": 12000,
+  "phrases": {
+    "approval": "I need your approval.",
+    "question": "I have a question.",
+    "failure": "Something needs attention.",
+    "ready": "I'm ready.",
+    "working": "I'm working on it."
+  }
+}

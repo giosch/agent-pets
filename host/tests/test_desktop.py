@@ -5,18 +5,18 @@ from tempfile import TemporaryDirectory
 import unittest
 from unittest.mock import patch
 
-from clawd_tank_habitat.adapters import Signal
-from clawd_tank_habitat.hooks import configure
-from clawd_tank_habitat.inbox import drain, enqueue
-from clawd_tank_habitat import installation
-from clawd_tank_habitat.model import Habitat
+from agent_pets_habitat.adapters import Signal
+from agent_pets_habitat.hooks import configure
+from agent_pets_habitat.inbox import drain, enqueue
+from agent_pets_habitat import installation
+from agent_pets_habitat.model import Habitat
 
 
 class DesktopTests(unittest.TestCase):
     def test_missing_end_hook_reconciles_after_host_restart(self):
         import subprocess
         import sys
-        from clawd_tank_habitat.presence import process_info, owner_exited
+        from agent_pets_habitat.presence import process_info, owner_exited
         with TemporaryDirectory() as temp, subprocess.Popen([sys.executable, "-c", "import time;time.sleep(60)"]) as child:
             try:
                 start = process_info(child.pid)[2]
@@ -99,7 +99,7 @@ class DesktopTests(unittest.TestCase):
                 existing={"hooks":{"Stop":[{"hooks":[{"type":"command","command":"someone-else"}]}]}}
                 config.write_text(json.dumps(existing))
                 configure(source,d,path=config)
-                with patch("clawd_tank_habitat.hooks.launch_command",return_value=[str(d/"clawd-tank")]):
+                with patch("agent_pets_habitat.hooks.launch_command",return_value=[str(d/"agent-pets")]):
                     configure(source,d,path=config)
                     one=config.read_bytes()
                     configure(source,d,path=config)

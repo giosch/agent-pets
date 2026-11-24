@@ -1,13 +1,13 @@
 ---
 name: releasing
-description: Cuts a new versioned release of the Clawd Tank macOS menu bar app. Use when the user asks to release, cut a release, publish a release, ship a version, or bump the version. The release is fully automated by a GitHub Actions workflow that triggers on a vX.Y.Z tag push — do NOT build or zip the app manually.
+description: Cuts a new versioned release of the Agent Pets macOS menu bar app. Use when the user asks to release, cut a release, publish a release, ship a version, or bump the version. The release is fully automated by a GitHub Actions workflow that triggers on a vX.Y.Z tag push — do NOT build or zip the app manually.
 ---
 
-# Releasing Clawd Tank
+# Releasing Agent Pets
 
 The macOS app release is **fully automated by CI**. `.github/workflows/release.yml`
 triggers on any `v*` tag push and: builds the static simulator, runs py2app,
-bundles the simulator into the `.app`, zips `clawd-tank-macos-arm64.zip`, and
+bundles the simulator into the `.app`, zips `agent-pets-macos-arm64.zip`, and
 creates the GitHub release with that asset attached.
 
 **The only manual steps are: merge to master, tag `vX.Y.Z`, push the tag.**
@@ -26,7 +26,7 @@ There is **no hardcoded version string to edit**. `host/setup.py`'s
 - HEAD on a clean `vX.Y.Z` tag → baked version is `vX.Y.Z`.
 - Otherwise → `<branch>+<N>@<sha>[-dirty]`.
 
-`host/clawd_tank_menubar/version.py` only *reads* this (`_version_info.py` is
+`host/agent_pets_menubar/version.py` only *reads* this (`_version_info.py` is
 generated and gitignored). So **"bump the version" = create the git tag.**
 
 Tags are semver `vX.Y.Z`, published as GitHub releases. Decide patch vs minor by
@@ -64,7 +64,7 @@ git status --porcelain   # must print nothing
 
 **5. Tag and push** — pushing the tag is what triggers the release:
 ```bash
-git tag -a vX.Y.Z -m "Clawd Tank vX.Y.Z — <one-line summary>"
+git tag -a vX.Y.Z -m "Agent Pets vX.Y.Z — <one-line summary>"
 git push origin vX.Y.Z
 ```
 
@@ -81,13 +81,13 @@ gh release edit vX.Y.Z \
   --title "vX.Y.Z — <theme>" \
   --notes "## Highlights
 ...
-**Full changelog:** https://github.com/marciogranzotto/clawd-tank/compare/<prevtag>...vX.Y.Z"
+**Full changelog:** https://github.com/marciogranzotto/agent-pets/compare/<prevtag>...vX.Y.Z"
 ```
 
 **8. Verify:**
 ```bash
 gh release view vX.Y.Z --json tagName,isDraft,assets
-# expect: isDraft false, asset clawd-tank-macos-arm64.zip present
+# expect: isDraft false, asset agent-pets-macos-arm64.zip present
 ```
 
 ## Optional: update your own machine

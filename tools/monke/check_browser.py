@@ -16,7 +16,7 @@ from .pipeline import DEFAULT_OUT, ROOT, load_sources, fingerprint
 
 def check(browser_path, output):
     sys.path.insert(0,str(ROOT/"host"))
-    from clawd_tank_habitat.themes import read_archive
+    from agent_pets_habitat.themes import read_archive
     errors=[]
     briefs,_=load_sources()
     with sync_playwright() as p:

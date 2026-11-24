@@ -1,0 +1,3 @@
+# Grant the active desktop user access to this BLE vendor-defined HID device.
+# Bluetooth HID nodes are under uhid, so USB idVendor/idProduct rules do not match.
+SUBSYSTEM=="hidraw", KERNELS=="0005:303A:A937.*", TAG+="uaccess"

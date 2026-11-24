@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from clawd_tank_menubar.hooks import NOTIFY_SCRIPT
-from clawd_tank_daemon.protocol import hook_payload_to_daemon_message
+from agent_pets_menubar.hooks import NOTIFY_SCRIPT
+from agent_pets_daemon.protocol import hook_payload_to_daemon_message
 
 
 def _make_sock_path() -> str:
@@ -76,9 +76,9 @@ def _run_script_with_payload(payload: dict, sock_path: str) -> dict:
 
     try:
         # Override the socket path the script uses via env (we'll modify the
-        # script to honor CLAWD_TANK_SOCKET if set — see Step 3).
+        # script to honor AGENT_PETS_SOCKET if set — see Step 3).
         env = os.environ.copy()
-        env["CLAWD_TANK_SOCKET"] = sock_path
+        env["AGENT_PETS_SOCKET"] = sock_path
         subprocess.run(
             [sys.executable, script_path],
             input=json.dumps(payload).encode("utf-8"),

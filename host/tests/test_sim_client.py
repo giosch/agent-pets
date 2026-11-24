@@ -4,7 +4,7 @@
 import asyncio
 import json
 import pytest
-from clawd_tank_daemon.sim_client import SimClient
+from agent_pets_daemon.sim_client import SimClient
 
 
 async def start_mock_server(handler):

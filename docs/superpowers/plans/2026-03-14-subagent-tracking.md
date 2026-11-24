@@ -15,7 +15,7 @@
 ### Task 1: Protocol — SubagentStart/SubagentStop conversion
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/protocol.py:8-77` (add two new event handlers)
+- Modify: `host/agent_pets_daemon/protocol.py:8-77` (add two new event handlers)
 - Test: `host/tests/test_protocol.py`
 
 - [ ] **Step 1: Write failing tests for SubagentStart conversion**
@@ -92,15 +92,15 @@ Expected: ALL PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/protocol.py host/tests/test_protocol.py
+git add host/agent_pets_daemon/protocol.py host/tests/test_protocol.py
 git commit -m "feat(protocol): handle SubagentStart/SubagentStop hook events"
 ```
 
 ### Task 2: Hook handler script — forward SubagentStart/SubagentStop
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/hooks.py:18-107` (inline script's `hook_to_message` function)
-- Modify: `host/clawd_tank_menubar/hooks.py:111-136` (HOOKS_CONFIG dict)
+- Modify: `host/agent_pets_menubar/hooks.py:18-107` (inline script's `hook_to_message` function)
+- Modify: `host/agent_pets_menubar/hooks.py:111-136` (HOOKS_CONFIG dict)
 
 - [ ] **Step 1: Add SubagentStart/SubagentStop to the inline hook script**
 
@@ -145,7 +145,7 @@ Expected: ALL PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/hooks.py
+git add host/agent_pets_menubar/hooks.py
 git commit -m "feat(hooks): register SubagentStart/SubagentStop hook events"
 ```
 
@@ -154,7 +154,7 @@ git commit -m "feat(hooks): register SubagentStart/SubagentStop hook events"
 ### Task 3: Daemon — track active subagents per session
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:125-219` (session state tracking)
+- Modify: `host/agent_pets_daemon/daemon.py:125-219` (session state tracking)
 - Test: `host/tests/test_session_state.py`
 
 The session state dict currently stores `{"state": str, "last_event": float}`. We add an optional `"subagents"` key holding a `set` of active `agent_id` strings.
@@ -261,14 +261,14 @@ Expected: ALL PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat(daemon): track active subagents per session"
 ```
 
 ### Task 4: Daemon — suppress eviction for sessions with active subagents
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:211-219` (`_evict_stale_sessions`)
+- Modify: `host/agent_pets_daemon/daemon.py:211-219` (`_evict_stale_sessions`)
 - Test: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -325,14 +325,14 @@ Expected: ALL PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "fix(daemon): suppress eviction for sessions with active subagents"
 ```
 
 ### Task 5: Daemon — sessions with active subagents count as "working"
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:166-177` (`_compute_display_state`)
+- Modify: `host/agent_pets_daemon/daemon.py:166-177` (`_compute_display_state`)
 - Test: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -399,7 +399,7 @@ Expected: ALL PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat(daemon): sessions with active subagents count as working"
 ```
 
@@ -536,7 +536,7 @@ In the "Session State Model" section, add under bullet points:
 After implementation, the user needs to reinstall hooks to pick up `SubagentStart`/`SubagentStop`. The menu bar app's "Install Hooks" button handles this, or:
 
 ```bash
-cd host && .venv/bin/python -c "from clawd_tank_menubar.hooks import install_hooks, install_notify_script; install_notify_script(); install_hooks()"
+cd host && .venv/bin/python -c "from agent_pets_menubar.hooks import install_hooks, install_notify_script; install_notify_script(); install_hooks()"
 ```
 
 - [ ] **Step 4: Final commit**

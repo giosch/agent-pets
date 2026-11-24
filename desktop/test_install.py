@@ -21,7 +21,7 @@ def main(first, second):
         env={**os.environ,"HOME":tmp,"USERPROFILE":tmp,"LOCALAPPDATA":str(home/"local"),
              "APPDATA":str(home/"roam"),"CODEX_HOME":str(home/"codex"),"CLAUDE_CONFIG_DIR":str(home/"claude"),
              "XDG_DATA_HOME":str(home/"data"),"XDG_CONFIG_HOME":str(home/"config"),
-             "CLAWD_HABITAT_HOME":str(home/"state")}
+             "AGENT_PETS_HOME":str(home/"state")}
         state=home/"state"
         def install(artifact):
             if sys.platform=="win32":
@@ -31,18 +31,18 @@ def main(first, second):
                 mount.mkdir(exist_ok=True)
                 run(["hdiutil","attach","-nobrowse","-readonly","-mountpoint",mount,artifact],env=env)
                 try:
-                    run([mount/"Install Clawd Tank.app/Contents/MacOS/install","--no-open"],env=env)
+                    run([mount/"Install Agent Pets.app/Contents/MacOS/install","--no-open"],env=env)
                 finally:
                     run(["hdiutil","detach",mount],env=env)
             else:
                 run(["sh",artifact,"--no-open"],env=env)
         if sys.platform=="win32":
-            root=home/"local/Programs/ClawdTankHabitat"
+            root=home/"local/Programs/AgentPetsHabitat"
         elif sys.platform=="darwin":
-            root=home/"Library/Application Support/ClawdTankDesktop"
+            root=home/"Library/Application Support/AgentPetsDesktop"
         else:
-            root=home/"data/clawd-tank-desktop"
-        stable=root/("clawd-tank.exe" if os.name=="nt" else "clawd-tank")
+            root=home/"data/agent-pets-desktop"
+        stable=root/("agent-pets.exe" if os.name=="nt" else "agent-pets")
         def cli(*args): run([stable,*args],env=env)
         def info(): return json.loads((state/"connection.json").read_text())
         def get(path):
@@ -58,7 +58,7 @@ def main(first, second):
         def event(source,sid,name):
             profile,file=("claude","settings.json") if source=="claude" else ("codex","hooks.json")
             groups=json.loads((home/profile/file).read_text())["hooks"][name]
-            h,=[h for g in groups for h in g["hooks"] if h.get("statusMessage")=="Updating Clawd Tank habitat"]
+            h,=[h for g in groups for h in g["hooks"] if h.get("statusMessage")=="Updating Agent Pets habitat"]
             if source=="claude":
                 argv=[h["command"],*h["args"]]
             elif os.name=="nt":
@@ -115,13 +115,13 @@ def main(first, second):
         if os.name=="nt":
             import winreg
             with winreg.OpenKey(winreg.HKEY_CURRENT_USER,r"Software\Microsoft\Windows\CurrentVersion\Run") as key:
-                registered=winreg.QueryValueEx(key,"ClawdTankHabitat")[0]
+                registered=winreg.QueryValueEx(key,"AgentPetsHabitat")[0]
             subprocess.run(registered,env=env,check=True,timeout=30)
         elif sys.platform=="darwin":
-            entry=home/"Library/LaunchAgents/io.clawdtank.habitat.plist"
+            entry=home/"Library/LaunchAgents/io.agentpets.habitat.plist"
             run(plistlib.loads(entry.read_bytes())["ProgramArguments"],env=env)
         else:
-            entry=home/"config/autostart/clawd-tank-habitat.desktop"
+            entry=home/"config/autostart/agent-pets-habitat.desktop"
             command=next(line[5:] for line in entry.read_text().splitlines() if line.startswith("Exec="))
             run(shlex.split(command),env=env)
         assert get("v1/snapshot")["sessions"]==[before[0]]
@@ -158,7 +158,7 @@ def main(first, second):
         if os.name=="nt":
             with winreg.OpenKey(winreg.HKEY_CURRENT_USER,r"Software\Microsoft\Windows\CurrentVersion\Run") as key:
                 try:
-                    winreg.QueryValueEx(key,"ClawdTankHabitat")
+                    winreg.QueryValueEx(key,"AgentPetsHabitat")
                 except FileNotFoundError:
                     pass
                 else:

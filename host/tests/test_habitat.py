@@ -1,19 +1,36 @@
 """Regression tests for the portable host. Run with Python's unittest from host/."""
 import json
+import io
 from pathlib import Path
 from queue import Empty
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from clawd_tank_habitat.adapters import Signal, normalize
-from clawd_tank_habitat.hooks import configure
-from clawd_tank_habitat.model import Habitat
-from clawd_tank_habitat.server import HabitatServer
-from clawd_tank_habitat.themes import Themes, install_pack
+from agent_pets_habitat.adapters import Signal, normalize
+from agent_pets_habitat.hooks import configure
+from agent_pets_habitat.model import Habitat
+from agent_pets_habitat.server import HabitatServer
+from agent_pets_habitat.themes import Themes, install_pack
 
 
 class HabitatTests(unittest.TestCase):
+    def test_changed_codex_hooks_are_reported_for_review(self):
+        from agent_pets_habitat.desktop import codex_trust
+        from agent_pets_habitat.hooks import config_path, expected_handler
+        state = Path("test-habitat-state")
+        handler = expected_handler("codex", state)
+        hook = {"command": handler.get("commandWindows", handler["command"]),
+                "sourcePath": str(config_path("codex")), "trustStatus": "modified", "enabled": True}
+        reply = {"id": 2, "result": {"data": [{"hooks": [hook]}]}}
+        process = SimpleNamespace(stdin=io.StringIO(), stdout=io.StringIO(json.dumps(reply) + "\n"),
+                                  kill=lambda: None)
+        with patch("agent_pets_habitat.desktop.shutil.which", return_value="codex"), \
+             patch("agent_pets_habitat.desktop.subprocess.Popen") as start:
+            start.return_value.__enter__.return_value = process
+            self.assertEqual(codex_trust(state), "review")
+
     def test_local_host_starts_without_dns(self):
         with TemporaryDirectory() as directory, patch("socket.getfqdn", side_effect=AssertionError("DNS lookup")):
             with HabitatServer(0, Habitat(), Themes(Path(directory))) as server:
@@ -42,6 +59,33 @@ class HabitatTests(unittest.TestCase):
                                                   status="completed")))
         self.assertIsNone(normalize("codex", dict(session_id="s", hook_event_name="PostToolUse",
                                                   tool_name="request_user_input_async")))
+
+    def test_private_codex_fork_stays_hidden_through_lifecycle_and_restart(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "sessions.json"
+            h = Habitat(path)
+            start = dict(session_id="sample", hook_event_name="SessionStart", source="fork", transcript_path=None)
+            h.apply(normalize("codex", start))
+            self.assertEqual(h.snapshot()["sessions"], [])
+            h = Habitat(path)
+            for kind in ("prompt", "tool", "ready", "close", "prompt"):
+                h.apply(Signal("codex", "sample", kind))
+                self.assertEqual(h.snapshot()["sessions"], [])
+            # A real persisted resume is allowed to become visible.
+            h.apply(normalize("codex", dict(start, source="resume", transcript_path="rollout.jsonl")))
+            self.assertEqual(len(h.snapshot()["sessions"]), 1)
+
+    def test_real_and_legacy_forks_and_ephemeral_cli_sessions_stay_visible(self):
+        cases = [
+            ("codex", dict(source="fork", transcript_path="rollout.jsonl")),
+            ("codex", dict(source="fork")),
+            ("codex", dict(source="startup", transcript_path=None)),
+            ("claude", dict(source="fork", transcript_path=None)),
+        ]
+        for source, fields in cases:
+            h = Habitat()
+            h.apply(normalize(source, dict(session_id="real", hook_event_name="SessionStart", **fields)))
+            self.assertEqual(len(h.snapshot()["sessions"]), 1)
 
     def test_parallel_calls_and_attention(self):
         h = Habitat()
@@ -118,7 +162,7 @@ class HabitatTests(unittest.TestCase):
             with TemporaryDirectory() as directory:
                 target = Path(directory) / "hooks.json"
                 other = {"hooks": [{"type": "command", "command": "my-hook",
-                                    "statusMessage": "Updating Clawd Tank habitat"}]}
+                                    "statusMessage": "Updating Agent Pets habitat"}]}
                 original = {"hooks": {"Stop": [other]}, "description": "Keep me"}
                 target.write_text(json.dumps(original))
                 configure(source, target.parent, path=target)

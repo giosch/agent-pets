@@ -17,7 +17,7 @@ Eliminate "ghost crabs" — session entries that linger on the display after the
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| PID resolution | Ancestor walk via `ps`, in `clawd-tank-notify` | Mirrors battle-tested pattern in `claude-plugins/agent-bus/lib/common.sh:_find_claude_pid`. Handles direct exec, shell wrapper, subagent hooks (walks past child to parent claude). |
+| PID resolution | Ancestor walk via `ps`, in `agent-pets-notify` | Mirrors battle-tested pattern in `claude-plugins/agent-bus/lib/common.sh:_find_claude_pid`. Handles direct exec, shell wrapper, subagent hooks (walks past child to parent claude). |
 | Liveness primitive | `os.kill(pid, 0)` | Matches agent-bus pattern. No `psutil` dependency. Accepts small PID-recycle risk (mitigated by freshness window for dedup, and short polling cadence). |
 | Polling cadence | 30s | Same as staleness checker; bounds worst-case ghost-crab visibility to 30s instead of 10 min. |
 | PID stamping frequency | Every event | Resilient to daemon restart; subagent corruption avoided because the ancestor walk always resolves to the parent `claude` process. |
@@ -30,7 +30,7 @@ Eliminate "ghost crabs" — session entries that linger on the display after the
 
 ## PID Resolution
 
-Port the agent-bus `_find_claude_pid` shell logic into Python stdlib inside the embedded `clawd-tank-notify` script. The script invokes `ps` once per ancestor, walking from its own `os.getppid()` upward until it finds a process matching the `claude` identification rules, or reaches PID 1.
+Port the agent-bus `_find_claude_pid` shell logic into Python stdlib inside the embedded `agent-pets-notify` script. The script invokes `ps` once per ancestor, walking from its own `os.getppid()` upward until it finds a process matching the `claude` identification rules, or reaches PID 1.
 
 ### Identification rules (in order)
 
@@ -54,7 +54,7 @@ One `ps` invocation per ancestor (typically 2-4 levels deep). At the worst-case 
 
 ## Hook Payload Extension
 
-`clawd-tank-notify` adds two new fields to every outbound message:
+`agent-pets-notify` adds two new fields to every outbound message:
 
 ```python
 {
@@ -175,7 +175,7 @@ The embedded `NOTIFY_SCRIPT` version comment / hash will change, which means `ar
 
 Before merging, run a one-shot diagnostic to confirm `_find_claude_pid` resolution works inside a Claude Code `type: command` hook on the user's install. The diagnostic:
 
-1. Adds a temporary hook entry that logs `os.getppid()`, the ancestor chain (each PID's `comm` and `command`), and the resolved PID, to `~/.clawd-tank/pid-diagnostic.log`.
+1. Adds a temporary hook entry that logs `os.getppid()`, the ancestor chain (each PID's `comm` and `command`), and the resolved PID, to `~/.agent-pets/pid-diagnostic.log`.
 2. User triggers each hook type once (SessionStart, PreToolUse, Stop, SubagentStart).
 3. Inspect the log to confirm resolution finds the same long-lived `claude` PID across all events.
 4. Remove the diagnostic.
@@ -217,7 +217,7 @@ A black-box test using a fake `claude`-named process:
 ## Migration / Compatibility
 
 - **Existing `sessions.json` files**: load gracefully — entries without `pid` field default to `None`; old format stays compatible (we ignore PID on load anyway).
-- **Mixed-version operation**: if a user has an old `clawd-tank-notify` (no `pid` field) and a new daemon, sessions are tracked but never get PID-evicted — falls through to staleness. Daemon code must handle `pid` absent or `None` gracefully throughout.
+- **Mixed-version operation**: if a user has an old `agent-pets-notify` (no `pid` field) and a new daemon, sessions are tracked but never get PID-evicted — falls through to staleness. Daemon code must handle `pid` absent or `None` gracefully throughout.
 - **Script update**: `are_hooks_installed()` currently only checks that hook entries reference `HOOK_COMMAND`, not the script content itself. The menu bar app's existing startup auto-update (which writes `NOTIFY_SCRIPT` to disk when the installed daemon version is outdated, per CLAUDE.md) will replace the script on next launch. Implementation should verify this path actually runs for content-only changes; if not, add a content hash or version comment check to force script rewrite when `NOTIFY_SCRIPT` changes.
 
 ## Out of Scope

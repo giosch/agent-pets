@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Record seamlessly-looping GIFs of Clawd Tank animations.
+"""Record seamlessly-looping GIFs of Agent Pets animations.
 
 Uses the simulator's --capture-anim mode to capture exactly one animation
 cycle with perfect frame sync, then stitches into a GIF with Pillow.
@@ -41,7 +41,7 @@ STATUS_MAP = {
 }
 
 PROJECT_ROOT = Path(__file__).parent.parent
-SIMULATOR = PROJECT_ROOT / "simulator" / "build" / "clawd-tank-sim"
+SIMULATOR = PROJECT_ROOT / "simulator" / "build" / "agent-pets-sim"
 
 
 def find_simulator():
@@ -111,7 +111,7 @@ def record_animation(name: str, output_path: str, scale: int = 2):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Record seamlessly-looping GIFs of Clawd Tank animations",
+        description="Record seamlessly-looping GIFs of Agent Pets animations",
     )
     parser.add_argument("animation", nargs="?",
                         help="Animation name (e.g., thinking, typing, idle)")

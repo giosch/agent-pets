@@ -1,6 +1,6 @@
 # Pet habitat activity protocol v1
 
-A display consumes session facts and chooses its own poses, colors, and layout. This protocol has a separate version namespace from the original Clawd Tank BLE GATT protocol v1/v2. The browser milestone implements HTTP snapshots and Server-Sent Events over loopback TCP.
+A display consumes session facts and chooses its own poses, colors, and layout. This protocol has a separate version namespace from the original Agent Pets BLE GATT protocol v1/v2. The browser milestone implements HTTP snapshots and Server-Sent Events over loopback TCP.
 
 ## Connect a display
 
@@ -26,6 +26,8 @@ Every new connection receives a complete snapshot first. Replace the local colle
 | `attention` | `none`, `question`, `approval`, `failure`, or `ready`. A normal finished turn remains ready until the chat continues or ends. |
 | `helpers` | Number of known active helpers associated with the parent session. |
 | `active_calls` | Number of observed tool calls still running in this session. Older hosts can omit this field. |
+| `activity_since` | Optional Unix timestamp for the beginning of the observed activity/attention state. Unknown historical start times remain absent. |
+| `progress_done`, `progress_total`, `progress_kind` | Optional actual completed/total counts reported by a successful native plan/task-list tool, with kind `steps` or `tasks`. These are not inferred work estimates. |
 | `moment` | Optional on an update. Play `forked`, `completed`, `setback`, `compacted`, or `interrupted` once, then return to the current pose. An outstanding blocking alert has priority. |
 
 A session start explicitly marked `source: "fork"` produces a split reaction for that child once. Snapshots carry no moments.
@@ -57,4 +59,9 @@ optional format-1 extension leaves legacy `colors` packs unchanged. See the
 
 ## Physical transport work
 
-The live JSON meanings above are the common contract. A native TCP or USB serial binding can delimit complete records with newlines. A BLE binding also needs a tested fragmentation and reassembly scheme for the negotiated MTU. The first hardware milestone must verify discovery, framing, the initial snapshot, and resynchronization on disconnect on a real device. The existing board’s BLE service still speaks its documented [Clawd Tank protocol](protocol-changelog.md).
+The live JSON meanings above are the common contract. A native TCP or USB serial binding can delimit complete records with newlines. A BLE binding also needs a tested fragmentation and reassembly scheme for the negotiated MTU. The first hardware milestone must verify discovery, framing, the initial snapshot, and resynchronization on disconnect on a real device. The existing board’s BLE service still speaks its documented [Agent Pets protocol](protocol-changelog.md).
+
+
+## Native Codex execution evidence
+
+On Windows, the companion can resolve a Codex shell permission before PostToolUse when a unique direct child shell of the same native agent is already executing the exact command. It compares a local SHA-256 fingerprint, the parent PID plus creation identity, and the child creation time against the tool observation. Only that call's approval clears; its executing state and other pending waits remain. Duplicate commands, missing evidence, unsupported platforms and unrelated tools keep their permission state until a normal hook resolves it. Commands are fingerprinted in memory and are not retained or sent to displays. The exact native UTF-8 shell setup prefix is normalized before hashing.

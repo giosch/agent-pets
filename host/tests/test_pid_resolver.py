@@ -4,7 +4,7 @@ long-lived Claude Code PID, mirroring claude-plugins/agent-bus/lib/common.sh.
 
 from unittest.mock import patch, MagicMock
 
-from clawd_tank_daemon.pid_resolver import find_claude_pid
+from agent_pets_daemon.pid_resolver import find_claude_pid
 
 
 def _make_ps_mock(responses):
@@ -23,8 +23,8 @@ def _make_ps_mock(responses):
 
 def test_direct_parent_is_claude():
     """getppid() returns claude — return it directly."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=100):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=100):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 100): "claude",
             })
@@ -33,11 +33,11 @@ def test_direct_parent_is_claude():
 
 def test_walks_past_shell_wrapper():
     """getppid() is zsh, ancestor is claude — walk and find it."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=200):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=200):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 200): "zsh",
-                ("command", 200): "zsh -c /Users/me/.clawd-tank/clawd-tank-notify",
+                ("command", 200): "zsh -c /Users/me/.agent-pets/agent-pets-notify",
                 ("ppid", 200): "300",
                 ("comm", 300): "claude",
             })
@@ -46,8 +46,8 @@ def test_walks_past_shell_wrapper():
 
 def test_node_install_matches_via_command_regex():
     """Node-wrapped install: comm is 'node', argv invokes a path ending in `claude`."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=400):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=400):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 400): "node",
                 ("command", 400): "node /opt/claude-code/bin/claude --resume xyz",
@@ -57,8 +57,8 @@ def test_node_install_matches_via_command_regex():
 
 def test_node_install_with_path_prefix_matches():
     """Command starts with /usr/local/bin/claude."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=500):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=500):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 500): "claude-wrapper",
                 ("command", 500): "/usr/local/bin/claude --resume abc",
@@ -72,8 +72,8 @@ def test_shell_snapshot_does_NOT_match():
     the zsh's argv. The strict `comm == "claude"` and `(^|/)claude($|\\s)` regex
     must NOT match this shell.
     """
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=600):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=600):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 600): "zsh",
                 ("command", 600): "zsh -c source ~/.claude/shell-snapshots/snap-12345.sh; /tmp/cmd",
@@ -85,8 +85,8 @@ def test_shell_snapshot_does_NOT_match():
 
 def test_falls_back_to_getppid_when_no_claude_ancestor():
     """Walk reaches pid 1 without finding claude — return original getppid()."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=700):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=700):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 700): "zsh",
                 ("command", 700): "zsh",
@@ -97,8 +97,8 @@ def test_falls_back_to_getppid_when_no_claude_ancestor():
 
 def test_falls_back_to_getppid_when_ps_fails():
     """ps returns empty (process gone mid-walk) — fall back gracefully."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=800):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=800):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({})  # all empty
             assert find_claude_pid() == 800
 
@@ -106,7 +106,7 @@ def test_falls_back_to_getppid_when_ps_fails():
 def test_ps_timeout_does_not_raise():
     """subprocess timeout returns empty string, walk falls back."""
     import subprocess as sp
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=900):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=900):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = sp.TimeoutExpired(cmd="ps", timeout=1.0)
             assert find_claude_pid() == 900

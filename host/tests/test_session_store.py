@@ -5,7 +5,7 @@ import time
 import pytest
 from pathlib import Path
 
-from clawd_tank_daemon.session_store import save_sessions, load_sessions
+from agent_pets_daemon.session_store import save_sessions, load_sessions
 
 
 def test_round_trip_basic(tmp_path):

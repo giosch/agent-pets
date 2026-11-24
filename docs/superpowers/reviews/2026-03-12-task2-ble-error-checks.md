@@ -59,14 +59,14 @@ This is a judgment call — the current `LOGE` + `return` matches the plan spec 
 The `LOGW` level for `ble_svc_gap_device_name_set` failure is correct: NimBLE will fall back to the compiled-in default name (`CONFIG_BT_NIMBLE_SVC_GAP_DEVICE_NAME`), so the device is still functional. However, a brief inline comment would make the intent clear to future readers, since the code continues without the name being set:
 
 ```c
-int rc = ble_svc_gap_device_name_set("Clawd Tank");
+int rc = ble_svc_gap_device_name_set("Agent Pets");
 if (rc != 0) {
     // Non-fatal: NimBLE falls back to the Kconfig default name.
     ESP_LOGW(TAG, "Failed to set GAP device name: %d", rc);
 }
 ```
 
-In practice this call can only fail if `"Clawd Tank"` (10 chars) exceeds `BLE_SVC_GAP_DEVICE_NAME_MAX_LENGTH` — which defaults to 31 in NimBLE, so this branch is unreachable with the current device name. The check is still good practice since the name could change.
+In practice this call can only fail if `"Agent Pets"` (10 chars) exceeds `BLE_SVC_GAP_DEVICE_NAME_MAX_LENGTH` — which defaults to 31 in NimBLE, so this branch is unreachable with the current device name. The check is still good practice since the name could change.
 
 ---
 

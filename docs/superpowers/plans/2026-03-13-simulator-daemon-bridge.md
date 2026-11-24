@@ -135,7 +135,7 @@ In `CMakeLists.txt`, add `sim_ble_parse.c` to the `add_executable` source list, 
 
 - [ ] **Step 4: Build simulator to verify compilation**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/simulator && cmake -B build && cmake --build build`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/simulator && cmake -B build && cmake --build build`
 Expected: Compiles with no errors.
 
 - [ ] **Step 5: Commit**
@@ -445,7 +445,7 @@ Add `sim_socket.c` to the `add_executable` source list after `sim_ble_parse.c`.
 
 - [ ] **Step 4: Build simulator to verify compilation**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/simulator && cmake -B build && cmake --build build`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/simulator && cmake -B build && cmake --build build`
 Expected: Compiles with no errors.
 
 - [ ] **Step 5: Commit**
@@ -559,13 +559,13 @@ Before `sim_display_shutdown()` in cleanup, add:
 
 - [ ] **Step 5: Build and test manually**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/simulator && cmake -B build && cmake --build build`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/simulator && cmake -B build && cmake --build build`
 Expected: Compiles with no errors.
 
 Quick smoke test — start simulator, send JSON via netcat:
 ```bash
 # Terminal 1:
-./simulator/build/clawd-tank-sim --listen
+./simulator/build/agent-pets-sim --listen
 
 # Terminal 2:
 echo '{"action":"add","id":"test-1","project":"my-app","message":"Hello"}' | nc localhost 19872
@@ -586,12 +586,12 @@ git commit -m "feat(sim): integrate TCP listener into simulator main loop"
 ### Task 4: Create `TransportClient` Protocol
 
 **Files:**
-- Create: `host/clawd_tank_daemon/transport.py`
+- Create: `host/agent_pets_daemon/transport.py`
 
 - [ ] **Step 1: Create `transport.py`**
 
 ```python
-"""Transport client protocol for Clawd Tank daemon."""
+"""Transport client protocol for Agent Pets daemon."""
 
 from typing import Protocol, runtime_checkable
 
@@ -619,7 +619,7 @@ class TransportClient(Protocol):
 - [ ] **Step 2: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/transport.py
+git add host/agent_pets_daemon/transport.py
 git commit -m "feat(daemon): add TransportClient protocol"
 ```
 
@@ -628,7 +628,7 @@ git commit -m "feat(daemon): add TransportClient protocol"
 ### Task 5: Create `SimClient` TCP transport
 
 **Files:**
-- Create: `host/clawd_tank_daemon/sim_client.py`
+- Create: `host/agent_pets_daemon/sim_client.py`
 - Create: `host/tests/test_sim_client.py`
 
 - [ ] **Step 1: Write failing tests for `SimClient`**
@@ -640,7 +640,7 @@ git commit -m "feat(daemon): add TransportClient protocol"
 import asyncio
 import json
 import pytest
-from clawd_tank_daemon.sim_client import SimClient
+from agent_pets_daemon.sim_client import SimClient
 
 
 async def start_mock_server(handler):
@@ -786,20 +786,20 @@ async def test_write_when_disconnected_returns_false():
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_sim_client.py -v`
-Expected: FAIL with `ModuleNotFoundError: No module named 'clawd_tank_daemon.sim_client'`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_sim_client.py -v`
+Expected: FAIL with `ModuleNotFoundError: No module named 'agent_pets_daemon.sim_client'`
 
 - [ ] **Step 3: Implement `SimClient`**
 
 ```python
-# host/clawd_tank_daemon/sim_client.py
-"""TCP transport client for connecting to the Clawd Tank simulator."""
+# host/agent_pets_daemon/sim_client.py
+"""TCP transport client for connecting to the Agent Pets simulator."""
 
 import asyncio
 import json
 import logging
 
-logger = logging.getLogger("clawd-tank.sim")
+logger = logging.getLogger("agent-pets.sim")
 
 SIM_DEFAULT_PORT = 19872
 SIM_RETRY_INTERVAL = 5  # seconds
@@ -904,13 +904,13 @@ class SimClient:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_sim_client.py -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_sim_client.py -v`
 Expected: All tests PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/sim_client.py host/tests/test_sim_client.py
+git add host/agent_pets_daemon/sim_client.py host/tests/test_sim_client.py
 git commit -m "feat(daemon): add SimClient TCP transport with tests"
 ```
 
@@ -919,7 +919,7 @@ git commit -m "feat(daemon): add SimClient TCP transport with tests"
 ### Task 6: Refactor daemon for multi-transport support
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py`
+- Modify: `host/agent_pets_daemon/daemon.py`
 - Modify: `host/tests/test_daemon.py`
 
 - [ ] **Step 1: Write failing test for multi-transport broadcast**
@@ -948,12 +948,12 @@ async def test_sim_only_mode_has_no_ble_transport():
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_daemon.py::test_handle_message_broadcasts_to_all_transport_queues tests/test_daemon.py::test_sim_only_mode_has_no_ble_transport -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_daemon.py::test_handle_message_broadcasts_to_all_transport_queues tests/test_daemon.py::test_sim_only_mode_has_no_ble_transport -v`
 Expected: FAIL (ClawdDaemon doesn't accept `sim_port` / `sim_only` params yet).
 
 - [ ] **Step 3: Refactor `ClawdDaemon` for multi-transport**
 
-In `host/clawd_tank_daemon/daemon.py`, make these changes:
+In `host/agent_pets_daemon/daemon.py`, make these changes:
 
 1. Add imports:
 ```python
@@ -1168,7 +1168,7 @@ def __init__(self, observer=None, headless=True, sim_port=0, sim_only=False):
 ```python
 def main():
     import argparse
-    parser = argparse.ArgumentParser(description="Clawd Tank daemon")
+    parser = argparse.ArgumentParser(description="Agent Pets daemon")
     parser.add_argument("--sim", action="store_true", help="Enable simulator transport (BLE + TCP)")
     parser.add_argument("--sim-only", action="store_true", help="Simulator only (no BLE)")
     parser.add_argument("--sim-port", type=int, default=SIM_DEFAULT_PORT,
@@ -1231,18 +1231,18 @@ In `test_menubar.py`:
 
 - [ ] **Step 5: Run all affected tests**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_daemon.py tests/test_observer.py tests/test_menubar.py -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_daemon.py tests/test_observer.py tests/test_menubar.py -v`
 Expected: All tests PASS.
 
 - [ ] **Step 6: Run full test suite**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest -v`
 Expected: All tests PASS (including test_protocol.py, test_socket_server.py, etc.).
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_daemon.py host/tests/test_observer.py host/tests/test_menubar.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_daemon.py host/tests/test_observer.py host/tests/test_menubar.py
 git commit -m "feat(daemon): multi-transport support with per-transport queues and senders"
 ```
 
@@ -1253,11 +1253,11 @@ git commit -m "feat(daemon): multi-transport support with per-transport queues a
 ### Task 7: Update menubar app to use daemon public API
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/app.py:134,199,212,225` (replace `daemon._ble.*` calls)
+- Modify: `host/agent_pets_menubar/app.py:134,199,212,225` (replace `daemon._ble.*` calls)
 
 - [ ] **Step 1: Replace direct `_ble` access with public daemon methods**
 
-In `host/clawd_tank_menubar/app.py`, make these replacements:
+In `host/agent_pets_menubar/app.py`, make these replacements:
 
 Line 134: `config = await self._daemon._ble.read_config()` →
 ```python
@@ -1281,37 +1281,37 @@ self._daemon.reconnect()
 
 - [ ] **Step 2: Run menubar tests**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_menubar.py -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_menubar.py -v`
 Expected: All tests PASS.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/app.py
+git add host/agent_pets_menubar/app.py
 git commit -m "refactor(menubar): use daemon public API instead of accessing _ble directly"
 ```
 
 ---
 
-### Task 8: Update `clawd-tank-notify` daemon auto-start for `--sim` flag
+### Task 8: Update `agent-pets-notify` daemon auto-start for `--sim` flag
 
 **Files:**
-- Modify: `host/clawd-tank-notify:46` (daemon start command)
+- Modify: `host/agent-pets-notify:46` (daemon start command)
 
 - [ ] **Step 1: Review current daemon start command**
 
 The notify script starts the daemon with:
 ```python
-[sys.executable, "-m", "clawd_tank_daemon.daemon"]
+[sys.executable, "-m", "agent_pets_daemon.daemon"]
 ```
 
-This is fine — it starts BLE-only by default. Users who want sim mode start the daemon manually with `--sim` or `--sim-only`. No changes needed to `clawd-tank-notify`.
+This is fine — it starts BLE-only by default. Users who want sim mode start the daemon manually with `--sim` or `--sim-only`. No changes needed to `agent-pets-notify`.
 
-- [ ] **Step 2: Verify `clawd-tank-notify` still works**
+- [ ] **Step 2: Verify `agent-pets-notify` still works**
 
-The auto-start path uses `python -m clawd_tank_daemon.daemon` which calls `main()`. Since `main()` now uses `argparse`, calling with no args should work identically to before.
+The auto-start path uses `python -m agent_pets_daemon.daemon` which calls `main()`. Since `main()` now uses `argparse`, calling with no args should work identically to before.
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/python -c "from clawd_tank_daemon.daemon import main; print('import ok')"`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/python -c "from agent_pets_daemon.daemon import main; print('import ok')"`
 Expected: `import ok`
 
 ---
@@ -1322,17 +1322,17 @@ Expected: `import ok`
 
 - [ ] **Step 1: Build simulator**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/simulator && cmake -B build && cmake --build build`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/simulator && cmake -B build && cmake --build build`
 Expected: Clean build.
 
 - [ ] **Step 2: Test simulator + netcat**
 
 ```bash
 # Terminal 1:
-./simulator/build/clawd-tank-sim --listen
+./simulator/build/agent-pets-sim --listen
 
 # Terminal 2 (keep connection open 5s so UI is visible):
-(echo '{"action":"add","id":"test-1","project":"clawd-tank","message":"Waiting for input"}'; sleep 5) | nc localhost 19872
+(echo '{"action":"add","id":"test-1","project":"agent-pets","message":"Waiting for input"}'; sleep 5) | nc localhost 19872
 ```
 Expected: Simulator shows connected state and notification card for 5 seconds, then disconnects when nc closes.
 
@@ -1340,20 +1340,20 @@ Expected: Simulator shows connected state and notification card for 5 seconds, t
 
 ```bash
 # Terminal 1:
-./simulator/build/clawd-tank-sim --listen
+./simulator/build/agent-pets-sim --listen
 
 # Terminal 2:
-cd host && .venv/bin/python -m clawd_tank_daemon.daemon --sim-only
+cd host && .venv/bin/python -m agent_pets_daemon.daemon --sim-only
 
 # Terminal 3:
-echo '{"event":"add","session_id":"test-1","project":"my-app","message":"Hello"}' | nc -U ~/.clawd-tank/sock
+echo '{"event":"add","session_id":"test-1","project":"my-app","message":"Hello"}' | nc -U ~/.agent-pets/sock
 ```
 Expected: Notification appears on simulator via daemon.
 
 - [ ] **Step 4: Test headless + listen**
 
 ```bash
-./simulator/build/clawd-tank-sim --listen --headless &
+./simulator/build/agent-pets-sim --listen --headless &
 SIM_PID=$!
 sleep 1  # Wait for simulator to bind port
 (echo '{"action":"add","id":"t1","project":"test","message":"headless"}'; sleep 2) | nc localhost 19872
@@ -1379,15 +1379,15 @@ Expected: Simulator runs indefinitely until killed, accepts TCP connections.
 
 ```bash
 # Terminal 1: Start simulator
-./simulator/build/clawd-tank-sim --listen
+./simulator/build/agent-pets-sim --listen
 
 # Terminal 2: Start daemon
-cd host && .venv/bin/python -m clawd_tank_daemon.daemon --sim-only
+cd host && .venv/bin/python -m agent_pets_daemon.daemon --sim-only
 
 # Terminal 3: Send notification, then kill+restart simulator
-echo '{"event":"add","session_id":"reconnect-test","project":"test","message":"Before restart"}' | nc -U ~/.clawd-tank/sock
+echo '{"event":"add","session_id":"reconnect-test","project":"test","message":"Before restart"}' | nc -U ~/.agent-pets/sock
 # Kill simulator (Ctrl-C in Terminal 1), then restart it:
-./simulator/build/clawd-tank-sim --listen
+./simulator/build/agent-pets-sim --listen
 # Daemon should reconnect and replay the active notification
 ```
 Expected: After simulator restarts, daemon reconnects and the "Before restart" notification reappears.
@@ -1395,8 +1395,8 @@ Expected: After simulator restarts, daemon reconnects and the "Before restart" n
 - [ ] **Step 6: Run full test suite one final time**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest -v
-cd /Users/marciorodrigues/Projects/clawd-tank/firmware/test && make test
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest -v
+cd /Users/marciorodrigues/Projects/agent-pets/firmware/test && make test
 ```
 Expected: All tests PASS.
 

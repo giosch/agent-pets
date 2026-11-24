@@ -4,7 +4,7 @@
 
 **Goal:** Add a checkable menu item to the macOS status bar app that enables/disables the simulator TCP transport at runtime, with per-transport connection status and persisted preferences.
 
-**Architecture:** The daemon gains `add_transport`/`remove_transport` methods for dynamic transport lifecycle. The observer callback gets a `transport` parameter for per-transport status. The menubar app adds a toggle that creates/destroys a `SimClient` at runtime, with state persisted in `~/.clawd-tank/preferences.json`.
+**Architecture:** The daemon gains `add_transport`/`remove_transport` methods for dynamic transport lifecycle. The observer callback gets a `transport` parameter for per-transport status. The menubar app adds a toggle that creates/destroys a `SimClient` at runtime, with state persisted in `~/.agent-pets/preferences.json`.
 
 **Tech Stack:** Python 3.10+ (asyncio, rumps, json)
 
@@ -17,7 +17,7 @@
 ### Task 1: Add `_sender_tasks` dict and initial replay in `_transport_sender`
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:87-120` (`__init__`), `179-210` (`_transport_sender`), `257-286` (`run`), `220-234` (`_shutdown`)
+- Modify: `host/agent_pets_daemon/daemon.py:87-120` (`__init__`), `179-210` (`_transport_sender`), `257-286` (`run`), `220-234` (`_shutdown`)
 - Modify: `host/tests/test_daemon.py`
 
 - [ ] **Step 1: Write failing test for initial replay after connect**
@@ -59,12 +59,12 @@ async def test_transport_sender_replays_active_on_initial_connect():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_daemon.py::test_transport_sender_replays_active_on_initial_connect -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_daemon.py::test_transport_sender_replays_active_on_initial_connect -v`
 Expected: FAIL — sender does not replay after initial connect
 
 - [ ] **Step 3: Add `_sender_tasks` dict and initial replay**
 
-In `host/clawd_tank_daemon/daemon.py`:
+In `host/agent_pets_daemon/daemon.py`:
 
 In `__init__` (after `self._transport_queues` initialization around line 105), add:
 
@@ -106,21 +106,21 @@ The `test_ble_write_failure_triggers_reconnect_and_replay` and `test_ble_write_f
 
 - [ ] **Step 5: Run all daemon tests**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_daemon.py -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_daemon.py -v`
 Expected: All PASS
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_daemon.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_daemon.py
 git commit -m "feat(daemon): add _sender_tasks dict and initial replay in transport sender"
 ```
 
 ### Task 2: Update observer callback with transport parameter
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:26-29` (`DaemonObserver`), `140-151` (`_on_transport_connect`, `_on_transport_disconnect`)
-- Modify: `host/clawd_tank_menubar/app.py:117-123` (`on_connection_change`)
+- Modify: `host/agent_pets_daemon/daemon.py:26-29` (`DaemonObserver`), `140-151` (`_on_transport_connect`, `_on_transport_disconnect`)
+- Modify: `host/agent_pets_menubar/app.py:117-123` (`on_connection_change`)
 - Modify: `host/tests/test_menubar.py:19-20` (`FakeObserver`)
 - Modify: `host/tests/test_observer.py:9-10` (`MockObserver`)
 
@@ -154,12 +154,12 @@ async def test_observer_receives_transport_name():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_menubar.py::test_observer_receives_transport_name -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_menubar.py::test_observer_receives_transport_name -v`
 Expected: FAIL — observer receives `True` but not `("ble",)` tuple, or `TypeError` from extra argument
 
 - [ ] **Step 3: Update DaemonObserver Protocol and daemon methods**
 
-In `host/clawd_tank_daemon/daemon.py`:
+In `host/agent_pets_daemon/daemon.py`:
 
 Update `DaemonObserver` (line 28):
 
@@ -181,7 +181,7 @@ self._observer.on_connection_change(any_connected, name)
 
 - [ ] **Step 4: Update all observer implementations**
 
-In `host/clawd_tank_menubar/app.py`, update `on_connection_change` (line 117):
+In `host/agent_pets_menubar/app.py`, update `on_connection_change` (line 117):
 
 ```python
 def on_connection_change(self, connected: bool, transport: str = "") -> None:
@@ -212,13 +212,13 @@ Update `test_add_then_dismiss_observer_sequence` — notification_changes is unc
 
 - [ ] **Step 6: Run all tests**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest -v`
 Expected: All PASS
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/clawd_tank_menubar/app.py host/tests/test_menubar.py host/tests/test_observer.py
+git add host/agent_pets_daemon/daemon.py host/agent_pets_menubar/app.py host/tests/test_menubar.py host/tests/test_observer.py
 git commit -m "feat(daemon): add transport parameter to observer connection callback"
 ```
 
@@ -229,7 +229,7 @@ git commit -m "feat(daemon): add transport parameter to observer connection call
 ### Task 3: Implement `add_transport` and `remove_transport`
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py` (new methods after `_shutdown`)
+- Modify: `host/agent_pets_daemon/daemon.py` (new methods after `_shutdown`)
 - Modify: `host/tests/test_daemon.py`
 
 - [ ] **Step 1: Write failing test for `add_transport`**
@@ -263,7 +263,7 @@ async def test_add_transport_creates_queue_and_sender():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_daemon.py::test_add_transport_creates_queue_and_sender -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_daemon.py::test_add_transport_creates_queue_and_sender -v`
 Expected: FAIL — `add_transport` method not found
 
 - [ ] **Step 3: Write failing test for `remove_transport`**
@@ -422,7 +422,7 @@ async def test_handle_message_broadcasts_to_dynamically_added_transport():
 
 - [ ] **Step 8: Implement `add_transport` and `remove_transport`**
 
-In `host/clawd_tank_daemon/daemon.py`, add after `_shutdown` (around line 234):
+In `host/agent_pets_daemon/daemon.py`, add after `_shutdown` (around line 234):
 
 ```python
 async def add_transport(self, name: str, client: TransportClient) -> None:
@@ -453,13 +453,13 @@ async def remove_transport(self, name: str) -> None:
 
 - [ ] **Step 9: Run all tests**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest -v`
 Expected: All PASS
 
 - [ ] **Step 10: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_daemon.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_daemon.py
 git commit -m "feat(daemon): add dynamic add_transport and remove_transport methods"
 ```
 
@@ -470,7 +470,7 @@ git commit -m "feat(daemon): add dynamic add_transport and remove_transport meth
 ### Task 4: Add preference persistence
 
 **Files:**
-- Create: `host/clawd_tank_menubar/preferences.py`
+- Create: `host/agent_pets_menubar/preferences.py`
 - Modify: `host/tests/test_menubar.py`
 
 - [ ] **Step 1: Write failing tests for preference load/save**
@@ -480,7 +480,7 @@ In `host/tests/test_menubar.py`:
 ```python
 import tempfile
 from pathlib import Path
-from clawd_tank_menubar.preferences import load_preferences, save_preferences
+from agent_pets_menubar.preferences import load_preferences, save_preferences
 
 def test_load_preferences_missing_file():
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -504,25 +504,25 @@ def test_load_preferences_malformed_json():
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_menubar.py::test_load_preferences_missing_file tests/test_menubar.py::test_save_and_load_preferences tests/test_menubar.py::test_load_preferences_malformed_json -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_menubar.py::test_load_preferences_missing_file tests/test_menubar.py::test_save_and_load_preferences tests/test_menubar.py::test_load_preferences_malformed_json -v`
 Expected: FAIL — module not found
 
 - [ ] **Step 3: Implement preferences module**
 
-Create `host/clawd_tank_menubar/preferences.py`:
+Create `host/agent_pets_menubar/preferences.py`:
 
 ```python
-# host/clawd_tank_menubar/preferences.py
-"""Persistent preferences for the Clawd Tank menubar app."""
+# host/agent_pets_menubar/preferences.py
+"""Persistent preferences for the Agent Pets menubar app."""
 
 import json
 import logging
 from pathlib import Path
 
-logger = logging.getLogger("clawd-tank.menubar")
+logger = logging.getLogger("agent-pets.menubar")
 
 DEFAULTS = {"sim_enabled": False}
-PREFS_PATH = Path.home() / ".clawd-tank" / "preferences.json"
+PREFS_PATH = Path.home() / ".agent-pets" / "preferences.json"
 
 
 def load_preferences(path: Path = PREFS_PATH) -> dict:
@@ -543,20 +543,20 @@ def save_preferences(path: Path = PREFS_PATH, prefs: dict = None) -> None:
 
 - [ ] **Step 4: Run tests**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_menubar.py -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_menubar.py -v`
 Expected: All PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/preferences.py host/tests/test_menubar.py
+git add host/agent_pets_menubar/preferences.py host/tests/test_menubar.py
 git commit -m "feat(menubar): add preference persistence module"
 ```
 
 ### Task 5: Add per-transport status display and simulator toggle
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/app.py`
+- Modify: `host/agent_pets_menubar/app.py`
 - Modify: `host/tests/test_menubar.py`
 
 - [ ] **Step 1: Write failing test for per-transport observer tracking**
@@ -585,17 +585,17 @@ async def test_per_transport_status_tracking():
 
 - [ ] **Step 2: Run test to verify it passes** (this should already work from Task 2)
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_menubar.py::test_per_transport_status_tracking -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_menubar.py::test_per_transport_status_tracking -v`
 Expected: PASS
 
-- [ ] **Step 3: Update `ClawdTankApp` for per-transport status**
+- [ ] **Step 3: Update `AgentPetsApp` for per-transport status**
 
-In `host/clawd_tank_menubar/app.py`:
+In `host/agent_pets_menubar/app.py`:
 
 Add import at top:
 
 ```python
-from clawd_tank_daemon.sim_client import SimClient, SIM_DEFAULT_PORT
+from agent_pets_daemon.sim_client import SimClient, SIM_DEFAULT_PORT
 from .preferences import load_preferences, save_preferences, PREFS_PATH
 ```
 
@@ -761,13 +761,13 @@ def _start_daemon_thread(self):
 
 - [ ] **Step 7: Run all tests**
 
-Run: `cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest -v`
+Run: `cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest -v`
 Expected: All PASS
 
 - [ ] **Step 8: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/app.py host/tests/test_menubar.py
+git add host/agent_pets_menubar/app.py host/tests/test_menubar.py
 git commit -m "feat(menubar): add simulator toggle and per-transport status display"
 ```
 
@@ -776,7 +776,7 @@ git commit -m "feat(menubar): add simulator toggle and per-transport status disp
 - [ ] **Step 1: Run full test suite**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest -v
 ```
 
 Expected: All PASS
@@ -784,7 +784,7 @@ Expected: All PASS
 - [ ] **Step 2: Build simulator**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/simulator && cmake -B build && cmake --build build
+cd /Users/marciorodrigues/Projects/agent-pets/simulator && cmake -B build && cmake --build build
 ```
 
 Expected: Build succeeds
@@ -792,7 +792,7 @@ Expected: Build succeeds
 - [ ] **Step 3: Run C unit tests**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/firmware/test && make test
+cd /Users/marciorodrigues/Projects/agent-pets/firmware/test && make test
 ```
 
 Expected: All PASS

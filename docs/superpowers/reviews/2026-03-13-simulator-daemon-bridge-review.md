@@ -55,8 +55,8 @@ The receive buffer is 4096 bytes. A line can be up to 4095 bytes, but `uint16_t`
 
 ### H3. Config write from SimClient lacks `action` field wrapping
 
-**File:** `host/clawd_tank_daemon/sim_client.py`, line 107
-**File:** `host/clawd_tank_menubar/app.py`, lines 197-198 and 211-212
+**File:** `host/agent_pets_daemon/sim_client.py`, line 107
+**File:** `host/agent_pets_menubar/app.py`, lines 197-198 and 211-212
 
 `SimClient.write_config()` delegates to `write_notification()`, which just sends the payload as-is with a newline. The menubar app sends:
 ```python
@@ -101,7 +101,7 @@ async def write_config(self, payload: str) -> bool:
 
 ### M1. `_handle_disconnect` does not close writer -- potential resource leak
 
-**File:** `host/clawd_tank_daemon/sim_client.py`, lines 109-114
+**File:** `host/agent_pets_daemon/sim_client.py`, lines 109-114
 
 ```python
 def _handle_disconnect(self) -> None:
@@ -158,7 +158,7 @@ Or, since this is a simulator, consider storing the time offset in a global vari
 
 ### M4. `read_config` timeout race with interleaved writes
 
-**File:** `host/clawd_tank_daemon/sim_client.py`, lines 87-103
+**File:** `host/agent_pets_daemon/sim_client.py`, lines 87-103
 
 `read_config` sends a request and reads the next line from the reader. If another coroutine calls `write_notification` concurrently (which does not read), the lock protects against concurrent access. However, if the simulator sends any unsolicited data (unlikely now but possible if the protocol evolves), `readline()` could consume it instead of the config response.
 
@@ -210,13 +210,13 @@ The `handle_config_action` function re-parses the JSON buffer that was already p
 
 The port `19872` appears in:
 - `simulator/sim_socket.h` as `SIM_SOCKET_DEFAULT_PORT`
-- `host/clawd_tank_daemon/sim_client.py` as `SIM_DEFAULT_PORT`
+- `host/agent_pets_daemon/sim_client.py` as `SIM_DEFAULT_PORT`
 
 These are necessarily separate constants (C vs Python), but they should stay in sync. Consider adding a comment in each noting the counterpart.
 
 ### L2. Unused import in `daemon.py`
 
-**File:** `host/clawd_tank_daemon/daemon.py`, line 12
+**File:** `host/agent_pets_daemon/daemon.py`, line 12
 
 ```python
 from typing import Optional, Protocol, runtime_checkable
@@ -232,7 +232,7 @@ When `sim_socket_shutdown()` is called, the queue head/tail/count statics are no
 
 ### L4. `_on_quit` still accesses `_shutdown` directly
 
-**File:** `host/clawd_tank_menubar/app.py`, line 232
+**File:** `host/agent_pets_menubar/app.py`, line 232
 
 ```python
 future = asyncio.run_coroutine_threadsafe(
@@ -244,7 +244,7 @@ The commit `fa9c5ff` migrated `read_config`, `write_config`, and `reconnect` to 
 
 ### L5. `TransportClient.disconnect()` return type
 
-**File:** `host/clawd_tank_daemon/transport.py`, line 15
+**File:** `host/agent_pets_daemon/transport.py`, line 15
 
 ```python
 async def disconnect(self) -> None: ...

@@ -15,8 +15,8 @@
 ### Task 1: Pass tool_name through protocol layer
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/protocol.py:22-26`
-- Modify: `host/clawd_tank_daemon/protocol.py:155`
+- Modify: `host/agent_pets_daemon/protocol.py:22-26`
+- Modify: `host/agent_pets_daemon/protocol.py:155`
 - Test: `host/tests/test_protocol.py`
 
 - [ ] **Step 1: Write failing test — tool_name preserved in PreToolUse message**
@@ -53,7 +53,7 @@ Expected: FAIL — `tool_name` key not in message
 
 - [ ] **Step 3: Add tool_name to PreToolUse message in protocol.py**
 
-In `host/clawd_tank_daemon/protocol.py:22-26`, change the `PreToolUse` handler:
+In `host/agent_pets_daemon/protocol.py:22-26`, change the `PreToolUse` handler:
 
 ```python
     if event_name == "PreToolUse":
@@ -98,7 +98,7 @@ Expected: FAIL — new anim names not counted as working, status shows "idle"
 
 - [ ] **Step 6: Expand WORKING_ANIMS in v1 payload**
 
-In `host/clawd_tank_daemon/protocol.py:155`, change:
+In `host/agent_pets_daemon/protocol.py:155`, change:
 
 ```python
     working = sum(1 for a in state.get("anims", []) if a in ("typing", "building"))
@@ -120,7 +120,7 @@ Expected: ALL PASS
 - [ ] **Step 8: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/protocol.py host/tests/test_protocol.py
+git add host/agent_pets_daemon/protocol.py host/tests/test_protocol.py
 git commit -m "feat: pass tool_name through protocol and expand v1 WORKING_ANIMS"
 ```
 
@@ -129,7 +129,7 @@ git commit -m "feat: pass tool_name through protocol and expand v1 WORKING_ANIMS
 ### Task 2: Tool-aware animation mapping in daemon
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:215-219,253-256`
+- Modify: `host/agent_pets_daemon/daemon.py:215-219,253-256`
 - Test: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing tests — tool_name maps to correct animation**
@@ -227,7 +227,7 @@ Expected: FAIL
 
 - [ ] **Step 3: Add TOOL_ANIMATION_MAP and _tool_to_anim to daemon.py**
 
-At the top of `host/clawd_tank_daemon/daemon.py`, after the imports (around line 22), add:
+At the top of `host/agent_pets_daemon/daemon.py`, after the imports (around line 22), add:
 
 ```python
 TOOL_ANIMATION_MAP = {
@@ -253,7 +253,7 @@ def _tool_to_anim(tool_name: str) -> str:
 
 - [ ] **Step 4: Update _compute_display_state to use tool-aware mapping**
 
-In `host/clawd_tank_daemon/daemon.py`, change `_compute_display_state()` (lines 215-219):
+In `host/agent_pets_daemon/daemon.py`, change `_compute_display_state()` (lines 215-219):
 
 From:
 ```python
@@ -287,7 +287,7 @@ Also update `test_display_state_to_v1_building_counts_as_working` in `host/tests
 
 - [ ] **Step 6: Store tool_name in _update_session_state**
 
-In `host/clawd_tank_daemon/daemon.py`, update the `tool_use` handler (lines 253-256). Change the method signature to accept `msg`:
+In `host/agent_pets_daemon/daemon.py`, update the `tool_use` handler (lines 253-256). Change the method signature to accept `msg`:
 
 Change line 238:
 ```python
@@ -334,7 +334,7 @@ Expected: ALL PASS
 - [ ] **Step 9: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat: tool-aware animation mapping in daemon"
 ```
 
@@ -343,11 +343,11 @@ git commit -m "feat: tool-aware animation mapping in daemon"
 ### Task 3: Update embedded hook script in hooks.py
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/hooks.py:42-43`
+- Modify: `host/agent_pets_menubar/hooks.py:42-43`
 
 - [ ] **Step 1: Update the embedded NOTIFY_SCRIPT**
 
-In `host/clawd_tank_menubar/hooks.py`, find the `PreToolUse` handler in the `hook_to_message` function inside `NOTIFY_SCRIPT` (around line 42-43):
+In `host/agent_pets_menubar/hooks.py`, find the `PreToolUse` handler in the `hook_to_message` function inside `NOTIFY_SCRIPT` (around line 42-43):
 
 From:
 ```python
@@ -370,7 +370,7 @@ Expected: ALL PASS
 - [ ] **Step 3: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/hooks.py
+git add host/agent_pets_menubar/hooks.py
 git commit -m "feat: pass tool_name in embedded hook script"
 ```
 
@@ -626,7 +626,7 @@ Expected: ALL PASS
 - [ ] **Step 3: Test with simulator interactively**
 
 ```bash
-./simulator/build/clawd-tank-sim --headless --events 'connect; wait 500; set_sessions anims=["debugger"] ids=[1] subagents=0; wait 2000; set_sessions anims=["wizard"] ids=[1] subagents=0; wait 2000; set_sessions anims=["conducting"] ids=[1] subagents=0; wait 2000; set_sessions anims=["beacon"] ids=[1] subagents=0; wait 2000; disconnect' --screenshot-dir /tmp/tool-anim-shots/ --screenshot-on-event
+./simulator/build/agent-pets-sim --headless --events 'connect; wait 500; set_sessions anims=["debugger"] ids=[1] subagents=0; wait 2000; set_sessions anims=["wizard"] ids=[1] subagents=0; wait 2000; set_sessions anims=["conducting"] ids=[1] subagents=0; wait 2000; set_sessions anims=["beacon"] ids=[1] subagents=0; wait 2000; disconnect' --screenshot-dir /tmp/tool-anim-shots/ --screenshot-on-event
 ```
 
 Verify each animation renders correctly in the screenshots.
@@ -637,4 +637,4 @@ Verify each animation renders correctly in the screenshots.
 cd host && ./build.sh --install
 ```
 
-Kill and relaunch Clawd Tank. Verify the new animations appear when Claude Code uses different tools.
+Kill and relaunch Agent Pets. Verify the new animations appear when Claude Code uses different tools.

@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 import unittest
 from xml.etree import ElementTree as ET
 
-from clawd_tank_habitat.themes import Pack, read_archive
+from agent_pets_habitat.themes import Pack, read_archive
 
 
 class MonkePaletteTests(unittest.TestCase):

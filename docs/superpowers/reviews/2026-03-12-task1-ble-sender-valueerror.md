@@ -3,7 +3,7 @@
 **Reviewed:** 2026-03-12
 **Base:** 88a637e1d2c95616513d061ba6b7680c9800c067
 **Head:** bddd6d4b44fb92aa749b8b5c3de21ead6515e7e5
-**Files changed:** `host/clawd_tank_daemon/daemon.py`, `host/tests/test_daemon.py`
+**Files changed:** `host/agent_pets_daemon/daemon.py`, `host/tests/test_daemon.py`
 **Test suite:** 26/26 passed
 
 ---

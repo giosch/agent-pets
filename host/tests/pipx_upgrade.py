@@ -20,7 +20,7 @@ def test_install_upgrade():
     with tempfile.TemporaryDirectory(prefix="clawd pipx ") as tmp:
         home = Path(tmp)
         env = {**os.environ, "PIPX_HOME": str(home / "pipx"), "PIPX_BIN_DIR": str(home / "bin"),
-               "PIPX_DEFAULT_PYTHON": sys.executable, "CLAWD_HABITAT_HOME": str(home / "state"),
+               "PIPX_DEFAULT_PYTHON": sys.executable, "AGENT_PETS_HOME": str(home / "state"),
                "CODEX_HOME": str(home / "codex"), "CLAUDE_CONFIG_DIR": str(home / "claude")}
         env.pop("PYTHONPATH", None)
 
@@ -49,13 +49,13 @@ def test_install_upgrade():
         with http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler) as server:
             threading.Thread(target=server.serve_forever, daemon=True).start()
             url = f"http://127.0.0.1:{server.server_port}/master.zip"
-            app = home / "bin" / ("clawd-tank.exe" if os.name == "nt" else "clawd-tank")
+            app = home / "bin" / ("agent-pets.exe" if os.name == "nt" else "agent-pets")
             pipx = [sys.executable, "-m", "pipx"]
             configs = {"claude": home / "claude/settings.json", "codex": home / "codex/hooks.json"}
 
             def send(source_name, event):
                 groups = json.loads(configs[source_name].read_bytes())["hooks"][event]
-                hook, = [h for g in groups for h in g["hooks"] if h.get("statusMessage") == "Updating Clawd Tank habitat"]
+                hook, = [h for g in groups for h in g["hooks"] if h.get("statusMessage") == "Updating Agent Pets habitat"]
                 if source_name == "claude":
                     cmd = [hook["command"], *hook["args"]]
                 elif os.name == "nt":
@@ -89,15 +89,15 @@ def test_install_upgrade():
                 send(s, "UserPromptSubmit")
             verify_host("none")
             publish("0.0.2")
-            run(*pipx, "upgrade", "clawd-tank-habitat")
+            run(*pipx, "upgrade", "agent-pets-habitat")
             metadata = json.loads(run(*pipx, "list", "--json", capture_output=True).stdout)
-            assert metadata["venvs"]["clawd-tank-habitat"]["metadata"]["main_package"]["package_version"] == "0.0.2"
+            assert metadata["venvs"]["agent-pets-habitat"]["metadata"]["main_package"]["package_version"] == "0.0.2"
             for s, path in configs.items():
                 assert path.read_bytes() == before[s]
                 send(s, "Stop")
             verify_host("ready")
             run(app, "unregister")
-            run(*pipx, "uninstall", "clawd-tank-habitat")
+            run(*pipx, "uninstall", "agent-pets-habitat")
             server.shutdown()
 
 

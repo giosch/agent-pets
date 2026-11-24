@@ -1,6 +1,6 @@
 """Tests for additive (non-clobbering) hook installation into Claude settings.
 
-install_hooks() must MERGE Clawd Tank's hooks into the user's existing
+install_hooks() must MERGE Agent Pets's hooks into the user's existing
 Claude Code settings without removing the user's own hooks, and must be
 idempotent (re-running never duplicates our entries). are_hooks_installed()
 must be matcher-aware so a new/changed matcher is detected as "outdated".
@@ -10,8 +10,8 @@ import json
 
 import pytest
 
-from clawd_tank_menubar import hooks
-from clawd_tank_menubar.hooks import (
+from agent_pets_menubar import hooks
+from agent_pets_menubar.hooks import (
     HOOKS_CONFIG,
     HOOK_COMMAND,
     are_hooks_installed,
@@ -162,7 +162,7 @@ def test_install_is_idempotent(settings_path):
     settings = _read(settings_path)
     for event, entries in HOOKS_CONFIG.items():
         assert _our_command_count(settings, event) == len(entries), (
-            f"{event} has duplicate Clawd Tank hooks after repeated installs"
+            f"{event} has duplicate Agent Pets hooks after repeated installs"
         )
 
 

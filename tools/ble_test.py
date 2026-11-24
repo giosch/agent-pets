@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""BLE test script for Clawd Tank LCD display firmware."""
+"""BLE test script for Agent Pets LCD display firmware."""
 
 import asyncio
 import json
@@ -8,18 +8,18 @@ import bleak
 
 SERVICE_UUID = "aecbefd9-98a2-4773-9fed-bb2166daa49a"
 CHAR_UUID = "71ffb137-8b7a-47c9-9a7a-4b1b16662d9a"
-DEVICE_NAME = "Clawd Tank"
+DEVICE_NAME = "Agent Pets"
 
 
 async def scan():
-    """Scan for the Clawd Tank device."""
-    print("Scanning for Clawd Tank device...")
+    """Scan for the Agent Pets device."""
+    print("Scanning for Agent Pets device...")
     devices = await bleak.BleakScanner.discover(timeout=5.0, return_adv=True)
     for d, adv in devices.values():
         if d.name and DEVICE_NAME.lower() in d.name.lower():
             print(f"  Found: {d.name} [{d.address}] RSSI={adv.rssi}")
             return d
-    print("  Clawd Tank device not found!")
+    print("  Agent Pets device not found!")
     return None
 
 

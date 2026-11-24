@@ -1,7 +1,0 @@
-#!/bin/sh
-set -eu
-root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-version=$(cat "$root/current")
-case "$version" in ''|*[!a-f0-9]*) exit 1;; esac
-export CLAWD_TANK_LAUNCHER="$root/clawd-tank"
-exec "$root/releases/$version/habitat-runtime" "$@"

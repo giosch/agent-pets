@@ -15,7 +15,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 DESKTOP = ROOT / "desktop"
-RES = ROOT / "host/clawd_tank_habitat/install_resources"
+RES = ROOT / "host/agent_pets_habitat/install_resources"
 
 
 def run(*args, **kwargs):
@@ -44,20 +44,20 @@ def build(dest, version):
     dest.mkdir(parents=True,exist_ok=True)
     system = platform.system().lower()
     machine = platform.machine().lower()
-    name = f"Clawd-Tank-{version}-{system}-{machine}"
+    name = f"Agent-Pets-{version}-{system}-{machine}"
     with tempfile.TemporaryDirectory(prefix="habitat-build-") as tmp:
         work = Path(tmp)
         data = [(ROOT/"assets/habitat","assets/habitat"),(ROOT/"assets/svg-animations","assets/svg-animations"),
-                (ROOT/"host/clawd_tank_habitat/web","clawd_tank_habitat/web"),(RES,"clawd_tank_habitat/install_resources")]
+                (ROOT/"host/agent_pets_habitat/web","agent_pets_habitat/web"),(RES,"agent_pets_habitat/install_resources")]
         flags = []
         if system == "windows":
-            shim = work/"clawd-tank.exe"
+            shim = work/"agent-pets.exe"
             compile_windows("WindowsLauncher.cs",shim,subsystem="exe")
-            gui = work/"clawd-tank-desktop.exe"
+            gui = work/"agent-pets-desktop.exe"
             compile_windows("WindowsLauncher.cs",gui)
             for entry in (shim,gui):
                 win_sign(entry)
-                data.append((entry,"clawd_tank_habitat/install_resources"))
+                data.append((entry,"agent_pets_habitat/install_resources"))
         if system == "darwin" and os.environ.get("MACOS_SIGN_IDENTITY"):
             flags.extend(["--codesign-identity",os.environ["MACOS_SIGN_IDENTITY"]])
         for src,target in data:
@@ -73,12 +73,12 @@ def build(dest, version):
                         win_sign(path)
             run("signtool","verify","/pa",app / "habitat-runtime.exe")
         if system == "darwin":
-            shortcut = app / "desktop-assets/Clawd Tank Habitat.app"
+            shortcut = app / "desktop-assets/Agent Pets Habitat.app"
             binary = shortcut / "Contents/MacOS"
             binary.mkdir(parents=True)
-            run("cc","-O2","-o",binary/"clawd-tank",DESKTOP/"mac-launch.c")
-            (shortcut/"Contents/Info.plist").write_bytes(plistlib.dumps({"CFBundleIdentifier":"io.clawdtank.desktop",
-                "CFBundleExecutable":"clawd-tank","CFBundleName":"Clawd Tank Habitat","CFBundlePackageType":"APPL",
+            run("cc","-O2","-o",binary/"agent-pets",DESKTOP/"mac-launch.c")
+            (shortcut/"Contents/Info.plist").write_bytes(plistlib.dumps({"CFBundleIdentifier":"io.agentpets.desktop",
+                "CFBundleExecutable":"agent-pets","CFBundleName":"Agent Pets Habitat","CFBundlePackageType":"APPL",
                 "CFBundleVersion":version,"CFBundleShortVersionString":version}))
             mac_sign(shortcut)
         files = {p.relative_to(app).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
@@ -98,12 +98,12 @@ def build(dest, version):
                 run("signtool","verify","/pa", target)
         elif system == "darwin":
             volume = work/"volume"
-            installer = volume/"Install Clawd Tank.app"
+            installer = volume/"Install Agent Pets.app"
             binary = installer/"Contents/MacOS"
             binary.mkdir(parents=True)
             run("cc","-O2","-DINSTALLER","-o",binary/"install",DESKTOP/"mac-launch.c")
-            (installer/"Contents/Info.plist").write_bytes(plistlib.dumps({"CFBundleName":"Install Clawd Tank",
-                "CFBundleIdentifier":"io.clawdtank.installer","CFBundlePackageType":"APPL","CFBundleExecutable":"install",
+            (installer/"Contents/Info.plist").write_bytes(plistlib.dumps({"CFBundleName":"Install Agent Pets",
+                "CFBundleIdentifier":"io.agentpets.installer","CFBundlePackageType":"APPL","CFBundleExecutable":"install",
                 "CFBundleVersion":version,"CFBundleShortVersionString":version}))
             (installer/"Contents/Resources").mkdir()
             shutil.move(str(app),str(installer/"Contents/Resources/runtime"))
@@ -111,7 +111,7 @@ def build(dest, version):
             if os.environ.get("MACOS_SIGN_IDENTITY"):
                 run("codesign","--verify","--deep","--strict",installer)
             target=dest/(name+".dmg")
-            run("hdiutil","create","-ov","-volname","Clawd Tank Setup","-srcfolder",volume,target)
+            run("hdiutil","create","-ov","-volname","Agent Pets Setup","-srcfolder",volume,target)
             mac_sign(target)
             if os.environ.get("MACOS_NOTARY_PROFILE"):
                 run("xcrun","notarytool","submit",target,"--keychain-profile",os.environ["MACOS_NOTARY_PROFILE"],"--wait")

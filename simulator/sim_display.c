@@ -150,7 +150,7 @@ lv_display_t *sim_display_init(bool headless, int scale, bool bordered, bool pin
         if (!bordered) flags |= SDL_WINDOW_BORDERLESS;
         if (pinned) flags |= SDL_WINDOW_ALWAYS_ON_TOP;
         s_window = SDL_CreateWindow(
-            "Clawd Tank Simulator",
+            "Agent Pets Simulator",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             win_w, win_h,
             flags);

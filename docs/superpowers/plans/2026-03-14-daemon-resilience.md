@@ -16,9 +16,9 @@
 
 | File | Changes |
 |------|---------|
-| `host/clawd_tank_menubar/app.py` (modify) | Auto-update hooks, daemon thread exception logging, health check timer |
-| `host/clawd_tank_daemon/sim_process.py` (modify) | Kill orphaned sim process with name verification |
-| `host/clawd_tank_daemon/daemon.py` (modify) | Sync `_last_display_state` after replay |
+| `host/agent_pets_menubar/app.py` (modify) | Auto-update hooks, daemon thread exception logging, health check timer |
+| `host/agent_pets_daemon/sim_process.py` (modify) | Kill orphaned sim process with name verification |
+| `host/agent_pets_daemon/daemon.py` (modify) | Sync `_last_display_state` after replay |
 
 ---
 
@@ -27,7 +27,7 @@
 ### Task 1: Auto-update hooks when outdated
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/app.py:487-493` (main function, after `install_notify_script`)
+- Modify: `host/agent_pets_menubar/app.py:487-493` (main function, after `install_notify_script`)
 
 Currently `install_notify_script()` runs on every launch (writes the script), but `install_hooks()` only runs when the user clicks "Install Claude Code Hooks". This means adding new hook types (like `SubagentStart`) requires a manual reinstall.
 
@@ -54,7 +54,7 @@ In `__init__`, the hooks menu item state is set once:
 self._hooks_item.state = hooks.are_hooks_installed()
 ```
 
-This will now always be `True` after auto-install. No change needed — `main()` runs before `ClawdTankApp()` is constructed.
+This will now always be `True` after auto-install. No change needed — `main()` runs before `AgentPetsApp()` is constructed.
 
 - [ ] **Step 3: Test manually**
 
@@ -63,14 +63,14 @@ Remove `SubagentStart` from `~/.claude/settings.json` hooks, restart the app, ve
 - [ ] **Step 4: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/app.py
+git add host/agent_pets_menubar/app.py
 git commit -m "feat(menubar): auto-update hooks on startup when outdated"
 ```
 
 ### Task 2: Daemon thread exception logging and health monitoring
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/app.py:161-173` (`_start_daemon_thread`)
+- Modify: `host/agent_pets_menubar/app.py:161-173` (`_start_daemon_thread`)
 
 The daemon thread runs `asyncio.run()` inside a bare `threading.Thread`. If the event loop crashes, the thread dies silently — the menu bar app continues running but is completely deaf to hooks. Additionally, the death is never discovered because `_update_menu_state` is only triggered by events that require the daemon to be alive (catch-22).
 
@@ -118,7 +118,7 @@ to:
 
 - [ ] **Step 2: Add daemon health check property**
 
-Add to `ClawdTankApp`:
+Add to `AgentPetsApp`:
 
 ```python
     @property
@@ -143,7 +143,7 @@ In `_update_menu_state`, add a check at the beginning:
 
 The `_update_menu_state` method is only called on connection/notification change events — events that require the daemon to be alive. To break this catch-22, add a periodic timer that triggers the menu state update independently.
 
-Add to `ClawdTankApp` (as a `rumps.timer` decorated method):
+Add to `AgentPetsApp` (as a `rumps.timer` decorated method):
 
 ```python
     @rumps.timer(30)
@@ -156,14 +156,14 @@ Add to `ClawdTankApp` (as a `rumps.timer` decorated method):
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/app.py
+git add host/agent_pets_menubar/app.py
 git commit -m "fix(menubar): log daemon thread exceptions, add health check timer"
 ```
 
 ### Task 3: Kill orphaned simulator process on startup
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/sim_process.py:65-82` (`start` method)
+- Modify: `host/agent_pets_daemon/sim_process.py:65-82` (`start` method)
 
 When the sim port is already in use, the daemon currently connects to the existing process. If that's an orphan from a crashed quit, its window is hidden and the user can't interact with it.
 
@@ -179,7 +179,7 @@ Add to `SimProcessManager`:
 
 ```python
     async def _kill_orphaned_sim(self) -> None:
-        """Kill any orphaned clawd-tank-sim processes listening on our port."""
+        """Kill any orphaned agent-pets-sim processes listening on our port."""
         try:
             result = subprocess.run(
                 ["lsof", "-ti", f":{self._port}"],
@@ -191,15 +191,15 @@ Add to `SimProcessManager`:
                 if not pid_str.strip():
                     continue
                 pid = int(pid_str)
-                # Verify it's actually a clawd-tank-sim process
+                # Verify it's actually a agent-pets-sim process
                 ps_result = subprocess.run(
                     ["ps", "-p", str(pid), "-o", "comm="],
                     capture_output=True, text=True, timeout=5,
                 )
-                if "clawd-tank-sim" not in ps_result.stdout:
-                    logger.warning("PID %d on port %d is not clawd-tank-sim, skipping", pid, self._port)
+                if "agent-pets-sim" not in ps_result.stdout:
+                    logger.warning("PID %d on port %d is not agent-pets-sim, skipping", pid, self._port)
                     continue
-                logger.info("Killing orphaned clawd-tank-sim (PID %d) on port %d", pid, self._port)
+                logger.info("Killing orphaned agent-pets-sim (PID %d) on port %d", pid, self._port)
                 os.kill(pid, signal.SIGKILL)
         except (subprocess.TimeoutExpired, ValueError, ProcessLookupError, PermissionError):
             pass
@@ -225,7 +225,7 @@ Replace the entire `start` method:
 
         binary = self._find_binary()
         if not binary:
-            logger.error("clawd-tank-sim binary not found")
+            logger.error("agent-pets-sim binary not found")
             return None
         logger.info("Starting simulator: %s --listen %d --hidden", binary, self._port)
         self._process = await asyncio.create_subprocess_exec(
@@ -253,14 +253,14 @@ Expected: ALL PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/sim_process.py
+git add host/agent_pets_daemon/sim_process.py
 git commit -m "fix(sim): kill orphaned simulator process instead of connecting to it"
 ```
 
 ### Task 4: Sync display state after transport replay
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:298-303` (`_replay_active_for`)
+- Modify: `host/agent_pets_daemon/daemon.py:298-303` (`_replay_active_for`)
 
 `_replay_active_for` sends the current display state on transport connect but doesn't update `_last_display_state`. This means the next `_broadcast_display_state_if_changed` call would redundantly broadcast the same state.
 
@@ -288,7 +288,7 @@ to:
 - [ ] **Step 2: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py
+git add host/agent_pets_daemon/daemon.py
 git commit -m "fix(daemon): track last_display_state after replay to avoid duplicate broadcasts"
 ```
 
@@ -300,7 +300,7 @@ git commit -m "fix(daemon): track last_display_state after replay to avoid dupli
 
 - [ ] **Step 1: Update CLAUDE.md**
 
-In the Host section, update the `clawd_tank_menubar` description to mention auto-hook-update and daemon health monitoring.
+In the Host section, update the `agent_pets_menubar` description to mention auto-hook-update and daemon health monitoring.
 
 - [ ] **Step 2: Update TODO.md**
 

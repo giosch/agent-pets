@@ -40,7 +40,7 @@ Custom app icon. Proactive BLE reconnection with full state sync on disconnect.
 - [x] **`<time.h>` in `sim_ble_parse.c`** — declares `tzset()`; removes an implicit-declaration
   warning on Linux.
 - The Linux installer/systemd/docs themselves were not merged; they're maintained in the
-  contributor's fork, [VloStudios/clawd-tank-linux](https://github.com/VloStudios/clawd-tank-linux).
+  contributor's fork, [VloStudios/agent-pets-linux](https://api.github.com/repositories/1420975021).
 
 ## Code-review hardening (attention-hooks branch) — Complete
 
@@ -153,7 +153,7 @@ Multi-agent review of the attention-hooks work surfaced 15 findings; fixes:
 - [x] **TCP socket listener in simulator** — background pthread with mutex-guarded ring buffer queue, newline-delimited JSON protocol matching BLE GATT format. `--listen [port]` CLI flag (default 19872). Shared JSON parser (`sim_ble_parse.c`) mirrors firmware's `parse_notification_json`.
 - [x] **Multi-transport daemon architecture** — `TransportClient` Protocol, `SimClient` TCP transport, per-transport queues and sender tasks. `--sim` / `--sim-only` CLI flags. Dynamic `add_transport`/`remove_transport` methods.
 - [x] **Per-transport observer status** — `on_connection_change` includes transport name. Menubar shows per-transport status lines (BLE/Simulator: Connected/Connecting...).
-- [x] **Simulator toggle in menubar** — "Enable Simulator" checkable menu item with preference persistence (`~/.clawd-tank/preferences.json`). Dynamically adds/removes sim transport at runtime.
+- [x] **Simulator toggle in menubar** — "Enable Simulator" checkable menu item with preference persistence (`~/.agent-pets/preferences.json`). Dynamically adds/removes sim transport at runtime.
 - [x] **Initial replay on connect** — `_transport_sender` replays active notifications after initial connect, so dynamically-added transports show existing notifications.
 - [x] **Stop hook support** — `protocol.py` handles Stop hook event to show "Waiting for input" notification immediately when Claude stops.
 
@@ -172,7 +172,7 @@ Multi-agent review of the attention-hooks work surfaced 15 findings; fixes:
 
 ## Session State Persistence (v1.2.0) — Complete
 
-- [x] **Atomic session state save/load** — `save_sessions()`/`load_sessions()` in `session_store.py` serialize session state dict to `~/.clawd-tank/sessions.json` with set↔list conversion. Atomic writes via temp file + `os.replace`.
+- [x] **Atomic session state save/load** — `save_sessions()`/`load_sessions()` in `session_store.py` serialize session state dict to `~/.agent-pets/sessions.json` with set↔list conversion. Atomic writes via temp file + `os.replace`.
 - [x] **Smart persistence** — Session state saved only on structural changes (state transitions, subagent add/remove), not on every `last_event` timestamp update. Reduces disk writes during heavy tool use.
 - [x] **Daemon startup recovery** — Loads saved sessions on init with immediate staleness eviction. Restarting the menu bar app immediately shows correct animation for running Claude Code sessions.
 

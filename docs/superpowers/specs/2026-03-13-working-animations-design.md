@@ -2,7 +2,7 @@
 
 ## Overview
 
-Extend Clawd Tank to show real-time working state animations driven by Claude Code session hooks. The tank becomes a workload meter: Clawd's animation reflects how many sessions are actively working and what phase they're in.
+Extend Agent Pets to show real-time working state animations driven by Claude Code session hooks. The tank becomes a workload meter: Clawd's animation reflects how many sessions are actively working and what phase they're in.
 
 ## Core Concepts
 
@@ -80,7 +80,7 @@ When the last session is evicted, the display state becomes `sleeping`.
 
 ```
 Claude Code hook (stdin JSON)
-    → ~/.clawd-tank/clawd-tank-notify
+    → ~/.agent-pets/agent-pets-notify
     → Unix socket → daemon._handle_message()
 ```
 
@@ -177,13 +177,13 @@ The hook installer (`hooks.py` and the standalone notify script) must register t
 ```json
 {
   "SessionStart": [
-    {"hooks": [{"type": "command", "command": "~/.clawd-tank/clawd-tank-notify"}]}
+    {"hooks": [{"type": "command", "command": "~/.agent-pets/agent-pets-notify"}]}
   ],
   "PreToolUse": [
-    {"hooks": [{"type": "command", "command": "~/.clawd-tank/clawd-tank-notify"}]}
+    {"hooks": [{"type": "command", "command": "~/.agent-pets/agent-pets-notify"}]}
   ],
   "PreCompact": [
-    {"hooks": [{"type": "command", "command": "~/.clawd-tank/clawd-tank-notify"}]}
+    {"hooks": [{"type": "command", "command": "~/.agent-pets/agent-pets-notify"}]}
   ]
 }
 ```
@@ -272,12 +272,12 @@ The `assets/svg-animations/` directory contains 12 working animation SVGs. This 
 
 ## Host Changes Summary
 
-### `clawd-tank-notify` (three code locations)
+### `agent-pets-notify` (three code locations)
 
 There are three places where hook-to-message logic lives:
 
 1. **`protocol.py`** (`hook_payload_to_daemon_message()`) — canonical implementation. All logic changes go here first.
-2. **Development `clawd-tank-notify`** (`host/clawd-tank-notify`) — imports from `protocol.py`, gets changes for free.
+2. **Development `agent-pets-notify`** (`host/agent-pets-notify`) — imports from `protocol.py`, gets changes for free.
 3. **Standalone `NOTIFY_SCRIPT`** (embedded in `hooks.py`) — stdlib-only copy, must be manually synced with `protocol.py` after changes.
 
 Changes:

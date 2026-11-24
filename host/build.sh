@@ -1,11 +1,11 @@
 #!/bin/bash
-# Build the Clawd Tank menu bar .app bundle with bundled simulator.
+# Build the Agent Pets menu bar .app bundle with bundled simulator.
 # Usage: cd host && ./build.sh [--install]
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SIM_DIR="$SCRIPT_DIR/../simulator"
-SIM_BINARY="$SIM_DIR/build-static/clawd-tank-sim"
+SIM_BINARY="$SIM_DIR/build-static/agent-pets-sim"
 
 # Always rebuild static simulator — cmake handles incremental builds
 echo "==> Building static simulator..."
@@ -22,14 +22,14 @@ rm -rf build dist
 
 # Bundle simulator binary
 echo "==> Bundling simulator binary..."
-cp "$SIM_BINARY" "dist/Clawd Tank.app/Contents/Resources/clawd-tank-sim"
+cp "$SIM_BINARY" "dist/Agent Pets.app/Contents/Resources/agent-pets-sim"
 
-echo "==> Built: dist/Clawd Tank.app"
+echo "==> Built: dist/Agent Pets.app"
 
 # Install if requested
 if [ "${1:-}" = "--install" ]; then
     echo "==> Installing to /Applications..."
-    rm -rf "/Applications/Clawd Tank.app"
-    cp -R "dist/Clawd Tank.app" "/Applications/Clawd Tank.app"
-    echo "==> Installed to /Applications/Clawd Tank.app"
+    rm -rf "/Applications/Agent Pets.app"
+    cp -R "dist/Agent Pets.app" "/Applications/Agent Pets.app"
+    echo "==> Installed to /Applications/Agent Pets.app"
 fi

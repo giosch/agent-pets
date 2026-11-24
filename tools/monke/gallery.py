@@ -82,7 +82,7 @@ document.querySelector('#dark').onchange=e=>document.body.classList.toggle('dark
 
 
 def export(status):
-    from clawd_tank_habitat.themes import Pack, read_archive
+    from agent_pets_habitat.themes import Pack, read_archive
     if any(result != "accepted_for_batch" for result in status.values()):
         raise ValueError("Every state needs current art, motion and browser passes before export")
     palettes = json.loads((BASE.parent/"source/palettes.json").read_text())["fur"]

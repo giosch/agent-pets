@@ -1,4 +1,4 @@
-# host/setup.py — py2app configuration for Clawd Tank menubar app
+# host/setup.py — py2app configuration for Agent Pets menubar app
 import subprocess
 from pathlib import Path
 from setuptools import setup
@@ -39,7 +39,7 @@ def _bake_version():
     except (FileNotFoundError, subprocess.TimeoutExpired):
         version = "unknown"
 
-    path = Path(__file__).parent / "clawd_tank_menubar" / "_version_info.py"
+    path = Path(__file__).parent / "agent_pets_menubar" / "_version_info.py"
     path.write_text(f'VERSION = "{version}"\n')
     print(f"Baked version: {version}")
 
@@ -52,23 +52,23 @@ OPTIONS = {
     "argv_emulation": False,
     "iconfile": "AppIcon.icns",
     "plist": {
-        "CFBundleName": "Clawd Tank",
-        "CFBundleDisplayName": "Clawd Tank",
-        "CFBundleIdentifier": "com.clawd-tank.menubar",
+        "CFBundleName": "Agent Pets",
+        "CFBundleDisplayName": "Agent Pets",
+        "CFBundleIdentifier": "com.agent-pets.menubar",
         "CFBundleVersion": "1.0.0",
         "CFBundleShortVersionString": "1.0.0",
         "LSUIElement": True,  # menu-bar-only app (no Dock icon)
         "NSBluetoothAlwaysUsageDescription": (
-            "Clawd Tank uses Bluetooth to communicate with the ESP32 display."
+            "Agent Pets uses Bluetooth to communicate with the ESP32 display."
         ),
     },
-    "packages": ["clawd_tank_daemon", "clawd_tank_menubar"],
+    "packages": ["agent_pets_daemon", "agent_pets_menubar"],
     "includes": ["rumps", "bleak", "objc"],
-    "resources": ["clawd_tank_menubar/icons"],
+    "resources": ["agent_pets_menubar/icons"],
 }
 
 setup(
-    name="Clawd Tank",
+    name="Agent Pets",
     app=APP,
     data_files=DATA_FILES,
     options={"py2app": OPTIONS},

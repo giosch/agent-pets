@@ -9,8 +9,8 @@ import sys
 import threading
 import webbrowser
 
-from clawd_tank_daemon.session_store import write_json_atomic
-from clawd_tank_habitat.adapters import SOURCES
+from agent_pets_daemon.session_store import write_json_atomic
+from agent_pets_habitat.adapters import SOURCES
 
 
 @contextmanager
@@ -32,7 +32,7 @@ def state_owner(directory: Path):
 
 
 def run_demo(habitat, stop):
-    from clawd_tank_habitat.adapters import normalize
+    from agent_pets_habitat.adapters import normalize
     events = [
         ("claude", "a", "PreToolUse", "Edit"), ("codex", "b", "PreToolUse", "Bash"),
         ("claude", "c", "PreToolUse", "Read"), ("codex", "d", "PreToolUse", "apply_patch"),
@@ -52,9 +52,9 @@ def run_demo(habitat, stop):
 
 
 def serve(args, directory):
-    from clawd_tank_habitat.model import Habitat
-    from clawd_tank_habitat.server import HabitatServer
-    from clawd_tank_habitat.themes import Themes
+    from agent_pets_habitat.model import Habitat
+    from agent_pets_habitat.server import HabitatServer
+    from agent_pets_habitat.themes import Themes
 
     with nullcontext() if args.demo else state_owner(directory):
         habitat = Habitat(None if args.demo else directory / "sessions.json")
@@ -84,7 +84,7 @@ def serve(args, directory):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state-dir", type=Path,
-                        default=Path(os.environ.get("CLAWD_HABITAT_HOME", Path.home() / ".clawd-tank" / "habitat")))
+                        default=Path(os.environ.get("AGENT_PETS_HOME", Path.home() / ".agent-pets" / "habitat")))
     commands = parser.add_subparsers(dest="command")
     launcher = commands.add_parser("launch", help="Open the installed desktop habitat")
     launcher.add_argument("--background", action="store_true")
@@ -101,6 +101,15 @@ def main():
     start.add_argument("--port", type=int, default=19873)
     start.add_argument("--open", action="store_true", help="Open a local browser tab")
     start.add_argument("--demo", action="store_true", help="Play an isolated four-session scenario")
+    display = commands.add_parser("serial-display", help="Drive the ES3C35P USB pet display")
+    display.add_argument("--port", required=True, help="Serial port, for example COM5")
+    display.add_argument("--url", help="Host URL for a demo or a host without discovery")
+    wireless = commands.add_parser("bluetooth-display", help="Drive an OS-paired ES3C35P using HID with GATT fallback")
+    wireless.add_argument("--address", help="Select a specific GATT fallback device address (UUID on macOS)")
+    wireless.add_argument("--serial", help="Select a specific HID Agent Pets serial number")
+    wireless.add_argument("--transport", choices=("auto", "hid", "gatt"), default="auto",
+                          help="Prefer HID with GATT fallback, or force one transport")
+    wireless.add_argument("--url", help="Host URL for a demo or a host without discovery")
     hook = commands.add_parser("hook", help="Read one runtime hook from standard input")
     hook.add_argument("source", choices=SOURCES)
     for command in ("install-hooks", "uninstall-hooks"):
@@ -114,42 +123,48 @@ def main():
     install.add_argument("archive", type=Path)
     args = parser.parse_args()
     directory = args.state_dir.expanduser().resolve()
-    if args.command == "desktop-install":
-        from clawd_tank_habitat.installation import activate
+    if args.command == "bluetooth-display":
+        from agent_pets_habitat.device_display import run
+        run(directory, args.url, args.address, args.transport, args.serial)
+    elif args.command == "serial-display":
+        from agent_pets_habitat.serial_display import run
+        run(args.port, directory, args.url)
+    elif args.command == "desktop-install":
+        from agent_pets_habitat.installation import activate
         if not getattr(sys, "frozen", False):
             parser.error("Run the downloaded desktop installer")
         activate(Path(sys.executable).parent, directory, not args.no_open)
     elif args.command == "rollback-desktop":
-        from clawd_tank_habitat.installation import rollback
+        from agent_pets_habitat.installation import rollback
         rollback(directory)
     elif args.command == "uninstall-desktop":
-        from clawd_tank_habitat.installation import uninstall
+        from agent_pets_habitat.installation import uninstall
         purge = args.purge_data
         if args.choose_data and os.name == "nt":
             import ctypes
-            choice = ctypes.windll.user32.MessageBoxW(None, "Keep saved sessions, preferences and artwork for a future install?\n\nYes keeps your data. No erases it. Cancel keeps Clawd Tank installed.",
-                                                       "Uninstall Clawd Tank Habitat", 0x23)
+            choice = ctypes.windll.user32.MessageBoxW(None, "Keep saved sessions, preferences and artwork for a future install?\n\nYes keeps your data. No erases it. Cancel keeps Agent Pets installed.",
+                                                       "Uninstall Agent Pets Habitat", 0x23)
             if choice == 2:
                 return
             purge = choice == 7
         uninstall(directory, purge)
     elif args.command == "self-test":
         import sqlite3
-        from clawd_tank_habitat.themes import Themes
-        from clawd_tank_habitat.server import WEB
+        from agent_pets_habitat.themes import Themes
+        from agent_pets_habitat.server import WEB
         with sqlite3.connect(":memory:") as db:
             db.execute("SELECT 1")
         if ("character", "clawd") not in Themes(directory / "packs").packs or not (WEB / "connections.js").is_file():
             raise RuntimeError("Missing desktop resources")
     elif args.command in {None, "launch"}:
-        from clawd_tank_habitat.desktop import launch
+        from agent_pets_habitat.desktop import launch
         launch(directory, getattr(args, "background", False))
     elif args.command == "stop":
-        from clawd_tank_habitat.desktop import control
+        from agent_pets_habitat.desktop import control
         control(directory, "stop")
     elif args.command == "unregister":
-        from clawd_tank_habitat.desktop import control, login
-        from clawd_tank_habitat.hooks import configure
+        from agent_pets_habitat.desktop import control, login
+        from agent_pets_habitat.hooks import configure
         for source in SOURCES:
             configure(source, directory, remove=True)
         login(directory, False)
@@ -157,23 +172,23 @@ def main():
     elif args.command == "serve":
         serve(args, directory)
     elif args.command == "hook":
-        from clawd_tank_habitat.hooks import forward
+        from agent_pets_habitat.hooks import forward
         forward(args.source, directory, sys.stdin.buffer)
         if args.source == "codex":
             print("{}")
     elif args.command in {"install-hooks", "uninstall-hooks"}:
-        from clawd_tank_habitat.hooks import configure
+        from agent_pets_habitat.hooks import configure
         for source in SOURCES if args.source == "both" else (args.source,):
             print(configure(source, directory, remove=args.command == "uninstall-hooks"))
     elif args.command == "export-pack":
-        from clawd_tank_habitat.themes import Themes
+        from agent_pets_habitat.themes import Themes
         pack = Themes(directory / "packs").packs.get((args.kind, args.id))
         if not pack:
             parser.error(f"Unknown {args.kind} pack {args.id}")
         pack.archive(args.destination)
         print(args.destination)
     else:
-        from clawd_tank_habitat.themes import install_pack
+        from agent_pets_habitat.themes import install_pack
         print(install_pack(args.archive, directory / "packs"))
 
 

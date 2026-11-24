@@ -23,9 +23,9 @@ int main(int argc, char **argv) {
     execv(target, args);
 #else
     const char *home = getenv("HOME");
-    if (!home || snprintf(target, sizeof(target), "%s/Library/Application Support/ClawdTankDesktop/clawd-tank", home) >= sizeof(target)) return 1;
+    if (!home || snprintf(target, sizeof(target), "%s/Library/Application Support/AgentPetsDesktop/agent-pets", home) >= sizeof(target)) return 1;
     execv(target, argv);
 #endif
-    perror("Clawd Tank");
+    perror("Agent Pets");
     return 1;
 }

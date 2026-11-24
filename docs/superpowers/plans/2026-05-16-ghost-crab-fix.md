@@ -4,7 +4,7 @@
 
 **Goal:** Stop ghost crabs (lingering display entries for dead Claude Code sessions) by tracking the Claude Code PID per session, polling for liveness, and deduplicating `/clear`-replaced sessions by PID.
 
-**Architecture:** `clawd-tank-notify` walks the process tree to find the long-lived `claude` ancestor PID and stamps it on every message. The daemon stores `(pid, last_event_monotonic)` per session, runs a 30s liveness poll (`os.kill(pid, 0)`), and evicts dead sessions. On `SessionStart`, PID-based dedup catches `/clear` even when `SessionEnd` is delayed or missing. Wall-clock staleness eviction switches to monotonic time so macOS sleep doesn't cause mass-eviction on wake.
+**Architecture:** `agent-pets-notify` walks the process tree to find the long-lived `claude` ancestor PID and stamps it on every message. The daemon stores `(pid, last_event_monotonic)` per session, runs a 30s liveness poll (`os.kill(pid, 0)`), and evicts dead sessions. On `SessionStart`, PID-based dedup catches `/clear` even when `SessionEnd` is delayed or missing. Wall-clock staleness eviction switches to monotonic time so macOS sleep doesn't cause mass-eviction on wake.
 
 **Tech Stack:** Python stdlib only in the hook script (`subprocess.run(["ps", ...])` for ancestor walk); `os.kill`, `time.monotonic`, `asyncio` in the daemon. No new dependencies.
 
@@ -15,20 +15,20 @@
 ## File Structure
 
 **Create:**
-- `host/clawd_tank_daemon/pid_resolver.py` — Tested standalone implementation of `find_claude_pid()`. Imported nowhere at runtime; exists for unit testing the resolution logic. The actual logic is duplicated into the embedded `NOTIFY_SCRIPT` string (see "duplication discipline" below).
+- `host/agent_pets_daemon/pid_resolver.py` — Tested standalone implementation of `find_claude_pid()`. Imported nowhere at runtime; exists for unit testing the resolution logic. The actual logic is duplicated into the embedded `NOTIFY_SCRIPT` string (see "duplication discipline" below).
 - `host/tests/test_pid_resolver.py` — Unit tests for `find_claude_pid()` with mocked `subprocess.run`.
 - `host/tests/test_notify_script.py` — Integration test that writes `NOTIFY_SCRIPT` to a temp file and runs it as a subprocess to verify end-to-end PID resolution + payload conversion.
 
 **Modify:**
-- `host/clawd_tank_menubar/hooks.py` — Update the embedded `NOTIFY_SCRIPT` to include `_find_claude_pid()` and stamp `pid` (plus `source` for SessionStart, `reason` for SessionEnd) on every outbound message.
-- `host/clawd_tank_daemon/protocol.py` — Flow `pid`, `source`, `reason` through `hook_payload_to_daemon_message`.
-- `host/clawd_tank_daemon/daemon.py` — Add `pid` and `last_event_monotonic` to session state; add PID dedup on `session_start`; add `_liveness_checker` task; switch `_evict_stale_sessions` to monotonic time.
-- `host/clawd_tank_daemon/session_store.py` — `save_sessions`: drop `last_event_monotonic` (in-memory only). `load_sessions`: drop `pid` (unsafe across restart).
+- `host/agent_pets_menubar/hooks.py` — Update the embedded `NOTIFY_SCRIPT` to include `_find_claude_pid()` and stamp `pid` (plus `source` for SessionStart, `reason` for SessionEnd) on every outbound message.
+- `host/agent_pets_daemon/protocol.py` — Flow `pid`, `source`, `reason` through `hook_payload_to_daemon_message`.
+- `host/agent_pets_daemon/daemon.py` — Add `pid` and `last_event_monotonic` to session state; add PID dedup on `session_start`; add `_liveness_checker` task; switch `_evict_stale_sessions` to monotonic time.
+- `host/agent_pets_daemon/session_store.py` — `save_sessions`: drop `last_event_monotonic` (in-memory only). `load_sessions`: drop `pid` (unsafe across restart).
 - `host/tests/test_protocol.py` — Add tests for new fields.
 - `host/tests/test_session_state.py` — Add tests for PID dedup, liveness eviction, monotonic staleness.
 - `host/tests/test_session_store.py` — Add tests for new persistence rules.
 
-**Duplication discipline:** `pid_resolver.py` and the `_find_claude_pid` block inside `NOTIFY_SCRIPT` (a string literal in `hooks.py`) are deliberate duplicates — the embedded notify script must be stdlib-only and standalone (installed to `~/.clawd-tank/clawd-tank-notify`, runs without the daemon's venv). Mark both with a comment: `# Mirrors pid_resolver.py — keep in sync`. This matches the existing `hook_payload_to_daemon_message` / `NOTIFY_SCRIPT` duplication pattern in the codebase.
+**Duplication discipline:** `pid_resolver.py` and the `_find_claude_pid` block inside `NOTIFY_SCRIPT` (a string literal in `hooks.py`) are deliberate duplicates — the embedded notify script must be stdlib-only and standalone (installed to `~/.agent-pets/agent-pets-notify`, runs without the daemon's venv). Mark both with a comment: `# Mirrors pid_resolver.py — keep in sync`. This matches the existing `hook_payload_to_daemon_message` / `NOTIFY_SCRIPT` duplication pattern in the codebase.
 
 ---
 
@@ -78,7 +78,7 @@ try:
 except Exception:
     hook = "?"
 
-log_path = Path.home() / ".clawd-tank" / "pid-diagnostic.log"
+log_path = Path.home() / ".agent-pets" / "pid-diagnostic.log"
 log_path.parent.mkdir(parents=True, exist_ok=True)
 with log_path.open("a") as f:
     f.write(json.dumps({
@@ -112,7 +112,7 @@ Open `~/.claude/settings.json` and add (or merge into) the `hooks` block — the
 ]
 ```
 
-(If existing entries for these hooks reference the Clawd Tank notify script, ADD the diagnostic alongside it in the same `hooks: []` array.)
+(If existing entries for these hooks reference the Agent Pets notify script, ADD the diagnostic alongside it in the same `hooks: []` array.)
 
 - [ ] **Step 3: Trigger each hook event**
 
@@ -124,7 +124,7 @@ In a fresh terminal, start `claude`. Then inside the session:
 - [ ] **Step 4: Inspect the log**
 
 ```bash
-cat ~/.clawd-tank/pid-diagnostic.log | python3 -m json.tool --json-lines
+cat ~/.agent-pets/pid-diagnostic.log | python3 -m json.tool --json-lines
 ```
 
 Verify:
@@ -134,7 +134,7 @@ Verify:
 
 - [ ] **Step 5: Decision gate**
 
-If verification passes: proceed to Task 2. Remove diagnostic entries from `~/.claude/settings.json` and delete `/tmp/clawd-pid-diag.py` and `~/.clawd-tank/pid-diagnostic.log`.
+If verification passes: proceed to Task 2. Remove diagnostic entries from `~/.claude/settings.json` and delete `/tmp/clawd-pid-diag.py` and `~/.agent-pets/pid-diagnostic.log`.
 
 If verification fails (no `claude` ancestor found, or different PIDs from same session): STOP. The design assumption is wrong. Report findings to the human, revise the spec.
 
@@ -147,7 +147,7 @@ No code committed yet. This task produces evidence, not code.
 ## Task 2: Create `pid_resolver` module with TDD
 
 **Files:**
-- Create: `host/clawd_tank_daemon/pid_resolver.py`
+- Create: `host/agent_pets_daemon/pid_resolver.py`
 - Test: `host/tests/test_pid_resolver.py`
 
 - [ ] **Step 1: Write the failing tests**
@@ -161,7 +161,7 @@ long-lived Claude Code PID, mirroring claude-plugins/agent-bus/lib/common.sh.
 
 from unittest.mock import patch, MagicMock
 
-from clawd_tank_daemon.pid_resolver import find_claude_pid
+from agent_pets_daemon.pid_resolver import find_claude_pid
 
 
 def _make_ps_mock(responses):
@@ -180,8 +180,8 @@ def _make_ps_mock(responses):
 
 def test_direct_parent_is_claude():
     """getppid() returns claude — return it directly."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=100):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=100):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 100): "claude",
             })
@@ -190,11 +190,11 @@ def test_direct_parent_is_claude():
 
 def test_walks_past_shell_wrapper():
     """getppid() is zsh, ancestor is claude — walk and find it."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=200):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=200):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 200): "zsh",
-                ("command", 200): "zsh -c /Users/me/.clawd-tank/clawd-tank-notify",
+                ("command", 200): "zsh -c /Users/me/.agent-pets/agent-pets-notify",
                 ("ppid", 200): "300",
                 ("comm", 300): "claude",
             })
@@ -203,8 +203,8 @@ def test_walks_past_shell_wrapper():
 
 def test_node_install_matches_via_command_regex():
     """Node-wrapped install: comm is 'node', command starts with 'node /path/to/claude'."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=400):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=400):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 400): "node",
                 ("command", 400): "node /opt/claude-code/cli.js",
@@ -214,8 +214,8 @@ def test_node_install_matches_via_command_regex():
 
 def test_node_install_with_path_prefix_matches():
     """Command starts with /usr/local/bin/claude."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=500):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=500):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 500): "claude-wrapper",
                 ("command", 500): "/usr/local/bin/claude --resume abc",
@@ -229,8 +229,8 @@ def test_shell_snapshot_does_NOT_match():
     the zsh's argv. The strict `comm == "claude"` and `(^|/)claude($|\\s)` regex
     must NOT match this shell.
     """
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=600):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=600):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 600): "zsh",
                 ("command", 600): "zsh -c source ~/.claude/shell-snapshots/snap-12345.sh; /tmp/cmd",
@@ -242,8 +242,8 @@ def test_shell_snapshot_does_NOT_match():
 
 def test_falls_back_to_getppid_when_no_claude_ancestor():
     """Walk reaches pid 1 without finding claude — return original getppid()."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=700):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=700):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({
                 ("comm", 700): "zsh",
                 ("command", 700): "zsh",
@@ -254,8 +254,8 @@ def test_falls_back_to_getppid_when_no_claude_ancestor():
 
 def test_falls_back_to_getppid_when_ps_fails():
     """ps returns empty (process gone mid-walk) — fall back gracefully."""
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=800):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=800):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = _make_ps_mock({})  # all empty
             assert find_claude_pid() == 800
 
@@ -263,8 +263,8 @@ def test_falls_back_to_getppid_when_ps_fails():
 def test_ps_timeout_does_not_raise():
     """subprocess timeout returns empty string, walk falls back."""
     import subprocess as sp
-    with patch("clawd_tank_daemon.pid_resolver.os.getppid", return_value=900):
-        with patch("clawd_tank_daemon.pid_resolver.subprocess.run") as run:
+    with patch("agent_pets_daemon.pid_resolver.os.getppid", return_value=900):
+        with patch("agent_pets_daemon.pid_resolver.subprocess.run") as run:
             run.side_effect = sp.TimeoutExpired(cmd="ps", timeout=1.0)
             assert find_claude_pid() == 900
 ```
@@ -272,19 +272,19 @@ def test_ps_timeout_does_not_raise():
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_pid_resolver.py -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_pid_resolver.py -v
 ```
-Expected: FAIL with `ModuleNotFoundError: No module named 'clawd_tank_daemon.pid_resolver'`.
+Expected: FAIL with `ModuleNotFoundError: No module named 'agent_pets_daemon.pid_resolver'`.
 
 - [ ] **Step 3: Implement `pid_resolver.py`**
 
-Create `host/clawd_tank_daemon/pid_resolver.py`:
+Create `host/agent_pets_daemon/pid_resolver.py`:
 
 ```python
 """Resolve the long-lived Claude Code session PID by walking the process tree.
 
 Mirrors claude-plugins/agent-bus/lib/common.sh:_find_claude_pid. The embedded
-NOTIFY_SCRIPT in clawd_tank_menubar/hooks.py duplicates this logic — keep them
+NOTIFY_SCRIPT in agent_pets_menubar/hooks.py duplicates this logic — keep them
 in sync.
 """
 
@@ -336,15 +336,15 @@ def find_claude_pid() -> int:
 - [ ] **Step 4: Run tests to verify they pass**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_pid_resolver.py -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_pid_resolver.py -v
 ```
 Expected: all 8 tests PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank
-git add host/clawd_tank_daemon/pid_resolver.py host/tests/test_pid_resolver.py
+cd /Users/marciorodrigues/Projects/agent-pets
+git add host/agent_pets_daemon/pid_resolver.py host/tests/test_pid_resolver.py
 git commit -m "feat: add pid_resolver to find long-lived Claude Code PID via ancestor walk"
 ```
 
@@ -353,7 +353,7 @@ git commit -m "feat: add pid_resolver to find long-lived Claude Code PID via anc
 ## Task 3: Flow `pid`/`source`/`reason` through `protocol.py`
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/protocol.py:8-110` (`hook_payload_to_daemon_message`)
+- Modify: `host/agent_pets_daemon/protocol.py:8-110` (`hook_payload_to_daemon_message`)
 - Test: `host/tests/test_protocol.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -365,7 +365,7 @@ Append to `host/tests/test_protocol.py`:
 
 def test_session_start_includes_pid_and_source():
     """SessionStart payload's pid and source fields flow through to daemon msg."""
-    from clawd_tank_daemon.protocol import hook_payload_to_daemon_message
+    from agent_pets_daemon.protocol import hook_payload_to_daemon_message
     msg = hook_payload_to_daemon_message({
         "hook_event_name": "SessionStart",
         "session_id": "s1",
@@ -378,7 +378,7 @@ def test_session_start_includes_pid_and_source():
 
 
 def test_session_end_includes_pid_and_reason():
-    from clawd_tank_daemon.protocol import hook_payload_to_daemon_message
+    from agent_pets_daemon.protocol import hook_payload_to_daemon_message
     msg = hook_payload_to_daemon_message({
         "hook_event_name": "SessionEnd",
         "session_id": "s1",
@@ -390,7 +390,7 @@ def test_session_end_includes_pid_and_reason():
 
 
 def test_pre_tool_use_includes_pid():
-    from clawd_tank_daemon.protocol import hook_payload_to_daemon_message
+    from agent_pets_daemon.protocol import hook_payload_to_daemon_message
     msg = hook_payload_to_daemon_message({
         "hook_event_name": "PreToolUse",
         "session_id": "s1",
@@ -402,7 +402,7 @@ def test_pre_tool_use_includes_pid():
 
 
 def test_stop_includes_pid():
-    from clawd_tank_daemon.protocol import hook_payload_to_daemon_message
+    from agent_pets_daemon.protocol import hook_payload_to_daemon_message
     msg = hook_payload_to_daemon_message({
         "hook_event_name": "Stop",
         "session_id": "s1",
@@ -414,7 +414,7 @@ def test_stop_includes_pid():
 
 def test_session_start_missing_pid_field_omits_it():
     """Backwards compat — old notify script without pid still produces valid msg."""
-    from clawd_tank_daemon.protocol import hook_payload_to_daemon_message
+    from agent_pets_daemon.protocol import hook_payload_to_daemon_message
     msg = hook_payload_to_daemon_message({
         "hook_event_name": "SessionStart",
         "session_id": "s1",
@@ -425,7 +425,7 @@ def test_session_start_missing_pid_field_omits_it():
 
 
 def test_subagent_start_includes_pid():
-    from clawd_tank_daemon.protocol import hook_payload_to_daemon_message
+    from agent_pets_daemon.protocol import hook_payload_to_daemon_message
     msg = hook_payload_to_daemon_message({
         "hook_event_name": "SubagentStart",
         "session_id": "s1",
@@ -438,13 +438,13 @@ def test_subagent_start_includes_pid():
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_protocol.py -v -k "pid or source or reason"
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_protocol.py -v -k "pid or source or reason"
 ```
 Expected: all 6 new tests FAIL with `KeyError: 'pid'` or `assert None == 4242`.
 
 - [ ] **Step 3: Update `protocol.py`**
 
-Modify `host/clawd_tank_daemon/protocol.py`. At the top of `hook_payload_to_daemon_message` (around line 13), capture the PID once:
+Modify `host/agent_pets_daemon/protocol.py`. At the top of `hook_payload_to_daemon_message` (around line 13), capture the PID once:
 
 ```python
 def hook_payload_to_daemon_message(hook: dict) -> Optional[dict]:
@@ -514,15 +514,15 @@ Apply the same `"pid": pid` addition to every other returning branch.
 - [ ] **Step 4: Run tests**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_protocol.py -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_protocol.py -v
 ```
 Expected: all tests PASS (existing tests still green — they don't assert on absent `pid`).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank
-git add host/clawd_tank_daemon/protocol.py host/tests/test_protocol.py
+cd /Users/marciorodrigues/Projects/agent-pets
+git add host/agent_pets_daemon/protocol.py host/tests/test_protocol.py
 git commit -m "feat: capture pid, source, reason from hook payloads in protocol layer"
 ```
 
@@ -531,7 +531,7 @@ git commit -m "feat: capture pid, source, reason from hook payloads in protocol 
 ## Task 4: Update embedded `NOTIFY_SCRIPT` in `hooks.py`
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/hooks.py:18-135` (the `NOTIFY_SCRIPT` literal)
+- Modify: `host/agent_pets_menubar/hooks.py:18-135` (the `NOTIFY_SCRIPT` literal)
 - Test: `host/tests/test_notify_script.py` (new)
 
 - [ ] **Step 1: Write the integration test**
@@ -555,7 +555,7 @@ from pathlib import Path
 
 import pytest
 
-from clawd_tank_menubar.hooks import NOTIFY_SCRIPT
+from agent_pets_menubar.hooks import NOTIFY_SCRIPT
 
 
 def _run_script_with_payload(payload: dict, sock_path: str) -> dict:
@@ -599,9 +599,9 @@ def _run_script_with_payload(payload: dict, sock_path: str) -> dict:
 
     try:
         # Override the socket path the script uses via env (we'll modify the
-        # script to honor CLAWD_TANK_SOCKET if set — see Step 3).
+        # script to honor AGENT_PETS_SOCKET if set — see Step 3).
         env = os.environ.copy()
-        env["CLAWD_TANK_SOCKET"] = sock_path
+        env["AGENT_PETS_SOCKET"] = sock_path
         subprocess.run(
             [sys.executable, script_path],
             input=json.dumps(payload).encode("utf-8"),
@@ -668,18 +668,18 @@ def test_notify_script_irrelevant_hook_sends_nothing(tmp_path):
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_notify_script.py -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_notify_script.py -v
 ```
 Expected: FAIL — `msg` either empty (no pid field yet) or assertions on `pid`/`source`/`reason` miss.
 
 - [ ] **Step 3: Update `NOTIFY_SCRIPT` in `hooks.py`**
 
-Replace the `NOTIFY_SCRIPT` constant in `host/clawd_tank_menubar/hooks.py:18-135` with this version:
+Replace the `NOTIFY_SCRIPT` constant in `host/agent_pets_menubar/hooks.py:18-135` with this version:
 
 ```python
 NOTIFY_SCRIPT = textwrap.dedent('''\
     #!/usr/bin/env python3
-    """clawd-tank-notify - Claude Code hook handler for Clawd Tank.
+    """agent-pets-notify - Claude Code hook handler for Agent Pets.
 
     Reads hook payload from stdin, converts it to a daemon message,
     and forwards it via Unix socket. No external dependencies.
@@ -694,8 +694,8 @@ NOTIFY_SCRIPT = textwrap.dedent('''\
     from pathlib import Path
 
     SOCKET_PATH = os.environ.get(
-        "CLAWD_TANK_SOCKET",
-        str(Path.home() / ".clawd-tank" / "sock"),
+        "AGENT_PETS_SOCKET",
+        str(Path.home() / ".agent-pets" / "sock"),
     )
 
     _CLAUDE_ARGV_RE = re.compile(r"(^|/)claude($|\\s)")
@@ -717,7 +717,7 @@ NOTIFY_SCRIPT = textwrap.dedent('''\
         """Walk from os.getppid() up the process tree to find the long-lived
         Claude Code PID. Falls back to os.getppid() if no `claude` ancestor.
 
-        Mirrors clawd_tank_daemon/pid_resolver.py — keep in sync.
+        Mirrors agent_pets_daemon/pid_resolver.py — keep in sync.
         """
         start = os.getppid()
         pid = start
@@ -846,18 +846,18 @@ NOTIFY_SCRIPT = textwrap.dedent('''\
 ''')
 ```
 
-Note: The `SOCKET_PATH` line is changed to honor `CLAWD_TANK_SOCKET` env var so the integration test can target a tmp socket. In production, the env var is absent and it defaults to the original path.
+Note: The `SOCKET_PATH` line is changed to honor `AGENT_PETS_SOCKET` env var so the integration test can target a tmp socket. In production, the env var is absent and it defaults to the original path.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_notify_script.py -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_notify_script.py -v
 ```
 Expected: all 4 tests PASS.
 
 - [ ] **Step 5: Force script reinstall on next menu bar app launch**
 
-In `host/clawd_tank_menubar/hooks.py`, locate `install_notify_script` (around line 176) and ensure it always overwrites the script file regardless of existing content. It already does (uses `write_text`), so no change needed — but verify by reading the function.
+In `host/agent_pets_menubar/hooks.py`, locate `install_notify_script` (around line 176) and ensure it always overwrites the script file regardless of existing content. It already does (uses `write_text`), so no change needed — but verify by reading the function.
 
 Add a brief version stamp comment at the top of NOTIFY_SCRIPT (after the docstring) so future hash-based update detection has something to compare:
 
@@ -870,8 +870,8 @@ This goes inside the triple-quoted string, as a Python comment in the generated 
 - [ ] **Step 6: Commit**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank
-git add host/clawd_tank_menubar/hooks.py host/tests/test_notify_script.py
+cd /Users/marciorodrigues/Projects/agent-pets
+git add host/agent_pets_menubar/hooks.py host/tests/test_notify_script.py
 git commit -m "feat: notify script stamps claude pid and captures source/reason"
 ```
 
@@ -880,7 +880,7 @@ git commit -m "feat: notify script stamps claude pid and captures source/reason"
 ## Task 5: Update `session_store.py` PID handling
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/session_store.py`
+- Modify: `host/agent_pets_daemon/session_store.py`
 - Test: `host/tests/test_session_store.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -933,13 +933,13 @@ def test_load_ignores_persisted_monotonic_if_present(tmp_path):
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_session_store.py -v -k "pid or monotonic"
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_session_store.py -v -k "pid or monotonic"
 ```
 Expected: `test_load_drops_pid_field` and `test_save_excludes_last_event_monotonic` FAIL.
 
 - [ ] **Step 3: Update `session_store.py`**
 
-In `host/clawd_tank_daemon/session_store.py`, modify `save_sessions` to exclude `last_event_monotonic`:
+In `host/agent_pets_daemon/session_store.py`, modify `save_sessions` to exclude `last_event_monotonic`:
 
 ```python
 def save_sessions(
@@ -988,15 +988,15 @@ Modify `load_sessions` to drop `pid` and `last_event_monotonic` from each loaded
 - [ ] **Step 4: Run tests**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_session_store.py -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_session_store.py -v
 ```
 Expected: all tests PASS, including the existing ones.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank
-git add host/clawd_tank_daemon/session_store.py host/tests/test_session_store.py
+cd /Users/marciorodrigues/Projects/agent-pets
+git add host/agent_pets_daemon/session_store.py host/tests/test_session_store.py
 git commit -m "feat: session_store persists pid but drops it on load (recycled PIDs unsafe)"
 ```
 
@@ -1005,7 +1005,7 @@ git commit -m "feat: session_store persists pid but drops it on load (recycled P
 ## Task 6: Add `pid` and `last_event_monotonic` to daemon session state
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:159-350` (`_handle_message`, `_update_session_state`, `__init__`)
+- Modify: `host/agent_pets_daemon/daemon.py:159-350` (`_handle_message`, `_update_session_state`, `__init__`)
 - Test: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -1052,11 +1052,11 @@ async def test_message_without_pid_field_does_not_crash():
 
 def test_init_stamps_monotonic_on_loaded_sessions(tmp_path):
     """After daemon restart, loaded sessions get fresh last_event_monotonic."""
-    from clawd_tank_daemon.session_store import save_sessions
+    from agent_pets_daemon.session_store import save_sessions
     sessions_path = tmp_path / "sessions.json"
     save_sessions({"s1": {"state": "idle", "last_event": time.time()}}, sessions_path)
 
-    from clawd_tank_daemon.daemon import ClawdDaemon
+    from agent_pets_daemon.daemon import ClawdDaemon
     d = ClawdDaemon(sim_only=True, sessions_path=sessions_path)
     d._transports.clear()
     d._transport_queues.clear()
@@ -1069,7 +1069,7 @@ def test_init_stamps_monotonic_on_loaded_sessions(tmp_path):
 def test_init_prunes_wall_clock_stale_sessions(tmp_path):
     """Startup prune: sessions with wall-clock last_event older than 10min
     are removed at init (their Claude Code process is almost certainly dead)."""
-    from clawd_tank_daemon.session_store import save_sessions
+    from agent_pets_daemon.session_store import save_sessions
     sessions_path = tmp_path / "sessions.json"
     save_sessions(
         {
@@ -1081,7 +1081,7 @@ def test_init_prunes_wall_clock_stale_sessions(tmp_path):
         next_id=3,
     )
 
-    from clawd_tank_daemon.daemon import ClawdDaemon
+    from agent_pets_daemon.daemon import ClawdDaemon
     d = ClawdDaemon(sim_only=True, sessions_path=sessions_path)
     d._transports.clear()
     d._transport_queues.clear()
@@ -1094,7 +1094,7 @@ def test_init_prunes_wall_clock_stale_sessions(tmp_path):
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_session_state.py -v -k "pid or monotonic"
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_session_state.py -v -k "pid or monotonic"
 ```
 Expected: all 4 new tests FAIL.
 
@@ -1180,15 +1180,15 @@ In `_handle_message` (around line 194), pass `pid` to `_update_session_state`:
 - [ ] **Step 6: Run tests**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_session_state.py -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_session_state.py -v
 ```
 Expected: new tests PASS, existing tests still PASS.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+cd /Users/marciorodrigues/Projects/agent-pets
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat: track pid and monotonic event time per session"
 ```
 
@@ -1197,7 +1197,7 @@ git commit -m "feat: track pid and monotonic event time per session"
 ## Task 7: Switch staleness eviction to `time.monotonic()`
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:352-365` (`_evict_stale_sessions`)
+- Modify: `host/agent_pets_daemon/daemon.py:352-365` (`_evict_stale_sessions`)
 - Test: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing test**
@@ -1235,13 +1235,13 @@ def test_staleness_evicts_when_monotonic_old():
 - [ ] **Step 2: Run test to verify it fails**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_session_state.py -v -k "monotonic_not_wall_clock or evicts_when_monotonic"
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_session_state.py -v -k "monotonic_not_wall_clock or evicts_when_monotonic"
 ```
 Expected: `test_staleness_uses_monotonic_not_wall_clock` FAILS (current code uses `last_event` wall-clock, evicts the session because wall-clock is ancient).
 
 - [ ] **Step 3: Update `_evict_stale_sessions`**
 
-In `host/clawd_tank_daemon/daemon.py:352`, replace the function body:
+In `host/agent_pets_daemon/daemon.py:352`, replace the function body:
 
 ```python
     def _evict_stale_sessions(self) -> None:
@@ -1303,7 +1303,7 @@ def test_staleness_keeps_fresh_sessions():
 Grep for other tests with `last_event` direct assignment and add `last_event_monotonic` alongside:
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && grep -n "last_event\":" tests/test_session_state.py
+cd /Users/marciorodrigues/Projects/agent-pets/host && grep -n "last_event\":" tests/test_session_state.py
 ```
 
 For each match, ensure the dict includes `"last_event_monotonic": time.monotonic()` (or a relative offset matching `last_event`).
@@ -1311,15 +1311,15 @@ For each match, ensure the dict includes `"last_event_monotonic": time.monotonic
 - [ ] **Step 5: Run all session state tests**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_session_state.py -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_session_state.py -v
 ```
 Expected: all tests PASS.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+cd /Users/marciorodrigues/Projects/agent-pets
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat: staleness eviction uses monotonic time to survive sleep/wake"
 ```
 
@@ -1328,7 +1328,7 @@ git commit -m "feat: staleness eviction uses monotonic time to survive sleep/wak
 ## Task 8: PID-based dedup on `SessionStart`
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:159-242` (`_handle_message`)
+- Modify: `host/agent_pets_daemon/daemon.py:159-242` (`_handle_message`)
 - Test: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -1438,13 +1438,13 @@ async def test_dedup_only_fires_on_session_start():
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_session_state.py -v -k "dedup or same_pid"
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_session_state.py -v -k "dedup or same_pid"
 ```
 Expected: all 5 new tests FAIL (no dedup logic yet — `old` still in `_session_states`).
 
 - [ ] **Step 3: Add dedup logic in `_handle_message`**
 
-In `host/clawd_tank_daemon/daemon.py`, at the start of `_handle_message` (right after computing `extra` and before the existing `if event == "add":` block at line 189), add a constant near the top of the module:
+In `host/agent_pets_daemon/daemon.py`, at the start of `_handle_message` (right after computing `extra` and before the existing `if event == "add":` block at line 189), add a constant near the top of the module:
 
 ```python
 PID_DEDUP_FRESHNESS_SECONDS = 60.0
@@ -1480,15 +1480,15 @@ Then inside `_handle_message`, before the `_update_session_state` call (around l
 - [ ] **Step 4: Run tests**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_session_state.py -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_session_state.py -v
 ```
 Expected: all tests PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+cd /Users/marciorodrigues/Projects/agent-pets
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat: PID-based dedup on SessionStart handles /clear without depending on SessionEnd"
 ```
 
@@ -1497,7 +1497,7 @@ git commit -m "feat: PID-based dedup on SessionStart handles /clear without depe
 ## Task 9: Liveness polling task
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py` (add `_liveness_checker`, wire in `run()`)
+- Modify: `host/agent_pets_daemon/daemon.py` (add `_liveness_checker`, wire in `run()`)
 - Test: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -1517,7 +1517,7 @@ def test_liveness_evicts_dead_pid():
     }
     d._session_order = [("s1", 1)]
 
-    with patch("clawd_tank_daemon.daemon.os.kill", side_effect=ProcessLookupError):
+    with patch("agent_pets_daemon.daemon.os.kill", side_effect=ProcessLookupError):
         d._check_liveness()
 
     assert "s1" not in d._session_states
@@ -1533,7 +1533,7 @@ def test_liveness_keeps_alive_pid():
         "last_event_monotonic": time.monotonic(), "pid": 4242,
     }
 
-    with patch("clawd_tank_daemon.daemon.os.kill", return_value=None):
+    with patch("agent_pets_daemon.daemon.os.kill", return_value=None):
         d._check_liveness()
 
     assert "s1" in d._session_states
@@ -1548,7 +1548,7 @@ def test_liveness_skips_sessions_without_pid():
         "last_event_monotonic": time.monotonic(),
     }
 
-    with patch("clawd_tank_daemon.daemon.os.kill", side_effect=ProcessLookupError):
+    with patch("agent_pets_daemon.daemon.os.kill", side_effect=ProcessLookupError):
         d._check_liveness()
 
     assert "s1" in d._session_states
@@ -1563,7 +1563,7 @@ def test_liveness_treats_permission_error_as_alive():
         "last_event_monotonic": time.monotonic(), "pid": 4242,
     }
 
-    with patch("clawd_tank_daemon.daemon.os.kill", side_effect=PermissionError):
+    with patch("agent_pets_daemon.daemon.os.kill", side_effect=PermissionError):
         d._check_liveness()
 
     assert "s1" in d._session_states
@@ -1572,7 +1572,7 @@ def test_liveness_treats_permission_error_as_alive():
 def test_liveness_persists_after_eviction(tmp_path):
     """After evicting a dead session, the persisted sessions.json reflects it."""
     from unittest.mock import patch
-    from clawd_tank_daemon.daemon import ClawdDaemon
+    from agent_pets_daemon.daemon import ClawdDaemon
 
     d = ClawdDaemon(sim_only=True, sessions_path=tmp_path / "sessions.json")
     d._transports.clear()
@@ -1583,7 +1583,7 @@ def test_liveness_persists_after_eviction(tmp_path):
     }
     d._session_order = [("s1", 1)]
 
-    with patch("clawd_tank_daemon.daemon.os.kill", side_effect=ProcessLookupError):
+    with patch("agent_pets_daemon.daemon.os.kill", side_effect=ProcessLookupError):
         d._check_liveness()
 
     # Persist file should not contain s1
@@ -1595,13 +1595,13 @@ def test_liveness_persists_after_eviction(tmp_path):
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_session_state.py -v -k "liveness"
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_session_state.py -v -k "liveness"
 ```
 Expected: all 5 new tests FAIL (`_check_liveness` not defined).
 
 - [ ] **Step 3: Implement `_check_liveness` and `_liveness_checker`**
 
-In `host/clawd_tank_daemon/daemon.py`, add after `_evict_stale_sessions` (around line 366):
+In `host/agent_pets_daemon/daemon.py`, add after `_evict_stale_sessions` (around line 366):
 
 ```python
     def _check_liveness(self) -> list[str]:
@@ -1664,15 +1664,15 @@ In `_shutdown()` (around line 519), after the existing `_staleness_task` cleanup
 - [ ] **Step 5: Run tests**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest tests/test_session_state.py -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest tests/test_session_state.py -v
 ```
 Expected: all liveness tests PASS, all previous tests still PASS.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+cd /Users/marciorodrigues/Projects/agent-pets
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat: liveness polling task evicts sessions whose Claude PID is dead"
 ```
 
@@ -1681,7 +1681,7 @@ git commit -m "feat: liveness polling task evicts sessions whose Claude PID is d
 ## Task 10: Wire source/reason logging
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:159-188` (`_handle_message` logging)
+- Modify: `host/agent_pets_daemon/daemon.py:159-188` (`_handle_message` logging)
 
 - [ ] **Step 1: Add source/reason to the existing log line**
 
@@ -1706,15 +1706,15 @@ In `_handle_message` (around line 186), the existing `logger.info("Socket msg: �
 - [ ] **Step 2: Verify by running full test suite**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest -v
 ```
 Expected: all tests PASS. No new tests for logging (logging changes are observable in real-world usage; unit tests would just mirror the code).
 
 - [ ] **Step 3: Commit**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank
-git add host/clawd_tank_daemon/daemon.py
+cd /Users/marciorodrigues/Projects/agent-pets
+git add host/agent_pets_daemon/daemon.py
 git commit -m "feat: log pid, source, reason fields for ghost-crab debugging"
 ```
 
@@ -1727,14 +1727,14 @@ git commit -m "feat: log pid, source, reason fields for ghost-crab debugging"
 - [ ] **Step 1: Build and install the menu bar app**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && ./build.sh --install
+cd /Users/marciorodrigues/Projects/agent-pets/host && ./build.sh --install
 ```
 
 - [ ] **Step 2: Kill running app and relaunch**
 
 ```bash
-pkill -f "Clawd Tank" || true
-open -a "Clawd Tank"
+pkill -f "Agent Pets" || true
+open -a "Agent Pets"
 ```
 
 Wait for the menu bar icon to appear. Confirm it connects to a transport (BLE or Simulator).
@@ -1745,7 +1745,7 @@ Wait for the menu bar icon to appear. Confirm it connects to a transport (BLE or
 2. Confirm a new crab appears on screen.
 3. Force-quit the terminal (close window, or `kill -9` the process).
 4. Wait ≤30s. Crab should disappear (liveness eviction).
-5. Inspect log: `tail -100 ~/Library/Logs/ClawdTank/clawd-tank.log` should show `Liveness: evicting session …`.
+5. Inspect log: `tail -100 ~/Library/Logs/AgentPets/agent-pets.log` should show `Liveness: evicting session …`.
 
 - [ ] **Step 4: Verify `/clear` dedup**
 
@@ -1770,14 +1770,14 @@ Wait for the menu bar icon to appear. Confirm it connects to a transport (BLE or
 - [ ] **Step 7: Full test suite**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank/host && .venv/bin/pytest -v
+cd /Users/marciorodrigues/Projects/agent-pets/host && .venv/bin/pytest -v
 ```
 Expected: 100% PASS.
 
 - [ ] **Step 8: Final cleanup commit (if any leftover changes)**
 
 ```bash
-cd /Users/marciorodrigues/Projects/clawd-tank
+cd /Users/marciorodrigues/Projects/agent-pets
 git status
 # If clean, no commit needed. If there are stragglers from manual edits:
 git diff

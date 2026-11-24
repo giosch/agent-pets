@@ -1,6 +1,6 @@
 # PR #4 Copilot Comments Analysis Report
 
-**PR:** https://github.com/marciogranzotto/clawd-tank/pull/4
+**PR:** https://api.github.com/repositories/1179885968/pulls/4
 **Branch:** feature/multi-session-display-v2
 **Date:** 2026-03-16
 **Analyst:** Claude Code
@@ -9,7 +9,7 @@
 
 ## Comment 1 (id=2940990564)
 
-**File:** `host/clawd_tank_daemon/daemon.py` — line 227
+**File:** `host/agent_pets_daemon/daemon.py` — line 227
 
 ### Original Comment
 
@@ -325,7 +325,7 @@ The `asprintf` suggestion is also clean since it handles sizing automatically, b
 
 ## Comment 5 (id=2940990698)
 
-**File:** `host/clawd_tank_daemon/daemon.py` — line 211
+**File:** `host/agent_pets_daemon/daemon.py` — line 211
 
 ### Original Comment
 

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Clawd Tank is a physical notification display for Claude Code sessions. It runs on a **Waveshare ESP32-C6-LCD-1.47** (320x172 ST7789 SPI display) and shows an animated pixel-art crab ("Clawd") alongside notification cards received over BLE from a Python host daemon.
+Agent Pets is a physical notification display for Claude Code sessions. It runs on a **Waveshare ESP32-C6-LCD-1.47** (320x172 ST7789 SPI display) and shows an animated pixel-art crab ("Clawd") alongside notification cards received over BLE from a Python host daemon.
 
 Three components: **firmware** (ESP-IDF C), **simulator** (native macOS), **host** (Python daemon + Claude Code hooks).
 
@@ -39,27 +39,27 @@ cd simulator && cmake -B build && cmake --build build
 cd simulator && cmake -B build-static -DSTATIC_SDL2=ON && cmake --build build-static
 
 # Run interactive (SDL2 window, 1x scale, borderless, resizable)
-./simulator/build/clawd-tank-sim
+./simulator/build/agent-pets-sim
 
 # Run interactive, always on top
-./simulator/build/clawd-tank-sim --pinned
+./simulator/build/agent-pets-sim --pinned
 
 # Run interactive with TCP listener (daemon can connect)
-./simulator/build/clawd-tank-sim --listen
+./simulator/build/agent-pets-sim --listen
 
 # Run with window border (for development)
-./simulator/build/clawd-tank-sim --bordered
+./simulator/build/agent-pets-sim --bordered
 
 # Run hidden, waiting for show_window TCP command (menu bar app mode)
-./simulator/build/clawd-tank-sim --listen --hidden
+./simulator/build/agent-pets-sim --listen --hidden
 
 # Run headless with events
-./simulator/build/clawd-tank-sim --headless \
-  --events 'connect; wait 500; notify "clawd-tank" "Waiting for input"; wait 2000; disconnect' \
+./simulator/build/agent-pets-sim --headless \
+  --events 'connect; wait 500; notify "agent-pets" "Waiting for input"; wait 2000; disconnect' \
   --screenshot-dir ./shots/ --screenshot-on-event
 
 # Run headless with TCP listener (indefinite, daemon-driven)
-./simulator/build/clawd-tank-sim --headless --listen
+./simulator/build/agent-pets-sim --headless --listen
 ```
 
 Interactive keys: `c`=connect, `d`=disconnect, `n`=notify, `1-8`=dismiss, `x`=clear, `s`=screenshot, `z`=sleep, `q`=quit.
@@ -137,13 +137,13 @@ python tools/ble_interactive.py
 
 ```
 Claude Code hooks (SessionStart/PreToolUse/PreCompact/Stop/StopFailure/Notification/UserPromptSubmit/SessionEnd/SubagentStart/SubagentStop)
-    → ~/.clawd-tank/clawd-tank-notify → Unix socket → clawd_tank_daemon → BLE → ESP32-C6 firmware
+    → ~/.agent-pets/agent-pets-notify → Unix socket → agent_pets_daemon → BLE → ESP32-C6 firmware
                                                                         ↘ TCP → Simulator (SDL2)
     Session state tracking (daemon):
         dict[session_id → state] → _compute_display_state()
             v2 transports: → set_sessions action (per-session anims + UUIDs) → multi-slot rendering
             v1 transports: → set_status action (single aggregated animation)
-        Persisted to ~/.clawd-tank/sessions.json on structural changes (survives daemon restart)
+        Persisted to ~/.agent-pets/sessions.json on structural changes (survives daemon restart)
 
     Notification cards (daemon):
         add/dismiss events → _active_notifications → add/dismiss actions → device cards
@@ -174,9 +174,9 @@ Key simulator-specific files:
 
 ### Host (`host/`)
 
-- **clawd-tank-notify** — Standalone hook handler (installed to `~/.clawd-tank/clawd-tank-notify` by the menu bar app). Reads Claude Code hook stdin, converts to daemon message, forwards via Unix socket. Uses only stdlib — no external imports.
-- **clawd_tank_daemon/** — Async Python daemon (asyncio). Multi-transport architecture with `TransportClient` Protocol. Supports BLE (`ClawdBleClient`) and TCP simulator (`SimClient`) transports with independent per-transport queues and sender tasks. Dynamic transport add/remove at runtime. Per-transport protocol versioning (v1 `set_status` for legacy, v2 `set_sessions` with per-session animations and UUIDs). BLE client reads the protocol version GATT characteristic on connect. Session state tracking with priority-based display state computation, staleness eviction, subagent lifecycle tracking, and per-session sweeping for v2 transports. `SimProcessManager` manages the simulator subprocess lifecycle (spawn, window commands, stdout/stderr logging through Python logger, SIGKILL on quit). `session_store.py` handles atomic save/load of session state to `~/.clawd-tank/sessions.json` for restart recovery.
-- **clawd_tank_menubar/** — macOS status bar app (rumps). Transport submenus (BLE/Simulator) with independent enable/disable, connection status with colored emoji indicators, simulator window controls (show/hide, always-on-top), brightness/session timeout config, Claude Code hook installer (`hooks.py`), version display, log file output (`~/Library/Logs/ClawdTank/clawd-tank.log`). Preferences persisted to `~/.clawd-tank/preferences.json` with read-modify-write pattern. Auto-updates hooks on startup when the installed version is outdated (no manual "Install Hooks" click required). Periodic health check timer detects daemon thread crashes and shows a disconnected icon; daemon thread exceptions are caught and logged instead of dying silently.
+- **agent-pets-notify** — Standalone hook handler (installed to `~/.agent-pets/agent-pets-notify` by the menu bar app). Reads Claude Code hook stdin, converts to daemon message, forwards via Unix socket. Uses only stdlib — no external imports.
+- **agent_pets_daemon/** — Async Python daemon (asyncio). Multi-transport architecture with `TransportClient` Protocol. Supports BLE (`ClawdBleClient`) and TCP simulator (`SimClient`) transports with independent per-transport queues and sender tasks. Dynamic transport add/remove at runtime. Per-transport protocol versioning (v1 `set_status` for legacy, v2 `set_sessions` with per-session animations and UUIDs). BLE client reads the protocol version GATT characteristic on connect. Session state tracking with priority-based display state computation, staleness eviction, subagent lifecycle tracking, and per-session sweeping for v2 transports. `SimProcessManager` manages the simulator subprocess lifecycle (spawn, window commands, stdout/stderr logging through Python logger, SIGKILL on quit). `session_store.py` handles atomic save/load of session state to `~/.agent-pets/sessions.json` for restart recovery.
+- **agent_pets_menubar/** — macOS status bar app (rumps). Transport submenus (BLE/Simulator) with independent enable/disable, connection status with colored emoji indicators, simulator window controls (show/hide, always-on-top), brightness/session timeout config, Claude Code hook installer (`hooks.py`), version display, log file output (`~/Library/Logs/AgentPets/agent-pets.log`). Preferences persisted to `~/.agent-pets/preferences.json` with read-modify-write pattern. Auto-updates hooks on startup when the installed version is outdated (no manual "Install Hooks" click required). Periodic health check timer detects daemon thread crashes and shows a disconnected icon; daemon thread exceptions are caught and logged instead of dying silently.
 
 ### Session State Model
 
@@ -189,7 +189,7 @@ The daemon tracks per-session state and computes display state sent to the devic
 - **Special events**: `PreCompact` → per-session sweeping (v2) or global oneshot sweep (v1), `Notification` (idle_prompt) → confused, `StopFailure` (API error) → error/dizzy with triple red LED flash
 - **Staleness eviction**: Sessions with no events within the configurable timeout (default 10min) are evicted. No sessions = sleeping.
 - **Subagent tracking**: `SubagentStart`/`SubagentStop` hooks track active `agent_id`s per session. Sessions with active subagents are never evicted and count as "working" in display state. HUD overlay shows mini-crab icon with subagent count.
-- **Session persistence**: Session state is saved atomically to `~/.clawd-tank/sessions.json` on structural state changes. Daemon loads saved state on startup with immediate stale session eviction, so restarting the menu bar app preserves the correct display state for running Claude Code sessions.
+- **Session persistence**: Session state is saved atomically to `~/.agent-pets/sessions.json` on structural state changes. Daemon loads saved state on startup with immediate stale session eviction, so restarting the menu bar app preserves the correct display state for running Claude Code sessions.
 
 ## Key Constraints
 

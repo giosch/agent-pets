@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate animated SVGs for Clawd Tank using the Gemini CLI.
+"""Generate animated SVGs for Agent Pets using the Gemini CLI.
 
 Constructs a detailed prompt with the base SVG, design conventions, and an
 example animation, then calls `gemini -p` in headless mode to generate a new
@@ -31,7 +31,7 @@ def build_prompt(name: str, description: str, base_svg: str, example_svg: str,
                  plan_text: str | None, fps: int) -> str:
     """Build the full prompt for Gemini."""
     prompt_parts = [
-        "Create an animated SVG for the Clawd Tank project.",
+        "Create an animated SVG for the Agent Pets project.",
         "",
         "## Character Base SVG",
         "",
@@ -162,7 +162,7 @@ def call_gemini(prompt: str, model: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate Clawd Tank animated SVGs using Gemini CLI",
+        description="Generate Agent Pets animated SVGs using Gemini CLI",
         epilog="Example: %(prog)s working-wizard 'Wearing wizard hat, waving wand with sparkles'",
     )
     parser.add_argument("name", help="Animation name (e.g., 'working-wizard', 'sleeping')")

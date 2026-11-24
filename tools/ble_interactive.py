@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Interactive BLE test tool for Clawd Tank firmware.
+"""Interactive BLE test tool for Agent Pets firmware.
 
 Connect to the device and press keys to trigger state transitions.
 """
@@ -19,7 +19,7 @@ except ImportError:
 SERVICE_UUID = "aecbefd9-98a2-4773-9fed-bb2166daa49a"
 NOTIF_CHAR_UUID = "71ffb137-8b7a-47c9-9a7a-4b1b16662d9a"
 CONFIG_CHAR_UUID = "e9f6e626-5fca-4201-b80c-4d2b51c40f51"
-DEVICE_NAME = "Clawd Tank"
+DEVICE_NAME = "Agent Pets"
 
 # Preset notifications for testing
 PRESETS = [
@@ -35,7 +35,7 @@ PRESETS = [
 
 HELP = """\
 \033[1;36m╔══════════════════════════════════════════════════════════════╗
-║                  Clawd Tank BLE Interactive Tester           ║
+║                  Agent Pets BLE Interactive Tester           ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
 ║  \033[1;33mNotifications\033[1;36m                                              ║
@@ -93,7 +93,7 @@ class InteractiveTester:
         self.log(msg, "0;37")
 
     async def scan_and_connect(self) -> bool:
-        print("\n\033[1;36mScanning for Clawd Tank...\033[0m")
+        print("\n\033[1;36mScanning for Agent Pets...\033[0m")
         devices = await bleak.BleakScanner.discover(timeout=5.0, return_adv=True)
         for d, adv in devices.values():
             if d.name and DEVICE_NAME.lower() in d.name.lower():

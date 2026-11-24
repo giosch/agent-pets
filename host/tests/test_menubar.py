@@ -7,7 +7,7 @@ the actual rumps app (which requires macOS AppKit).
 import pytest
 from unittest.mock import MagicMock, patch, AsyncMock
 
-from clawd_tank_daemon.daemon import ClawdDaemon
+from agent_pets_daemon.daemon import ClawdDaemon
 
 
 class FakeObserver:
@@ -66,7 +66,7 @@ async def test_observer_receives_transport_name():
 
 def test_launchd_is_enabled_checks_plist():
     """launchd.is_enabled returns True iff the plist file exists."""
-    from clawd_tank_menubar import launchd
+    from agent_pets_menubar import launchd
     with patch.object(launchd, "PLIST_PATH") as mock_path:
         mock_path.exists.return_value = True
         assert launchd.is_enabled() is True
@@ -76,7 +76,7 @@ def test_launchd_is_enabled_checks_plist():
 
 import tempfile
 from pathlib import Path
-from clawd_tank_menubar.preferences import load_preferences, save_preferences
+from agent_pets_menubar.preferences import load_preferences, save_preferences
 
 def test_load_preferences_missing_file():
     with tempfile.TemporaryDirectory() as tmpdir:

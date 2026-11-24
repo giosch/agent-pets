@@ -1,4 +1,4 @@
-# Clawd Tank Simulator
+# Agent Pets Simulator
 
 Native macOS simulator for the Clawd LVGL UI. Runs the same firmware rendering code (`scene.c`, `notification_ui.c`, `ui_manager.c`, `notification.c`) without hardware, using shim headers to replace ESP-IDF APIs.
 
@@ -27,10 +27,10 @@ cmake --build build
 ### Interactive mode (default)
 
 ```bash
-./build/clawd-tank-sim
+./build/agent-pets-sim
 
 # With TCP listener for daemon connection
-./build/clawd-tank-sim --listen
+./build/agent-pets-sim --listen
 ```
 
 Opens a 640x344 window (320x172 scaled 2x). Keyboard shortcuts:
@@ -49,13 +49,13 @@ Opens a 640x344 window (320x172 scaled 2x). Keyboard shortcuts:
 Change window scale with `--scale`:
 
 ```bash
-./build/clawd-tank-sim --scale 4
+./build/agent-pets-sim --scale 4
 ```
 
 ### Headless mode
 
 ```bash
-./build/clawd-tank-sim --headless \
+./build/agent-pets-sim --headless \
   --events 'connect; wait 500; notify "GitHub" "PR merged"; wait 2000; disconnect' \
   --screenshot-dir ./shots/ \
   --screenshot-on-event
@@ -93,7 +93,7 @@ Semicolon-separated commands with `wait` for timing:
 Example — full lifecycle:
 
 ```bash
-./build/clawd-tank-sim --headless \
+./build/agent-pets-sim --headless \
   --events 'connect; wait 200; notify "GitHub" "PR merged"; wait 500; notify "Slack" "Deploy done"; wait 3000; dismiss 0; wait 1000; clear; wait 500; disconnect' \
   --screenshot-dir ./shots/ \
   --screenshot-interval 250 --screenshot-on-event
@@ -117,7 +117,7 @@ For complex sequences, use a JSON file:
 Run it:
 
 ```bash
-./build/clawd-tank-sim --headless \
+./build/agent-pets-sim --headless \
   --scenario scenarios/demo.json \
   --screenshot-dir ./shots/ \
   --screenshot-on-event
@@ -155,13 +155,13 @@ The `--listen` flag starts a TCP server that accepts the same newline-delimited 
 
 ```bash
 # Start simulator with TCP listener
-./build/clawd-tank-sim --listen
+./build/agent-pets-sim --listen
 
 # Custom port
-./build/clawd-tank-sim --listen 12345
+./build/agent-pets-sim --listen 12345
 
 # Headless + listen (runs indefinitely, daemon-driven)
-./build/clawd-tank-sim --headless --listen
+./build/agent-pets-sim --headless --listen
 ```
 
 The daemon connects via CLI flags (`--sim`, `--sim-only`) or via the "Enable Simulator" toggle in the macOS menu bar app. Default port: 19872.

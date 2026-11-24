@@ -4,7 +4,7 @@ This file provides guidance to Gemini CLI when working with code and assets in t
 
 ## Project Overview
 
-Clawd Tank is a physical notification display for Claude Code sessions running on a **Waveshare ESP32-C6-LCD-1.47** (320x172 ST7789 SPI display). It features an animated pixel-art crab ("Clawd"). 
+Agent Pets is a physical notification display for Claude Code sessions running on a **Waveshare ESP32-C6-LCD-1.47** (320x172 ST7789 SPI display). It features an animated pixel-art crab ("Clawd").
 
 **Gemini's Primary Role:** You are the lead animator and technical artist for the project. Your main focus is creating, modifying, and optimizing the SVG animations that bring Clawd to life, and ensuring they are properly converted into the C header formats required by the firmware.
 
@@ -57,7 +57,7 @@ Always test newly generated sprites using the simulator before flashing to hardw
 cd simulator && cmake -B build && cmake --build build
 
 # Run the simulator to preview the UI and animations
-./simulator/build/clawd-tank-sim
+./simulator/build/agent-pets-sim
 ```
 
 You can use the interactive keys (`z`=sleep, `x`=clear, `n`=notify) to trigger different state transitions and verify that the sprite animations render cleanly without clipping or color key issues.

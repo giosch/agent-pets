@@ -1,4 +1,4 @@
-# Clawd Tank Protocol Changelog
+# Agent Pets Protocol Changelog
 
 Protocol version is exposed by the firmware via a read-only BLE GATT characteristic. The daemon reads it on connect to determine which actions are supported. Absence of the version characteristic implies v1.
 

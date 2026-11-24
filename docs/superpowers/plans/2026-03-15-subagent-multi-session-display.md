@@ -20,8 +20,8 @@ Python-only changes. Fully testable with existing pytest infrastructure. No firm
 ### Task 1: Session Order Tracking
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py`
-- Modify: `host/clawd_tank_daemon/session_store.py`
+- Modify: `host/agent_pets_daemon/daemon.py`
+- Modify: `host/agent_pets_daemon/session_store.py`
 - Test: `host/tests/test_session_state.py`
 
 The daemon needs a `_session_order` list of `(session_id, display_id)` tuples and a `_next_display_id` counter. Sessions are appended on arrival, removed on end. The `display_id` is an incrementing integer, never reused.
@@ -125,7 +125,7 @@ Expected: All PASS
 - [ ] **Step 8: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/clawd_tank_daemon/session_store.py host/tests/test_session_state.py host/tests/test_session_store.py
+git add host/agent_pets_daemon/daemon.py host/agent_pets_daemon/session_store.py host/tests/test_session_state.py host/tests/test_session_store.py
 git commit -m "feat(daemon): track session arrival order with stable display IDs"
 ```
 
@@ -134,7 +134,7 @@ git commit -m "feat(daemon): track session arrival order with stable display IDs
 ### Task 2: Rewrite Display State Computation
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py`
+- Modify: `host/agent_pets_daemon/daemon.py`
 - Test: `host/tests/test_session_state.py`
 
 `_compute_display_state()` changes from returning a string like `"working_2"` to returning a dict with `anims`, `ids`, `subagents`, and optional `overflow`.
@@ -244,7 +244,7 @@ Expected: All PASS (both old updated tests and new tests)
 - [ ] **Step 7: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat(daemon): rewrite display state to per-session anims + subagent count"
 ```
 
@@ -253,7 +253,7 @@ git commit -m "feat(daemon): rewrite display state to per-session anims + subage
 ### Task 3: Protocol v2 Payload Generation
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/protocol.py`
+- Modify: `host/agent_pets_daemon/protocol.py`
 - Test: `host/tests/test_protocol.py`
 
 The daemon needs to generate `set_sessions` JSON payloads and still support `set_status` for v1 transports.
@@ -342,7 +342,7 @@ Replace inline payload creation with `display_state_to_ble_payload(new_state)`.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/protocol.py host/clawd_tank_daemon/daemon.py host/tests/test_protocol.py
+git add host/agent_pets_daemon/protocol.py host/agent_pets_daemon/daemon.py host/tests/test_protocol.py
 git commit -m "feat(daemon): v2 set_sessions payload generation with v1 fallback"
 ```
 
@@ -351,8 +351,8 @@ git commit -m "feat(daemon): v2 set_sessions payload generation with v1 fallback
 ### Task 4: Per-Transport Protocol Version
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py`
-- Modify: `host/clawd_tank_daemon/ble_client.py`
+- Modify: `host/agent_pets_daemon/daemon.py`
+- Modify: `host/agent_pets_daemon/ble_client.py`
 - Test: `host/tests/test_session_state.py`
 
 The daemon needs to track protocol version per transport and send the appropriate payload format.
@@ -411,7 +411,7 @@ Expected: All PASS
 - [ ] **Step 7: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/clawd_tank_daemon/ble_client.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/agent_pets_daemon/ble_client.py host/tests/test_session_state.py
 git commit -m "feat(daemon): per-transport protocol versioning with v1/v2 payload selection"
 ```
 
@@ -842,7 +842,7 @@ case BLE_EVT_SET_STATUS: {
 Run: `cd simulator && cmake -B build && cmake --build build`
 Then test manually:
 ```bash
-./simulator/build/clawd-tank-sim --headless --listen &
+./simulator/build/agent-pets-sim --headless --listen &
 # In another terminal, send set_sessions:
 echo '{"action":"set_sessions","anims":["typing","thinking"],"ids":[1,2],"subagents":0}' | nc localhost 19872
 ```
@@ -936,7 +936,7 @@ Called from `scene_set_sessions`. Updates the pixel-art counter and badge visibi
 
 Test with simulator headless + screenshot:
 ```bash
-./simulator/build/clawd-tank-sim --headless \
+./simulator/build/agent-pets-sim --headless \
   --events 'connect; wait 200; raw {"action":"set_sessions","anims":["typing"],"ids":[1],"subagents":3}; wait 2000' \
   --screenshot-dir ./shots/ --screenshot-on-event
 ```
@@ -1149,7 +1149,7 @@ git commit -m "feat(assets): mini-crab sprite for HUD subagent counter"
 - [ ] **Step 1: Test single session with subagents**
 
 ```bash
-./simulator/build/clawd-tank-sim --headless --listen &
+./simulator/build/agent-pets-sim --headless --listen &
 # Send typing session with 3 subagents
 echo '{"action":"set_sessions","anims":["typing"],"ids":[1],"subagents":3}' | nc localhost 19872
 # Verify: 1 Clawd centered, HUD shows ×3

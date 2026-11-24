@@ -33,7 +33,7 @@ class WindowsLauncher {
             string target=File.ReadAllText(Path.Combine(root,"current")).Trim();
             if (!Regex.IsMatch(target, @"\A[A-Za-z0-9._-]+\z") || target.StartsWith(".")) throw new IOException("Invalid installation");
             string program=Path.Combine(root,"releases",target,"habitat-runtime.exe");
-            Environment.SetEnvironmentVariable("CLAWD_TANK_LAUNCHER",Path.Combine(root,"clawd-tank.exe"));
+            Environment.SetEnvironmentVariable("AGENT_PETS_LAUNCHER",Path.Combine(root,"agent-pets.exe"));
             Startup s=new Startup(); s.size=Marshal.SizeOf(s); s.flags=0x101;
             s.input=GetStdHandle(-10); s.output=GetStdHandle(-11); s.error=GetStdHandle(-12);
             ProcessInfo pi;
@@ -42,7 +42,7 @@ class WindowsLauncher {
             CloseHandle(pi.thread); WaitForSingleObject(pi.process,0xffffffff); uint code;
             GetExitCodeProcess(pi.process,out code); CloseHandle(pi.process); return (int)code;
         } catch(Exception e) {
-            if (args.Length==0) MessageBox.Show(e.Message,"Clawd Tank");
+            if (args.Length==0) MessageBox.Show(e.Message,"Agent Pets");
             return 1;
         }
     }

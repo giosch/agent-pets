@@ -15,7 +15,7 @@
 ## File Map
 
 ### New files
-- `host/clawd_tank_daemon/sim_process.py` — SimProcessManager: subprocess lifecycle, binary discovery, window commands
+- `host/agent_pets_daemon/sim_process.py` — SimProcessManager: subprocess lifecycle, binary discovery, window commands
 - `host/tests/test_sim_process.py` — Tests for SimProcessManager
 - `host/tests/test_preferences.py` — Tests for preferences read-modify-write
 - `.github/workflows/release.yml` — GitHub Actions release workflow
@@ -29,10 +29,10 @@
 - `simulator/sim_ble_parse.c` — Recognize window actions, return new code
 - `simulator/sim_ble_parse.h` — Document return code 3 for window commands
 - `simulator/sim_main.c` — `--hidden`, `--bordered` flags; window command processing in main loops; SDL_QUIT hides instead of quits
-- `host/clawd_tank_daemon/sim_client.py` — `send_command()`, background reader task, event callback
-- `host/clawd_tank_menubar/preferences.py` — Read-modify-write, merge with DEFAULTS
-- `host/clawd_tank_menubar/app.py` — Submenu UI, transport enable/disable, SimProcessManager integration
-- `host/clawd_tank_daemon/daemon.py` — Preference-driven transport creation
+- `host/agent_pets_daemon/sim_client.py` — `send_command()`, background reader task, event callback
+- `host/agent_pets_menubar/preferences.py` — Read-modify-write, merge with DEFAULTS
+- `host/agent_pets_menubar/app.py` — Submenu UI, transport enable/disable, SimProcessManager integration
+- `host/agent_pets_daemon/daemon.py` — Preference-driven transport creation
 - `host/setup.py` — No changes needed (simulator binary injected post-build)
 - `host/tests/test_sim_client.py` — Tests for send_command, background reader, event callback
 
@@ -43,7 +43,7 @@
 ### Task 1: Preferences Read-Modify-Write
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/preferences.py`
+- Modify: `host/agent_pets_menubar/preferences.py`
 - Create: `host/tests/test_preferences.py`
 
 - [ ] **Step 1: Write failing tests for preferences**
@@ -55,7 +55,7 @@
 import json
 import pytest
 from pathlib import Path
-from clawd_tank_menubar.preferences import load_preferences, save_preferences, DEFAULTS
+from agent_pets_menubar.preferences import load_preferences, save_preferences, DEFAULTS
 
 
 @pytest.fixture
@@ -105,14 +105,14 @@ Expected: FAIL — `save_preferences` doesn't accept `updates` kwarg, `DEFAULTS`
 - [ ] **Step 3: Implement preferences changes**
 
 ```python
-# host/clawd_tank_menubar/preferences.py
-"""Persistent preferences for the Clawd Tank menubar app."""
+# host/agent_pets_menubar/preferences.py
+"""Persistent preferences for the Agent Pets menubar app."""
 
 import json
 import logging
 from pathlib import Path
 
-logger = logging.getLogger("clawd-tank.menubar")
+logger = logging.getLogger("agent-pets.menubar")
 
 DEFAULTS = {
     "ble_enabled": True,
@@ -120,7 +120,7 @@ DEFAULTS = {
     "sim_window_visible": True,
     "sim_always_on_top": True,
 }
-PREFS_PATH = Path.home() / ".clawd-tank" / "preferences.json"
+PREFS_PATH = Path.home() / ".agent-pets" / "preferences.json"
 
 
 def load_preferences(path: Path = PREFS_PATH) -> dict:
@@ -155,7 +155,7 @@ Expected: PASS
 
 - [ ] **Step 5: Update callers of save_preferences**
 
-In `host/clawd_tank_menubar/app.py`, find the call to `save_preferences` in `_on_toggle_simulator` and update it to use the new `updates` kwarg:
+In `host/agent_pets_menubar/app.py`, find the call to `save_preferences` in `_on_toggle_simulator` and update it to use the new `updates` kwarg:
 
 Old pattern: `save_preferences(prefs={"sim_enabled": self._sim_toggle.state})`
 New pattern: `save_preferences(updates={"sim_enabled": self._sim_toggle.state})`
@@ -196,7 +196,7 @@ Expected: All tests pass
 - [ ] **Step 8: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/preferences.py host/tests/test_preferences.py host/clawd_tank_menubar/app.py host/tests/test_menubar.py
+git add host/agent_pets_menubar/preferences.py host/tests/test_preferences.py host/agent_pets_menubar/app.py host/tests/test_menubar.py
 git commit -m "feat(preferences): read-modify-write with defaults merging"
 ```
 
@@ -251,7 +251,7 @@ Change the SDL_CreateWindow call (line 105) to use the bordered flag:
 ```c
         Uint32 flags = bordered ? 0 : SDL_WINDOW_BORDERLESS;
         s_window = SDL_CreateWindow(
-            "Clawd Tank Simulator",
+            "Agent Pets Simulator",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             win_w, win_h,
             flags);
@@ -685,7 +685,7 @@ Expected: Compiles cleanly
 Manual test (use two terminal windows):
 ```bash
 # Terminal 1: start simulator with listen and hidden
-./simulator/build/clawd-tank-sim --listen --hidden
+./simulator/build/agent-pets-sim --listen --hidden
 
 # Terminal 2: send show command (keep connection open with -q)
 echo '{"action":"show_window"}' | nc -q 1 localhost 19872
@@ -743,7 +743,7 @@ endif()
 Update the `target_link_libraries` (line 56-58):
 
 ```cmake
-target_link_libraries(clawd-tank-sim PRIVATE
+target_link_libraries(agent-pets-sim PRIVATE
     lvgl
     ${SDL2_TARGET}
 )
@@ -753,7 +753,7 @@ Update the Apple section (line 62-64) to add all required frameworks for static 
 
 ```cmake
 if(APPLE)
-    target_link_libraries(clawd-tank-sim PRIVATE
+    target_link_libraries(agent-pets-sim PRIVATE
         "-framework Cocoa"
         "-framework IOKit"
         "-framework CoreAudio"
@@ -776,11 +776,11 @@ Run:
 ```bash
 cd simulator && cmake -B build-static -DSTATIC_SDL2=ON && cmake --build build-static
 ```
-Expected: Downloads SDL2, builds static lib, links into `clawd-tank-sim`
+Expected: Downloads SDL2, builds static lib, links into `agent-pets-sim`
 
 Verify no SDL2 dynamic dependency:
 ```bash
-otool -L simulator/build-static/clawd-tank-sim | grep -i sdl
+otool -L simulator/build-static/agent-pets-sim | grep -i sdl
 ```
 Expected: No SDL2 dylib in output
 
@@ -806,7 +806,7 @@ git commit -m "feat(simulator): add STATIC_SDL2 option for self-contained binary
 ### Task 6: SimClient — send_command and Background Reader
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/sim_client.py`
+- Modify: `host/agent_pets_daemon/sim_client.py`
 - Modify: `host/tests/test_sim_client.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -898,7 +898,7 @@ Expected: FAIL — `send_command` doesn't exist, `on_event_cb` not a valid param
 
 - [ ] **Step 3: Implement SimClient changes**
 
-Update `host/clawd_tank_daemon/sim_client.py`:
+Update `host/agent_pets_daemon/sim_client.py`:
 
 Add `on_event_cb` parameter to `__init__`:
 
@@ -1044,7 +1044,7 @@ Expected: All tests pass
 - [ ] **Step 6: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/sim_client.py host/tests/test_sim_client.py
+git add host/agent_pets_daemon/sim_client.py host/tests/test_sim_client.py
 git commit -m "feat(sim_client): add send_command, background reader, and event callback"
 ```
 
@@ -1053,7 +1053,7 @@ git commit -m "feat(sim_client): add send_command, background reader, and event 
 ### Task 7: Simulator Process Manager
 
 **Files:**
-- Create: `host/clawd_tank_daemon/sim_process.py`
+- Create: `host/agent_pets_daemon/sim_process.py`
 - Create: `host/tests/test_sim_process.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -1068,7 +1068,7 @@ import os
 import sys
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from clawd_tank_daemon.sim_process import SimProcessManager
+from agent_pets_daemon.sim_process import SimProcessManager
 
 
 @pytest.mark.asyncio
@@ -1078,7 +1078,7 @@ async def test_find_binary_in_app_bundle():
     with patch.object(os.path, "isfile", return_value=True):
         with patch("sys.executable", "/App.app/Contents/MacOS/python"):
             path = mgr._find_binary()
-            assert path == "/App.app/Contents/MacOS/clawd-tank-sim"
+            assert path == "/App.app/Contents/MacOS/agent-pets-sim"
 
 
 @pytest.mark.asyncio
@@ -1086,9 +1086,9 @@ async def test_find_binary_fallback_to_which():
     """Should fall back to shutil.which if not next to executable."""
     mgr = SimProcessManager()
     with patch.object(os.path, "isfile", return_value=False):
-        with patch("shutil.which", return_value="/usr/local/bin/clawd-tank-sim"):
+        with patch("shutil.which", return_value="/usr/local/bin/agent-pets-sim"):
             path = mgr._find_binary()
-            assert path == "/usr/local/bin/clawd-tank-sim"
+            assert path == "/usr/local/bin/agent-pets-sim"
 
 
 @pytest.mark.asyncio
@@ -1134,7 +1134,7 @@ Expected: FAIL — module doesn't exist
 - [ ] **Step 3: Implement SimProcessManager**
 
 ```python
-# host/clawd_tank_daemon/sim_process.py
+# host/agent_pets_daemon/sim_process.py
 """Simulator process lifecycle manager."""
 
 import asyncio
@@ -1147,7 +1147,7 @@ from typing import Callable, Optional
 
 from .sim_client import SimClient, SIM_DEFAULT_PORT
 
-logger = logging.getLogger("clawd-tank.sim-process")
+logger = logging.getLogger("agent-pets.sim-process")
 
 
 class SimProcessManager:
@@ -1164,10 +1164,10 @@ class SimProcessManager:
         self._on_window_event = on_window_event
 
     def _find_binary(self) -> Optional[str]:
-        """Locate the clawd-tank-sim binary."""
+        """Locate the agent-pets-sim binary."""
         # 1. Next to sys.executable (inside .app bundle)
         exe_dir = os.path.dirname(sys.executable)
-        candidate = os.path.join(exe_dir, "clawd-tank-sim")
+        candidate = os.path.join(exe_dir, "agent-pets-sim")
         if os.path.isfile(candidate):
             return candidate
 
@@ -1177,7 +1177,7 @@ class SimProcessManager:
             bundle = NSBundle.mainBundle()
             if bundle:
                 bundle_candidate = os.path.join(
-                    bundle.bundlePath(), "Contents", "MacOS", "clawd-tank-sim"
+                    bundle.bundlePath(), "Contents", "MacOS", "agent-pets-sim"
                 )
                 if os.path.isfile(bundle_candidate):
                     return bundle_candidate
@@ -1185,7 +1185,7 @@ class SimProcessManager:
             pass
 
         # 3. PATH lookup (development)
-        return shutil.which("clawd-tank-sim")
+        return shutil.which("agent-pets-sim")
 
     async def _is_port_in_use(self) -> bool:
         """Check if something is already listening on our port."""
@@ -1218,7 +1218,7 @@ class SimProcessManager:
         else:
             binary = self._find_binary()
             if not binary:
-                logger.error("clawd-tank-sim binary not found")
+                logger.error("agent-pets-sim binary not found")
                 return None
 
             logger.info("Starting simulator: %s --listen %d --hidden", binary, self._port)
@@ -1308,7 +1308,7 @@ Expected: All pass
 - [ ] **Step 6: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/sim_process.py host/tests/test_sim_process.py
+git add host/agent_pets_daemon/sim_process.py host/tests/test_sim_process.py
 git commit -m "feat: add SimProcessManager for simulator lifecycle"
 ```
 
@@ -1317,7 +1317,7 @@ git commit -m "feat: add SimProcessManager for simulator lifecycle"
 ### Task 8: Daemon — Preference-Driven Transport Creation
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py`
+- Modify: `host/agent_pets_daemon/daemon.py`
 
 - [ ] **Step 1: Update daemon __init__ for menu bar mode**
 
@@ -1366,7 +1366,7 @@ Expected: All pass (existing tests use default `headless=True`, so behavior unch
 - [ ] **Step 3: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py
+git add host/agent_pets_daemon/daemon.py
 git commit -m "refactor(daemon): skip auto-transport creation in menu bar mode"
 ```
 
@@ -1375,7 +1375,7 @@ git commit -m "refactor(daemon): skip auto-transport creation in menu bar mode"
 ### Task 9: Menu Bar UI — BLE Submenu
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/app.py`
+- Modify: `host/agent_pets_menubar/app.py`
 
 - [ ] **Step 1: Replace flat BLE status with submenu**
 
@@ -1402,7 +1402,7 @@ def _on_toggle_ble_enabled(self, sender):
     sender.state = not sender.state
     save_preferences(updates={"ble_enabled": sender.state})
     if sender.state and self._loop:
-        from clawd_tank_daemon.ble_client import ClawdBleClient
+        from agent_pets_daemon.ble_client import ClawdBleClient
         client = ClawdBleClient()
         self._transport_status["ble"] = False
         asyncio.run_coroutine_threadsafe(
@@ -1445,7 +1445,7 @@ In `_start_daemon_thread`, add BLE transport based on preferences (replace exist
 # After daemon creation and loop ready:
 prefs = load_preferences()
 if prefs.get("ble_enabled", True):
-    from clawd_tank_daemon.ble_client import ClawdBleClient
+    from agent_pets_daemon.ble_client import ClawdBleClient
     client = ClawdBleClient()
     self._transport_status["ble"] = False
     asyncio.run_coroutine_threadsafe(
@@ -1478,7 +1478,7 @@ Remove the old `_ble_status_item`, `_sim_status_item`, `_sim_toggle`, `_reconnec
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/app.py
+git add host/agent_pets_menubar/app.py
 git commit -m "feat(menubar): BLE transport submenu with enable/disable"
 ```
 
@@ -1487,7 +1487,7 @@ git commit -m "feat(menubar): BLE transport submenu with enable/disable"
 ### Task 10: Menu Bar UI — Simulator Submenu
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/app.py`
+- Modify: `host/agent_pets_menubar/app.py`
 
 - [ ] **Step 1: Add simulator submenu with all controls**
 
@@ -1519,7 +1519,7 @@ self._sim_process: Optional[SimProcessManager] = None
 Add imports at top of file:
 
 ```python
-from clawd_tank_daemon.sim_process import SimProcessManager
+from agent_pets_daemon.sim_process import SimProcessManager
 ```
 
 - [ ] **Step 2: Implement toggle handlers**
@@ -1652,7 +1652,7 @@ Expected: All pass
 Manual test:
 ```bash
 cd simulator && cmake -B build && cmake --build build && cd ..
-cd host && .venv/bin/python -m clawd_tank_menubar.app
+cd host && .venv/bin/python -m agent_pets_menubar.app
 ```
 
 Verify: BLE and Simulator submenus work, toggles persist across restarts, window show/hide/pinned work, closing window updates menu.
@@ -1660,7 +1660,7 @@ Verify: BLE and Simulator submenus work, toggles persist across restarts, window
 - [ ] **Step 9: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/app.py host/tests/test_menubar.py
+git add host/agent_pets_menubar/app.py host/tests/test_menubar.py
 git commit -m "feat(menubar): simulator submenu with lifecycle management"
 ```
 
@@ -1699,7 +1699,7 @@ jobs:
           cmake -B build -DSTATIC_SDL2=ON
           cmake --build build
           # Verify no SDL2 dynamic dependency
-          ! otool -L build/clawd-tank-sim | grep -i sdl
+          ! otool -L build/agent-pets-sim | grep -i sdl
 
       # Set up Python for menu bar app
       - name: Set up Python
@@ -1722,19 +1722,19 @@ jobs:
       # Inject simulator binary
       - name: Bundle simulator into app
         run: |
-          cp simulator/build/clawd-tank-sim "host/dist/Clawd Tank.app/Contents/MacOS/"
+          cp simulator/build/agent-pets-sim "host/dist/Agent Pets.app/Contents/MacOS/"
 
       # Package
       - name: Create release zip
         run: |
           cd host/dist
-          zip -r clawd-tank-macos-arm64.zip "Clawd Tank.app"
+          zip -r agent-pets-macos-arm64.zip "Agent Pets.app"
 
       # Upload to release
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
         with:
-          files: host/dist/clawd-tank-macos-arm64.zip
+          files: host/dist/agent-pets-macos-arm64.zip
 ```
 
 - [ ] **Step 2: Commit**
@@ -1750,7 +1750,7 @@ git commit -m "ci: add GitHub Actions release workflow for macOS arm64"
 ### Task 12: Launchd Plist Staleness Detection
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/launchd.py`
+- Modify: `host/agent_pets_menubar/launchd.py`
 
 - [ ] **Step 1: Add plist staleness check**
 
@@ -1788,7 +1788,7 @@ When the user toggles "Launch at Login" off and on, the plist is re-written with
 - [ ] **Step 3: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/launchd.py host/clawd_tank_menubar/app.py
+git add host/agent_pets_menubar/launchd.py host/agent_pets_menubar/app.py
 git commit -m "fix(launchd): detect and re-register stale plist on startup"
 ```
 
@@ -1806,7 +1806,7 @@ Expected: All tests pass
 Run:
 ```bash
 cd simulator && cmake -B build-static -DSTATIC_SDL2=ON && cmake --build build-static
-otool -L build-static/clawd-tank-sim | grep -i sdl
+otool -L build-static/agent-pets-sim | grep -i sdl
 ```
 Expected: No SDL2 dynamic dependency
 
@@ -1814,7 +1814,7 @@ Expected: No SDL2 dynamic dependency
 
 ```bash
 # Start menu bar app (it should auto-start simulator)
-cd host && .venv/bin/python -m clawd_tank_menubar.app
+cd host && .venv/bin/python -m agent_pets_menubar.app
 ```
 
 Verify the complete flow:

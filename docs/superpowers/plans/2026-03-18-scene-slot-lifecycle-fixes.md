@@ -72,7 +72,7 @@ Run the simulator with TCP listener, then send commands to verify:
 
 ```bash
 # Terminal 1: start simulator
-./simulator/build/clawd-tank-sim --headless --listen &
+./simulator/build/agent-pets-sim --headless --listen &
 SIM_PID=$!
 sleep 1
 
@@ -158,7 +158,7 @@ Expected: Build succeeds.
 - [ ] **Step 4: Test via simulator — connect with existing sessions**
 
 ```bash
-./simulator/build/clawd-tank-sim --headless --listen &
+./simulator/build/agent-pets-sim --headless --listen &
 SIM_PID=$!
 sleep 1
 
@@ -258,7 +258,7 @@ Expected: Build succeeds.
 This test requires the notification panel to be open (narrow mode). The `--events` system supports `notify` to trigger narrow mode, then `sessions` to change session state:
 
 ```bash
-./simulator/build/clawd-tank-sim --headless --events \
+./simulator/build/agent-pets-sim --headless --events \
   'connect; sessions typing 1 idle 2; wait 500; notify "test" "hello"; wait 500; sessions idle 2; wait 500' \
   --listen &
 SIM_PID=$!
@@ -302,7 +302,7 @@ Expected: Build succeeds. The same `scene.c` compiles for both simulator and fir
 Run the simulator interactively to visually verify all three fixes:
 
 ```bash
-./simulator/build/clawd-tank-sim --pinned --listen
+./simulator/build/agent-pets-sim --pinned --listen
 ```
 
 Test scenarios using keyboard shortcuts and TCP commands:

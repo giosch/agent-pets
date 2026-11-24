@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add session-aware working animations to Clawd Tank, driven by Claude Code hooks, with intensity tiers based on concurrent session count.
+**Goal:** Add session-aware working animations to Agent Pets, driven by Claude Code hooks, with intensity tiers based on concurrent session count.
 
 **Architecture:** The daemon tracks per-session state and computes a single display state sent to the device via a new `set_status` BLE/TCP action. The firmware renders the corresponding animation. Session states flow: `registered → thinking → working → idle → confused`. Display priority: `working_N > thinking > confused > idle > sleeping`.
 
@@ -17,7 +17,7 @@
 ### Task 1: Update `protocol.py` — new hook events and `hook` discriminator
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/protocol.py`
+- Modify: `host/agent_pets_daemon/protocol.py`
 - Test: `host/tests/test_protocol.py`
 
 - [ ] **Step 1: Write failing tests for new hook events**
@@ -118,7 +118,7 @@ Expected: FAIL — `hook` key not present in messages
 
 - [ ] **Step 5: Implement new events and discriminator in `protocol.py`**
 
-In `host/clawd_tank_daemon/protocol.py`, update `hook_payload_to_daemon_message()`:
+In `host/agent_pets_daemon/protocol.py`, update `hook_payload_to_daemon_message()`:
 
 ```python
 def hook_payload_to_daemon_message(hook: dict) -> Optional[dict]:
@@ -238,7 +238,7 @@ Expected: ALL PASS
 
 - [ ] **Step 9: Update daemon `_transport_sender` to handle `None` payload**
 
-In `host/clawd_tank_daemon/daemon.py`, update `_transport_sender()` at line 194-198. Change the `ValueError` catch to also handle `None` returns:
+In `host/agent_pets_daemon/daemon.py`, update `_transport_sender()` at line 194-198. Change the `ValueError` catch to also handle `None` returns:
 
 ```python
             try:
@@ -258,18 +258,18 @@ Expected: ALL PASS
 - [ ] **Step 11: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/protocol.py host/clawd_tank_daemon/daemon.py host/tests/test_protocol.py
+git add host/agent_pets_daemon/protocol.py host/agent_pets_daemon/daemon.py host/tests/test_protocol.py
 git commit -m "feat(host): add session state events and hook discriminator to protocol"
 ```
 
 ### Task 2: Update hooks registration and standalone notify script
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/hooks.py`
+- Modify: `host/agent_pets_menubar/hooks.py`
 
 - [ ] **Step 1: Add new hooks to `HOOKS_CONFIG`**
 
-In `host/clawd_tank_menubar/hooks.py`, replace `HOOKS_CONFIG` (lines 97-113) with:
+In `host/agent_pets_menubar/hooks.py`, replace `HOOKS_CONFIG` (lines 97-113) with:
 
 ```python
 HOOKS_CONFIG = {
@@ -302,7 +302,7 @@ HOOKS_CONFIG = {
 
 - [ ] **Step 2: Update standalone `NOTIFY_SCRIPT` `hook_to_message()` function**
 
-In `host/clawd_tank_menubar/hooks.py`, update the `hook_to_message()` function inside `NOTIFY_SCRIPT` (lines 34-64) to match the new `protocol.py` logic:
+In `host/agent_pets_menubar/hooks.py`, update the `hook_to_message()` function inside `NOTIFY_SCRIPT` (lines 34-64) to match the new `protocol.py` logic:
 
 ```python
     def hook_to_message(hook):
@@ -368,7 +368,7 @@ Expected: ALL PASS
 - [ ] **Step 4: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/hooks.py
+git add host/agent_pets_menubar/hooks.py
 git commit -m "feat(hooks): register SessionStart, PreToolUse, PreCompact hooks and update standalone script"
 ```
 
@@ -377,7 +377,7 @@ git commit -m "feat(hooks): register SessionStart, PreToolUse, PreCompact hooks 
 ### Task 3: Add session state tracking to daemon
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py`
+- Modify: `host/agent_pets_daemon/daemon.py`
 - Create: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing tests for `_compute_display_state()`**
@@ -392,7 +392,7 @@ import time
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from clawd_tank_daemon.daemon import ClawdDaemon
+from agent_pets_daemon.daemon import ClawdDaemon
 
 
 def make_daemon():
@@ -484,7 +484,7 @@ Expected: FAIL — `_compute_display_state` and `_session_states` don't exist
 
 - [ ] **Step 3: Implement session state tracking in daemon**
 
-In `host/clawd_tank_daemon/daemon.py`, add to `__init__` (after line 116):
+In `host/agent_pets_daemon/daemon.py`, add to `__init__` (after line 116):
 
 ```python
         self._session_states: dict[str, dict] = {}  # {session_id: {"state": str, "last_event": float}}
@@ -526,14 +526,14 @@ Expected: ALL PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat(daemon): add session state tracking and display state computation"
 ```
 
 ### Task 4: Wire session state updates into `_handle_message`
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py`
+- Modify: `host/agent_pets_daemon/daemon.py`
 - Modify: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing tests for session state transitions via `_handle_message`**
@@ -635,11 +635,11 @@ Expected: FAIL
 
 - [ ] **Step 3: Update `_handle_message` with session state logic**
 
-In `host/clawd_tank_daemon/daemon.py`, update `_handle_message()` (currently lines 123-139):
+In `host/agent_pets_daemon/daemon.py`, update `_handle_message()` (currently lines 123-139):
 
 ```python
     async def _handle_message(self, msg: dict) -> None:
-        """Handle a message from clawd-tank-notify via the socket."""
+        """Handle a message from agent-pets-notify via the socket."""
         event = msg.get("event")
         session_id = msg.get("session_id", "")
         hook = msg.get("hook", "")
@@ -734,14 +734,14 @@ Expected: ALL PASS
 - [ ] **Step 6: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat(daemon): wire session state updates into message handler with display broadcasting"
 ```
 
 ### Task 5: Add staleness eviction and compact handling
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py`
+- Modify: `host/agent_pets_daemon/daemon.py`
 - Modify: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing tests for staleness eviction**
@@ -795,7 +795,7 @@ Expected: FAIL
 
 - [ ] **Step 3: Implement staleness eviction**
 
-In `host/clawd_tank_daemon/daemon.py`, add to `__init__`:
+In `host/agent_pets_daemon/daemon.py`, add to `__init__`:
 
 ```python
         self._session_staleness_timeout: float = 600.0  # 10 minutes default
@@ -894,18 +894,18 @@ Expected: ALL PASS
 - [ ] **Step 9: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat(daemon): add staleness eviction and PreCompact sweeping broadcast"
 ```
 
 ### Task 6: Update transport reconnect to send display state
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py`
+- Modify: `host/agent_pets_daemon/daemon.py`
 
 - [ ] **Step 1: Update `_replay_active_for` to also send display state**
 
-In `host/clawd_tank_daemon/daemon.py`, update `_replay_active_for()` (lines 169-178) to send the current display state after replaying notifications:
+In `host/agent_pets_daemon/daemon.py`, update `_replay_active_for()` (lines 169-178) to send the current display state after replaying notifications:
 
 ```python
     async def _replay_active_for(self, transport) -> None:
@@ -934,7 +934,7 @@ Expected: ALL PASS
 - [ ] **Step 3: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py
+git add host/agent_pets_daemon/daemon.py
 git commit -m "feat(daemon): send display state on transport reconnect"
 ```
 
@@ -1272,11 +1272,11 @@ git commit -m "feat(ui_manager): handle set_status events, remove sleep timer, s
 ### Task 10: Update menu bar app labels and wire session timeout
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/app.py`
+- Modify: `host/agent_pets_menubar/app.py`
 
 - [ ] **Step 1: Rename constant and menu item**
 
-In `host/clawd_tank_menubar/app.py`:
+In `host/agent_pets_menubar/app.py`:
 
 1. Rename `SLEEP_TIMEOUT_OPTIONS` (line 22) to `SESSION_TIMEOUT_OPTIONS`.
 2. Rename `self._sleep_menu` (line 58) to `self._session_timeout_menu` and change its label from `"Sleep Timeout"` to `"Session Timeout"`.
@@ -1303,7 +1303,7 @@ Expected: ALL PASS
 - [ ] **Step 4: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/app.py
+git add host/agent_pets_menubar/app.py
 git commit -m "feat(menubar): rename sleep timeout to session timeout"
 ```
 
@@ -1421,7 +1421,7 @@ Create `simulator/scenarios/working_animations.json`:
 Run:
 
 ```bash
-./simulator/build/clawd-tank-sim --headless \
+./simulator/build/agent-pets-sim --headless \
   --scenario simulator/scenarios/working_animations.json \
   --screenshot-dir ./shots/ --screenshot-on-event
 ```

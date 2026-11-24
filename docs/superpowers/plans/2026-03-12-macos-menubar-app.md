@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a macOS status bar app that wraps the Clawd Tank daemon, exposing device configuration (brightness, sleep timeout) and connection/notification status via a menu bar icon.
+**Goal:** Add a macOS status bar app that wraps the Agent Pets daemon, exposing device configuration (brightness, sleep timeout) and connection/notification status via a menu bar icon.
 
 **Architecture:** The daemon becomes a reusable library with two entry points (headless CLI, menu bar GUI). A new BLE GATT config characteristic (read+write) enables device settings. Config is persisted to NVS on the ESP32. The menu bar app runs rumps on the main thread with the daemon's asyncio loop in a background thread.
 
@@ -29,18 +29,18 @@
 - `firmware/test/Makefile` — Add `test_config_store` target
 
 ### New Files (Host)
-- `host/clawd_tank_menubar/__init__.py` — Package marker
-- `host/clawd_tank_menubar/app.py` — rumps.App subclass, daemon thread, menu UI
-- `host/clawd_tank_menubar/launchd.py` — Launch-at-login plist management
-- `host/clawd_tank_menubar/slider.py` — Custom NSSlider menu item via PyObjC
-- `host/clawd_tank_menubar/icons/` — Status bar icon images (3 states, @1x and @2x)
+- `host/agent_pets_menubar/__init__.py` — Package marker
+- `host/agent_pets_menubar/app.py` — rumps.App subclass, daemon thread, menu UI
+- `host/agent_pets_menubar/launchd.py` — Launch-at-login plist management
+- `host/agent_pets_menubar/slider.py` — Custom NSSlider menu item via PyObjC
+- `host/agent_pets_menubar/icons/` — Status bar icon images (3 states, @1x and @2x)
 - `host/tests/test_ble_config.py` — Tests for BLE config read/write methods
 - `host/tests/test_observer.py` — Tests for daemon observer callbacks
 - `host/tests/test_menubar.py` — Tests for menu bar app state transitions
 
 ### Modified Files (Host)
-- `host/clawd_tank_daemon/ble_client.py` — Add `read_config()`, `write_config()`, disconnect callback
-- `host/clawd_tank_daemon/daemon.py` — Add `DaemonObserver` protocol, observer param, callback calls
+- `host/agent_pets_daemon/ble_client.py` — Add `read_config()`, `write_config()`, disconnect callback
+- `host/agent_pets_daemon/daemon.py` — Add `DaemonObserver` protocol, observer param, callback calls
 - `host/requirements.txt` — Add `rumps`
 
 ### Modified Files (Simulator)
@@ -716,7 +716,7 @@ git commit -m "feat(main): init config store before display for NVS-backed brigh
 ### Task 7: Add BLE config methods to ClawdBleClient
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/ble_client.py`
+- Modify: `host/agent_pets_daemon/ble_client.py`
 - Create: `host/tests/test_ble_config.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -727,7 +727,7 @@ import asyncio
 import json
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from clawd_tank_daemon.ble_client import ClawdBleClient, CONFIG_CHR_UUID
+from agent_pets_daemon.ble_client import ClawdBleClient, CONFIG_CHR_UUID
 
 
 @pytest.mark.asyncio
@@ -792,7 +792,7 @@ Expected: ImportError — `CONFIG_CHR_UUID` does not exist yet.
 
 - [ ] **Step 3: Implement the methods**
 
-In `host/clawd_tank_daemon/ble_client.py`, add `import json` at the top with the other imports, and add the UUID constant after the existing ones:
+In `host/agent_pets_daemon/ble_client.py`, add `import json` at the top with the other imports, and add the UUID constant after the existing ones:
 
 ```python
 import json
@@ -853,15 +853,15 @@ Expected: All 5 tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/ble_client.py host/tests/test_ble_config.py
+git add host/agent_pets_daemon/ble_client.py host/tests/test_ble_config.py
 git commit -m "feat(ble): add read_config/write_config to BLE client"
 ```
 
 ### Task 8: Add DaemonObserver and disconnect callback
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py`
-- Modify: `host/clawd_tank_daemon/ble_client.py`
+- Modify: `host/agent_pets_daemon/daemon.py`
+- Modify: `host/agent_pets_daemon/ble_client.py`
 - Create: `host/tests/test_observer.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -871,7 +871,7 @@ git commit -m "feat(ble): add read_config/write_config to BLE client"
 import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from clawd_tank_daemon.daemon import ClawdDaemon, DaemonObserver
+from agent_pets_daemon.daemon import ClawdDaemon, DaemonObserver
 
 
 class MockObserver:
@@ -980,7 +980,7 @@ Expected: TypeError or ImportError — `DaemonObserver` and `observer` param don
 
 - [ ] **Step 3: Add DaemonObserver protocol and update ClawdDaemon**
 
-In `host/clawd_tank_daemon/daemon.py`, add after the imports:
+In `host/agent_pets_daemon/daemon.py`, add after the imports:
 
 ```python
 from typing import Protocol, Optional, runtime_checkable
@@ -1079,7 +1079,7 @@ Update `_ble_sender` — add observer call after successful connect:
 
 - [ ] **Step 4: Add disconnect callback registration to BLE client**
 
-In `host/clawd_tank_daemon/ble_client.py`, update `__init__` to accept a disconnect callback:
+In `host/agent_pets_daemon/ble_client.py`, update `__init__` to accept a disconnect callback:
 
 ```python
     def __init__(self, on_disconnect_cb=None):
@@ -1093,7 +1093,7 @@ Update `_on_disconnect` to call the callback:
 
 ```python
     def _on_disconnect(self, client: BleakClient) -> None:
-        logger.warning("Disconnected from Clawd Tank")
+        logger.warning("Disconnected from Agent Pets")
         if self._loop is not None and self._loop.is_running():
             self._loop.call_soon_threadsafe(self._clear_client)
         else:
@@ -1118,7 +1118,7 @@ Expected: All tests pass (both new observer tests and existing daemon tests).
 - [ ] **Step 6: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/clawd_tank_daemon/ble_client.py host/tests/test_observer.py
+git add host/agent_pets_daemon/daemon.py host/agent_pets_daemon/ble_client.py host/tests/test_observer.py
 git commit -m "feat(daemon): add DaemonObserver protocol and disconnect callback"
 ```
 
@@ -1129,10 +1129,10 @@ git commit -m "feat(daemon): add DaemonObserver protocol and disconnect callback
 ### Task 9: Create menu bar app package and entry point
 
 **Files:**
-- Create: `host/clawd_tank_menubar/__init__.py`
-- Create: `host/clawd_tank_menubar/app.py`
-- Create: `host/clawd_tank_menubar/slider.py`
-- Create: `host/clawd_tank_menubar/launchd.py`
+- Create: `host/agent_pets_menubar/__init__.py`
+- Create: `host/agent_pets_menubar/app.py`
+- Create: `host/agent_pets_menubar/slider.py`
+- Create: `host/agent_pets_menubar/launchd.py`
 - Modify: `host/requirements.txt`
 
 - [ ] **Step 1: Add rumps to requirements.txt**
@@ -1150,7 +1150,7 @@ cd host && pip install rumps
 - [ ] **Step 3: Create package __init__.py**
 
 ```python
-# host/clawd_tank_menubar/__init__.py
+# host/agent_pets_menubar/__init__.py
 ```
 
 (Empty file — package marker only.)
@@ -1160,7 +1160,7 @@ cd host && pip install rumps
 SliderMenuItem must subclass `AppKit.NSObject` (via PyObjC) so that it's a valid ObjC target for the slider's action. Pure Python objects can't be targets for NSControl actions.
 
 ```python
-# host/clawd_tank_menubar/slider.py
+# host/agent_pets_menubar/slider.py
 """Custom NSSlider embedded in an NSMenuItem for the status bar menu."""
 
 import time
@@ -1254,7 +1254,7 @@ class SliderMenuItem(AppKit.NSObject):
 - [ ] **Step 5: Create launchd.py — Launch at Login management**
 
 ```python
-# host/clawd_tank_menubar/launchd.py
+# host/agent_pets_menubar/launchd.py
 """Manage Launch at Login via launchd user agent plist."""
 
 import os
@@ -1263,7 +1263,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-PLIST_LABEL = "com.clawd-tank.menubar"
+PLIST_LABEL = "com.agent-pets.menubar"
 PLIST_PATH = Path.home() / "Library" / "LaunchAgents" / f"{PLIST_LABEL}.plist"
 
 
@@ -1278,7 +1278,7 @@ def enable() -> None:
 
     # Find the executable path
     executable = sys.executable
-    module_path = "clawd_tank_menubar.app"
+    module_path = "agent_pets_menubar.app"
 
     plist = {
         "Label": PLIST_LABEL,
@@ -1314,8 +1314,8 @@ def disable() -> None:
 - [ ] **Step 6: Create app.py — main menu bar application**
 
 ```python
-# host/clawd_tank_menubar/app.py
-"""Clawd Tank macOS status bar application."""
+# host/agent_pets_menubar/app.py
+"""Agent Pets macOS status bar application."""
 
 import asyncio
 import json
@@ -1325,11 +1325,11 @@ from typing import Optional
 
 import rumps
 
-from clawd_tank_daemon.daemon import ClawdDaemon, DaemonObserver
+from agent_pets_daemon.daemon import ClawdDaemon, DaemonObserver
 from . import launchd
 from .slider import SliderMenuItem
 
-logger = logging.getLogger("clawd-tank.menubar")
+logger = logging.getLogger("agent-pets.menubar")
 
 SLEEP_TIMEOUT_OPTIONS = [
     ("1 minute", 60),
@@ -1341,9 +1341,9 @@ SLEEP_TIMEOUT_OPTIONS = [
 ]
 
 
-class ClawdTankApp(rumps.App, DaemonObserver):
+class AgentPetsApp(rumps.App, DaemonObserver):
     def __init__(self):
-        super().__init__("Clawd Tank", quit_button=None)
+        super().__init__("Agent Pets", quit_button=None)
 
         self._daemon: Optional[ClawdDaemon] = None
         self._loop: Optional[asyncio.AbstractEventLoop] = None
@@ -1385,7 +1385,7 @@ class ClawdTankApp(rumps.App, DaemonObserver):
         self._reconnect_item = rumps.MenuItem("Reconnect", callback=self._on_reconnect)
 
         # Quit
-        self._quit_item = rumps.MenuItem("Quit Clawd Tank", callback=self._on_quit)
+        self._quit_item = rumps.MenuItem("Quit Agent Pets", callback=self._on_quit)
 
         # Assemble menu
         self.menu = [
@@ -1493,7 +1493,7 @@ class ClawdTankApp(rumps.App, DaemonObserver):
         """Return path to icon file, or None if not found."""
         import importlib.resources
         try:
-            icons_dir = importlib.resources.files("clawd_tank_menubar") / "icons"
+            icons_dir = importlib.resources.files("agent_pets_menubar") / "icons"
             path = icons_dir / f"{name}.png"
             if hasattr(path, '__fspath__'):
                 return str(path)
@@ -1555,7 +1555,7 @@ def main():
         level=logging.INFO,
         format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
     )
-    app = ClawdTankApp()
+    app = AgentPetsApp()
     app._start_daemon_thread()
     app.run()
 
@@ -1567,18 +1567,18 @@ if __name__ == "__main__":
 - [ ] **Step 7: Create __main__.py for `python -m` invocation**
 
 ```python
-# host/clawd_tank_menubar/__main__.py
+# host/agent_pets_menubar/__main__.py
 from .app import main
 
 main()
 ```
 
-This allows running via `python -m clawd_tank_menubar` (or `cd host && python -m clawd_tank_menubar`). Formal packaging with `pyproject.toml` entry points is out of scope for this plan — the existing project doesn't use packaging (it uses `requirements.txt` + direct imports).
+This allows running via `python -m agent_pets_menubar` (or `cd host && python -m agent_pets_menubar`). Formal packaging with `pyproject.toml` entry points is out of scope for this plan — the existing project doesn't use packaging (it uses `requirements.txt` + direct imports).
 
 - [ ] **Step 8: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/ host/requirements.txt
+git add host/agent_pets_menubar/ host/requirements.txt
 git commit -m "feat(menubar): add macOS status bar app with daemon integration"
 ```
 
@@ -1599,7 +1599,7 @@ the actual rumps app (which requires macOS AppKit).
 import pytest
 from unittest.mock import MagicMock, patch, AsyncMock
 
-from clawd_tank_daemon.daemon import ClawdDaemon
+from agent_pets_daemon.daemon import ClawdDaemon
 
 
 class FakeObserver:
@@ -1643,7 +1643,7 @@ async def test_disconnect_callback_fires_observer():
 
 def test_launchd_is_enabled_checks_plist():
     """launchd.is_enabled returns True iff the plist file exists."""
-    from clawd_tank_menubar import launchd
+    from agent_pets_menubar import launchd
     with patch.object(launchd, "PLIST_PATH") as mock_path:
         mock_path.exists.return_value = True
         assert launchd.is_enabled() is True
@@ -1796,7 +1796,7 @@ cd simulator && cmake -B build && cmake --build build
 Expected: Builds successfully.
 
 ```bash
-./simulator/build/clawd-tank-sim --headless \
+./simulator/build/agent-pets-sim --headless \
   --events 'connect; wait 500; config "{\"brightness\":200}"; wait 1000' \
   --run-ms 2000
 ```
@@ -1813,9 +1813,9 @@ git commit -m "feat(sim): add NVS shims and config event command to simulator"
 ### Task 12: Create status bar icons
 
 **Files:**
-- Create: `host/clawd_tank_menubar/icons/crab-connected.png`
-- Create: `host/clawd_tank_menubar/icons/crab-notifications.png`
-- Create: `host/clawd_tank_menubar/icons/crab-disconnected.png`
+- Create: `host/agent_pets_menubar/icons/crab-connected.png`
+- Create: `host/agent_pets_menubar/icons/crab-notifications.png`
+- Create: `host/agent_pets_menubar/icons/crab-disconnected.png`
 
 - [ ] **Step 1: Install Pillow and create placeholder icon PNGs**
 
@@ -1846,16 +1846,16 @@ def make_icon(path, color_dot=None, grayscale=False):
     img.save(path)
 
 import os
-os.makedirs("host/clawd_tank_menubar/icons", exist_ok=True)
-make_icon("host/clawd_tank_menubar/icons/crab-connected.png", color_dot=(34, 197, 94, 255))
-make_icon("host/clawd_tank_menubar/icons/crab-notifications.png", color_dot=(245, 158, 11, 255))
-make_icon("host/clawd_tank_menubar/icons/crab-disconnected.png", grayscale=True)
+os.makedirs("host/agent_pets_menubar/icons", exist_ok=True)
+make_icon("host/agent_pets_menubar/icons/crab-connected.png", color_dot=(34, 197, 94, 255))
+make_icon("host/agent_pets_menubar/icons/crab-notifications.png", color_dot=(245, 158, 11, 255))
+make_icon("host/agent_pets_menubar/icons/crab-disconnected.png", grayscale=True)
 ```
 
 - [ ] **Step 2: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/icons/
+git add host/agent_pets_menubar/icons/
 git commit -m "feat(menubar): add placeholder status bar icon PNGs"
 ```
 

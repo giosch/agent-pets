@@ -151,7 +151,7 @@ The following items were verified against the existing codebase and confirmed co
 - **Port 19872:** Not a registered IANA port and not used by any common service. Good default choice.
 - **Newline-delimited JSON:** Consistent with the existing BLE protocol JSON payloads. No payload in the current codebase contains embedded newlines, so `\n` as a delimiter is safe.
 - **Config protocol fields:** `brightness` and `sleep_timeout` match the fields in `config_store.h` (lines 7-8: `CONFIG_DEFAULT_BRIGHTNESS 102`, `CONFIG_DEFAULT_SLEEP_TIMEOUT 300`) and the `config_access_cb` handler in `ble_service.c` (lines 172-189).
-- **File change list:** All listed files are at the correct paths. `simulator/CMakeLists.txt` exists and adding `sim_socket.c` and `sim_ble_parse.c` to the sources list is straightforward. `host/clawd_tank_daemon/daemon.py` is the correct file for multi-transport changes.
+- **File change list:** All listed files are at the correct paths. `simulator/CMakeLists.txt` exists and adding `sim_socket.c` and `sim_ble_parse.c` to the sources list is straightforward. `host/agent_pets_daemon/daemon.py` is the correct file for multi-transport changes.
 - **`config_store_serialize_json` for read_config response:** The function exists in `config_store.h` (line 24) and produces the correct JSON format for the response.
 - **sim_events.c config handling pattern:** The spec's `write_config` handler mirrors the existing pattern in `sim_events.c` lines 108-123, using `config_store_set_brightness()` + `config_store_set_sleep_timeout()` + `ui_manager_set_sleep_timeout()`. Consistent.
 

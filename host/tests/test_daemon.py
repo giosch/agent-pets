@@ -2,7 +2,7 @@ import asyncio
 import json
 import pytest
 from unittest.mock import AsyncMock, patch
-from clawd_tank_daemon.daemon import ClawdDaemon
+from agent_pets_daemon.daemon import ClawdDaemon
 
 
 class FakeObserver:
@@ -99,7 +99,7 @@ async def test_unknown_event_does_not_crash_sender():
     await daemon._handle_message({"event": "bogus", "session_id": "x"})
     await daemon._handle_message({"event": "dismiss", "session_id": "x"})
 
-    from clawd_tank_daemon.protocol import daemon_message_to_ble_payload
+    from agent_pets_daemon.protocol import daemon_message_to_ble_payload
     with pytest.raises(ValueError):
         daemon_message_to_ble_payload({"event": "bogus"})
 

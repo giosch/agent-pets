@@ -28,7 +28,7 @@ jobs:
           cmake -B build-static -DSTATIC_SDL2=ON
           cmake --build build-static
           # Verify no SDL2 dynamic dependency
-          otool -L build-static/clawd-tank-sim > /tmp/otool-out.txt
+          otool -L build-static/agent-pets-sim > /tmp/otool-out.txt
           if grep -qi sdl /tmp/otool-out.txt; then
             echo "ERROR: SDL2 dynamic dependency found"
             cat /tmp/otool-out.txt
@@ -50,12 +50,12 @@ jobs:
         run: |
           mkdir -p AppIcon.iconset
           for size in 16 32 64 128 256 512; do
-            sips -z $size $size clawd_tank_menubar/icons/crab-connected.png \
+            sips -z $size $size agent_pets_menubar/icons/crab-connected.png \
               --out AppIcon.iconset/icon_${size}x${size}.png
           done
           for size in 16 32 64 128 256; do
             double=$((size * 2))
-            sips -z $double $double clawd_tank_menubar/icons/crab-connected.png \
+            sips -z $double $double agent_pets_menubar/icons/crab-connected.png \
               --out "AppIcon.iconset/icon_${size}x${size}@2x.png"
           done
           iconutil -c icns AppIcon.iconset -o AppIcon.icns
@@ -67,28 +67,28 @@ jobs:
 
       - name: Bundle simulator into app
         run: |
-          cp simulator/build-static/clawd-tank-sim "host/dist/Clawd Tank.app/Contents/MacOS/"
+          cp simulator/build-static/agent-pets-sim "host/dist/Agent Pets.app/Contents/MacOS/"
 
       - name: Create DMG
         working-directory: host
         run: |
           mkdir -p dmg-staging
-          cp -R "dist/Clawd Tank.app" dmg-staging/
+          cp -R "dist/Agent Pets.app" dmg-staging/
           ln -s /Applications dmg-staging/Applications
-          hdiutil create -volname "Clawd Tank" \
+          hdiutil create -volname "Agent Pets" \
             -srcfolder dmg-staging \
             -ov -format UDZO \
-            "dist/Clawd-Tank.dmg"
+            "dist/Agent-Pets.dmg"
           rm -rf dmg-staging
 
       - name: Upload DMG as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Clawd-Tank-macOS
-          path: host/dist/Clawd-Tank.dmg
+          name: Agent-Pets-macOS
+          path: host/dist/Agent-Pets.dmg
 
       - name: Upload DMG to release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v3
         with:
-          files: host/dist/Clawd-Tank.dmg
+          files: host/dist/Agent-Pets.dmg

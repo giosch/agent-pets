@@ -52,7 +52,7 @@ firmware/.cache/
 
 # Misc
 firebase-debug.log
-host/clawd_tank_menubar/_version_info.py
+host/agent_pets_menubar/_version_info.py
 
 # Claude Code local state — ignore worktrees/settings/tool-generated skills,
 # but track authored project skills (e.g. .claude/skills/releasing).

@@ -108,4 +108,4 @@ jobs:
       - name: Publish tested desktop installers
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" installers/* --repo "$GITHUB_REPOSITORY" --verify-tag --title "Clawd Tank Habitat ${GITHUB_REF_NAME#desktop-v}" --generate-notes
+        run: gh release create "$GITHUB_REF_NAME" installers/* --repo "$GITHUB_REPOSITORY" --verify-tag --title "Agent Pets Habitat ${GITHUB_REF_NAME#desktop-v}" --generate-notes

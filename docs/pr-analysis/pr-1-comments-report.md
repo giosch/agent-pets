@@ -1,7 +1,7 @@
 # PR #1 Comments Analysis Report
 
 Generated: 2026-03-14
-PR: https://github.com/marciogranzotto/clawd-tank/pull/1
+PR: https://api.github.com/repositories/1179885968/pulls/1
 
 ---
 

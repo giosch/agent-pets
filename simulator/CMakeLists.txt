@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(clawd-tank-sim LANGUAGES C)
+project(agent-pets-sim LANGUAGES C)
 
 set(CMAKE_C_STANDARD 11)
 
@@ -37,7 +37,7 @@ set(CONFIG_LV_USE_THORVG_INTERNAL OFF CACHE BOOL "" FORCE)
 add_subdirectory(${LVGL_DIR} ${CMAKE_BINARY_DIR}/lvgl)
 
 # Simulator executable
-add_executable(clawd-tank-sim
+add_executable(agent-pets-sim
     sim_main.c
     sim_display.c
     sim_display_shim.c
@@ -62,7 +62,7 @@ add_executable(clawd-tank-sim
 # 2. simulator/ — for lv_conf.h (already handled by LVGL's LV_BUILD_CONF_DIR)
 # 3. LVGL headers — handled by linking lvgl target
 # 4. firmware/main/ — for scene.h, notification.h, etc.
-target_include_directories(clawd-tank-sim PRIVATE
+target_include_directories(agent-pets-sim PRIVATE
     ${CMAKE_SOURCE_DIR}/shims    # ESP-IDF shims (must be first)
     ${CMAKE_SOURCE_DIR}          # lv_conf.h lives here
     ${FIRMWARE_DIR}              # firmware headers (scene.h, notification.h, etc.)
@@ -70,15 +70,15 @@ target_include_directories(clawd-tank-sim PRIVATE
     ${CMAKE_SOURCE_DIR}/cjson    # cJSON
 )
 
-target_compile_definitions(clawd-tank-sim PRIVATE SIMULATOR)
+target_compile_definitions(agent-pets-sim PRIVATE SIMULATOR)
 
-target_link_libraries(clawd-tank-sim PRIVATE
+target_link_libraries(agent-pets-sim PRIVATE
     lvgl
     ${SDL2_TARGET}
 )
 
 if(APPLE)
-    target_link_libraries(clawd-tank-sim PRIVATE
+    target_link_libraries(agent-pets-sim PRIVATE
         "-framework Cocoa"
         "-framework IOKit"
         "-framework CoreAudio"

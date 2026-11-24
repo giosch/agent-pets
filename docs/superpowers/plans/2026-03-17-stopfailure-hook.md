@@ -17,9 +17,9 @@
 ### Task 1: Protocol — StopFailure hook conversion
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/protocol.py:33-45` (add StopFailure handler after Stop)
-- Modify: `host/clawd_tank_daemon/protocol.py:106-112` (add alert field to add BLE payload)
-- Modify: `host/clawd_tank_daemon/protocol.py:134-147` (add dizzy to v1 fallback)
+- Modify: `host/agent_pets_daemon/protocol.py:33-45` (add StopFailure handler after Stop)
+- Modify: `host/agent_pets_daemon/protocol.py:106-112` (add alert field to add BLE payload)
+- Modify: `host/agent_pets_daemon/protocol.py:134-147` (add dizzy to v1 fallback)
 - Test: `host/tests/test_protocol.py`
 
 - [ ] **Step 1: Write failing tests for StopFailure hook conversion**
@@ -95,7 +95,7 @@ Expected: FAIL — `StopFailure` not handled, `alert` field missing, `dizzy` not
 
 - [ ] **Step 3: Implement StopFailure in hook_payload_to_daemon_message**
 
-In `host/clawd_tank_daemon/protocol.py`, add after the `Stop` handler (after line 45):
+In `host/agent_pets_daemon/protocol.py`, add after the `Stop` handler (after line 45):
 
 ```python
     if event_name == "StopFailure":
@@ -115,7 +115,7 @@ In `host/clawd_tank_daemon/protocol.py`, add after the `Stop` handler (after lin
 
 - [ ] **Step 4: Add alert field to daemon_message_to_ble_payload**
 
-In `host/clawd_tank_daemon/protocol.py`, modify the `add` branch (around line 106-112):
+In `host/agent_pets_daemon/protocol.py`, modify the `add` branch (around line 106-112):
 
 ```python
     if event == "add":
@@ -132,7 +132,7 @@ In `host/clawd_tank_daemon/protocol.py`, modify the `add` branch (around line 10
 
 - [ ] **Step 5: Add dizzy to v1 fallback**
 
-In `host/clawd_tank_daemon/protocol.py`, modify `display_state_to_v1_payload` (around line 143):
+In `host/agent_pets_daemon/protocol.py`, modify `display_state_to_v1_payload` (around line 143):
 
 ```python
     elif any(a in ("confused", "dizzy") for a in state.get("anims", [])):
@@ -147,7 +147,7 @@ Expected: All PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/protocol.py host/tests/test_protocol.py
+git add host/agent_pets_daemon/protocol.py host/tests/test_protocol.py
 git commit -m "feat: add StopFailure hook to protocol layer with alert field"
 ```
 
@@ -156,8 +156,8 @@ git commit -m "feat: add StopFailure hook to protocol layer with alert field"
 ### Task 2: Session state — error state and dizzy display mapping
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:258-264` (add StopFailure → error in _update_session_state)
-- Modify: `host/clawd_tank_daemon/daemon.py:215-226` (add error → dizzy in _compute_display_state)
+- Modify: `host/agent_pets_daemon/daemon.py:258-264` (add StopFailure → error in _update_session_state)
+- Modify: `host/agent_pets_daemon/daemon.py:215-226` (add error → dizzy in _compute_display_state)
 - Test: `host/tests/test_session_state.py`
 
 - [ ] **Step 1: Write failing tests for error state**
@@ -247,7 +247,7 @@ Expected: FAIL — `"error"` state not handled.
 
 - [ ] **Step 3: Add error state to _update_session_state**
 
-In `host/clawd_tank_daemon/daemon.py`, modify the `add` event branch in `_update_session_state` (around line 258-264). Add after the `elif hook == "Notification":` block:
+In `host/agent_pets_daemon/daemon.py`, modify the `add` event branch in `_update_session_state` (around line 258-264). Add after the `elif hook == "Notification":` block:
 
 ```python
             elif hook == "StopFailure":
@@ -256,7 +256,7 @@ In `host/clawd_tank_daemon/daemon.py`, modify the `add` event branch in `_update
 
 - [ ] **Step 4: Add dizzy to _compute_display_state**
 
-In `host/clawd_tank_daemon/daemon.py`, modify `_compute_display_state` (around line 215-226). Add **between the `confused` elif and the final `else`** clause:
+In `host/agent_pets_daemon/daemon.py`, modify `_compute_display_state` (around line 215-226). Add **between the `confused` elif and the final `else`** clause:
 
 ```python
             elif state["state"] == "error":
@@ -278,7 +278,7 @@ Expected: All PASS — no regressions.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat: add error session state with dizzy display mapping"
 ```
 
@@ -287,13 +287,13 @@ git commit -m "feat: add error session state with dizzy display mapping"
 ### Task 3: Hook registration and embedded script
 
 **Files:**
-- Modify: `host/clawd_tank_menubar/hooks.py:125-156` (add StopFailure to HOOKS_CONFIG)
-- Modify: `host/clawd_tank_menubar/hooks.py:45-70` (add StopFailure to embedded NOTIFY_SCRIPT)
-- Modify: `host/clawd-tank-notify:34-45` (add StopFailure to standalone script)
+- Modify: `host/agent_pets_menubar/hooks.py:125-156` (add StopFailure to HOOKS_CONFIG)
+- Modify: `host/agent_pets_menubar/hooks.py:45-70` (add StopFailure to embedded NOTIFY_SCRIPT)
+- Modify: `host/agent-pets-notify:34-45` (add StopFailure to standalone script)
 
 - [ ] **Step 1: Add StopFailure to HOOKS_CONFIG**
 
-In `host/clawd_tank_menubar/hooks.py`, add after the `"Stop"` entry (after line 131):
+In `host/agent_pets_menubar/hooks.py`, add after the `"Stop"` entry (after line 131):
 
 ```python
     "StopFailure": [
@@ -303,7 +303,7 @@ In `host/clawd_tank_menubar/hooks.py`, add after the `"Stop"` entry (after line 
 
 - [ ] **Step 2: Add StopFailure to embedded NOTIFY_SCRIPT**
 
-In `host/clawd_tank_menubar/hooks.py`, in the embedded `hook_to_message` function, add after the `Stop` handler (after line 57):
+In `host/agent_pets_menubar/hooks.py`, in the embedded `hook_to_message` function, add after the `Stop` handler (after line 57):
 
 ```python
         if event_name == "StopFailure":
@@ -319,9 +319,9 @@ In `host/clawd_tank_menubar/hooks.py`, in the embedded `hook_to_message` functio
             }
 ```
 
-- [ ] **Step 3: Verify standalone clawd-tank-notify needs no changes**
+- [ ] **Step 3: Verify standalone agent-pets-notify needs no changes**
 
-The standalone `host/clawd-tank-notify` imports `hook_payload_to_daemon_message` from `clawd_tank_daemon.protocol` — changes made in Task 1 automatically propagate. No modifications needed to this file.
+The standalone `host/agent-pets-notify` imports `hook_payload_to_daemon_message` from `agent_pets_daemon.protocol` — changes made in Task 1 automatically propagate. No modifications needed to this file.
 
 - [ ] **Step 4: Verify hooks test passes**
 
@@ -331,7 +331,7 @@ Expected: All PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_menubar/hooks.py
+git add host/agent_pets_menubar/hooks.py
 git commit -m "feat: register StopFailure hook and update embedded script"
 ```
 
@@ -664,7 +664,7 @@ In `firmware/main/scene.c`, update the `anim_id_to_name` names array (around lin
 
 ```bash
 cd simulator && cmake -B build && cmake --build build
-./simulator/build/clawd-tank-sim --headless --events 'connect; wait 500; sessions dizzy:1; wait 3000' --screenshot-dir /tmp/dizzy-shots/ --screenshot-on-event
+./simulator/build/agent-pets-sim --headless --events 'connect; wait 500; sessions dizzy:1; wait 3000' --screenshot-dir /tmp/dizzy-shots/ --screenshot-on-event
 ```
 
 Visually verify the DIZZY animation in the screenshot.
@@ -764,7 +764,7 @@ cd simulator && cmake -B build-static -DSTATIC_SDL2=ON && cmake --build build-st
 
 Run simulator with TCP listener:
 ```bash
-./simulator/build-static/clawd-tank-sim --listen --bordered &
+./simulator/build-static/agent-pets-sim --listen --bordered &
 ```
 
 Send error notification and dizzy animation:

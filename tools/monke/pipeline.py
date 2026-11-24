@@ -30,7 +30,7 @@ def load_sources():
 def fingerprint():
     paths = [SOURCE / "animations.json", SOURCE / "palettes.json",
              Path(__file__), Path(__file__).with_name("art.py"),
-             ROOT / "host/clawd_tank_habitat/themes.py"]
+             ROOT / "host/agent_pets_habitat/themes.py"]
     digest = hashlib.sha256()
     for path in paths:
         digest.update(path.relative_to(ROOT).as_posix().encode())

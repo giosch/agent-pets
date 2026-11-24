@@ -81,12 +81,12 @@ This is wrong. `apply_sprite_frame` appears **once** inside `scene_tick` (at lin
 
 The validation command reads:
 ```bash
-cd /path/to/clawd-tank
+cd /path/to/agent-pets
 ```
 
-`/path/to/clawd-tank` is a placeholder that will cause the command to fail. An implementer running this verbatim from the repo root does not need `cd` at all — `sys.path.insert(0, 'tools')` in the inline Python script already handles discovery. The `cd` line should either be removed or replaced with the actual project path.
+`/path/to/agent-pets` is a placeholder that will cause the command to fail. An implementer running this verbatim from the repo root does not need `cd` at all — `sys.path.insert(0, 'tools')` in the inline Python script already handles discovery. The `cd` line should either be removed or replaced with the actual project path.
 
-**Required fix:** Remove the `cd /path/to/clawd-tank` line, or note that the command must be run from the repository root.
+**Required fix:** Remove the `cd /path/to/agent-pets` line, or note that the command must be run from the repository root.
 
 ---
 

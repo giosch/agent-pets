@@ -33,7 +33,7 @@ static const char *opt_capture_dir = NULL;   /* output dir for --capture-anim */
 static void print_usage(void)
 {
     printf(
-        "Usage: clawd-tank-sim [OPTIONS]\n"
+        "Usage: agent-pets-sim [OPTIONS]\n"
         "\n"
         "Display:\n"
         "  --headless              Run without SDL2 window\n"
@@ -387,7 +387,7 @@ static void run_interactive(void)
 
 static int s_sample_notif_idx = 0;
 static const struct { const char *project; const char *message; } sample_notifs[] = {
-    {"clawd-tank",     "Waiting for input"},
+    {"agent-pets",     "Waiting for input"},
     {"my-api",         "Running tests..."},
     {"web-app",        "Task completed"},
     {"data-pipeline",  "Build failed"},

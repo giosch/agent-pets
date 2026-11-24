@@ -56,7 +56,7 @@ def on_connection_change(self, connected: bool, transport: str = "") -> None:
 
 The `transport` parameter is added to `DaemonObserver` Protocol. **All existing implementations must be updated:**
 
-- `host/clawd_tank_menubar/app.py` — `ClawdTankApp.on_connection_change`
+- `host/agent_pets_menubar/app.py` — `AgentPetsApp.on_connection_change`
 - `host/tests/test_menubar.py` — `FakeObserver.on_connection_change`
 - `host/tests/test_observer.py` — `FakeObserver.on_connection_change`
 
@@ -107,7 +107,7 @@ Launch at Login
 ──────────────────────
 Reconnect
 ──────────────────────
-Quit Clawd Tank
+Quit Agent Pets
 ```
 
 ### 4. Toggle Behavior
@@ -119,7 +119,7 @@ Quit Clawd Tank
 
 ### 5. Persistence
 
-Preference stored in `~/.clawd-tank/preferences.json` (consistent with existing daemon PID/lock file location):
+Preference stored in `~/.agent-pets/preferences.json` (consistent with existing daemon PID/lock file location):
 
 ```json
 {"sim_enabled": true}
@@ -139,8 +139,8 @@ Fixed at `19872` (`SIM_DEFAULT_PORT`). Not configurable from the menu.
 
 ## Files Changed
 
-- `host/clawd_tank_daemon/daemon.py` — `add_transport`, `remove_transport`, `_sender_tasks` dict, updated `run()` to use `_sender_tasks`, updated observer calls with transport name, updated `_shutdown` to cancel all sender tasks
-- `host/clawd_tank_menubar/app.py` — Toggle item, per-transport status display, preference load/save, startup sim init, updated `on_connection_change` signature
+- `host/agent_pets_daemon/daemon.py` — `add_transport`, `remove_transport`, `_sender_tasks` dict, updated `run()` to use `_sender_tasks`, updated observer calls with transport name, updated `_shutdown` to cancel all sender tasks
+- `host/agent_pets_menubar/app.py` — Toggle item, per-transport status display, preference load/save, startup sim init, updated `on_connection_change` signature
 - `host/tests/test_daemon.py` — Add tests for `add_transport`, `remove_transport`
 - `host/tests/test_menubar.py` — Add tests for toggle state, preference persistence; update `FakeObserver.on_connection_change` signature
 - `host/tests/test_observer.py` — Update `FakeObserver.on_connection_change` signature

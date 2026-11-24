@@ -1,7 +1,7 @@
 # PR #2 Comments Analysis Report
 
 Generated: 2026-03-14
-PR: https://github.com/marciogranzotto/clawd-tank/pull/2
+PR: https://api.github.com/repositories/1179885968/pulls/2
 
 ---
 
@@ -60,7 +60,7 @@ Copilot's suggestion to use `path=None` with internal resolution would be a clea
     cmake -B build-static -DSTATIC_SDL2=ON
     cmake --build build-static
     # Verify no SDL2 dynamic dependency
-    ! otool -L build-static/clawd-tank-sim | grep -i sdl
+    ! otool -L build-static/agent-pets-sim | grep -i sdl
 ```
 
 **Evaluation:**
@@ -104,7 +104,7 @@ Correct. The count was 150 when the docs were written, then we added one more te
 
 ---
 
-### Comment 4: Copilot on `host/clawd_tank_daemon/session_store.py:28`
+### Comment 4: Copilot on `host/agent_pets_daemon/session_store.py:28`
 
 **Original Comment:**
 > `os.write(fd, ...)` is not guaranteed to write the full buffer in one call, which can result in a truncated/invalid JSON file being atomically renamed into place. Use a file object (`os.fdopen`) and `write()`/`flush()` (and ideally `os.fsync`) or loop on `os.write` until all bytes are written before `os.replace`.
@@ -134,7 +134,7 @@ However, using `os.fdopen` is a minor improvement that eliminates the theoretica
 
 ---
 
-### Comment 5: Copilot on `host/clawd_tank_daemon/session_store.py:16`
+### Comment 5: Copilot on `host/agent_pets_daemon/session_store.py:16`
 
 **Original Comment:**
 > Using `SESSIONS_PATH` as a default argument (`path: Path = SESSIONS_PATH`) freezes the original value at import time, so tests that monkeypatch `session_store.SESSIONS_PATH` won't affect callers that rely on the default. Consider changing the signature to `path: Path | None = None` and resolving `path = SESSIONS_PATH` inside the function so monkeypatching works as intended.
@@ -173,7 +173,7 @@ This is the same concern as Comment 1, applied to the function signatures direct
 
 #### 3. Use `os.fdopen` in `save_sessions` (optional)
 - **Issue:** `os.write` doesn't guarantee full write
-- **Files affected:** `host/clawd_tank_daemon/session_store.py`
+- **Files affected:** `host/agent_pets_daemon/session_store.py`
 - **Implementation:** Replace `os.write(fd, data)` / `os.close(fd)` with `os.fdopen(fd, 'wb')` file object
 
 ### No Action Required

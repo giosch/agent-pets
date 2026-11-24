@@ -10,13 +10,13 @@ Date: 2026-03-14
 
 **Root cause:** The quit handler sometimes fails to kill the sim process (timeout, crash, force-quit). The next launch finds the port occupied and connects to the orphan instead of spawning fresh.
 
-**Impact:** Simulator window doesn't appear. User has to manually `pkill -f clawd-tank-sim`.
+**Impact:** Simulator window doesn't appear. User has to manually `pkill -f agent-pets-sim`.
 
 ---
 
 ### 2. Socket file left behind after unclean shutdown
 
-**Symptom:** The Unix socket file `~/.clawd-tank/sock` exists but nothing is accepting connections. Notify script gets `ConnectionRefusedError` and exits silently. All hooks are lost.
+**Symptom:** The Unix socket file `~/.agent-pets/sock` exists but nothing is accepting connections. Notify script gets `ConnectionRefusedError` and exits silently. All hooks are lost.
 
 **Root cause:** The daemon creates the socket file on startup but if the process is killed (SIGKILL, force-quit, crash), the file isn't cleaned up. The next daemon instance may see the stale file or fail to bind.
 
@@ -67,7 +67,7 @@ Date: 2026-03-14
 Before binding the socket, check if the file exists and remove it. The lock file mechanism already prevents two daemons, so a stale socket is always safe to remove.
 
 ### B. Stale sim process detection
-On startup, if the sim port is in use, check if the process is actually a clawd-tank-sim we own. If it's an orphan from a previous run, kill it and start fresh.
+On startup, if the sim port is in use, check if the process is actually a agent-pets-sim we own. If it's an orphan from a previous run, kill it and start fresh.
 
 ### C. Auto-reinstall hooks when outdated
 Compare installed hooks against `HOOKS_CONFIG` on every startup. If they differ, auto-update `settings.json` instead of waiting for manual "Install Hooks" click.

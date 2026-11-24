@@ -4,7 +4,7 @@
 
 **Goal:** Persist daemon session state to disk so that restarting the menu bar app immediately shows the correct Clawd animation for already-running Claude Code sessions, instead of sleeping until the next hook fires.
 
-**Architecture:** A new `session_store.py` module handles save/load of session state as JSON (`~/.clawd-tank/sessions.json`). Writes are atomic (temp file + `os.replace`). The daemon saves only when session state or subagents actually change (not on `last_event`-only updates), and loads on startup with an immediate eviction pass. The existing staleness eviction naturally cleans up sessions that died while the daemon was down. Sets (subagents) are serialized as JSON arrays and deserialized back to sets.
+**Architecture:** A new `session_store.py` module handles save/load of session state as JSON (`~/.agent-pets/sessions.json`). Writes are atomic (temp file + `os.replace`). The daemon saves only when session state or subagents actually change (not on `last_event`-only updates), and loads on startup with an immediate eviction pass. The existing staleness eviction naturally cleans up sessions that died while the daemon was down. Sets (subagents) are serialized as JSON arrays and deserialized back to sets.
 
 **Tech Stack:** Python stdlib (`json`, `pathlib`, `os`, `tempfile`). Pytest for tests.
 
@@ -14,8 +14,8 @@
 
 | File | Responsibility |
 |------|----------------|
-| `host/clawd_tank_daemon/session_store.py` (create) | `save_sessions()` / `load_sessions()` — atomic JSON serialization with set↔list conversion and entry validation |
-| `host/clawd_tank_daemon/daemon.py` (modify) | Instance-level `_sessions_path`, save on structural state changes, load on init, immediate eviction on startup |
+| `host/agent_pets_daemon/session_store.py` (create) | `save_sessions()` / `load_sessions()` — atomic JSON serialization with set↔list conversion and entry validation |
+| `host/agent_pets_daemon/daemon.py` (modify) | Instance-level `_sessions_path`, save on structural state changes, load on init, immediate eviction on startup |
 | `host/tests/test_session_store.py` (create) | Unit tests for save/load round-trips and error handling |
 | `host/tests/test_session_state.py` (modify) | Integration tests for daemon persistence behavior |
 
@@ -26,7 +26,7 @@
 ### Task 1: session_store.py — save/load with tests
 
 **Files:**
-- Create: `host/clawd_tank_daemon/session_store.py`
+- Create: `host/agent_pets_daemon/session_store.py`
 - Create: `host/tests/test_session_store.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -41,7 +41,7 @@ import time
 import pytest
 from pathlib import Path
 
-from clawd_tank_daemon.session_store import save_sessions, load_sessions
+from agent_pets_daemon.session_store import save_sessions, load_sessions
 
 
 def test_round_trip_basic(tmp_path):
@@ -157,7 +157,7 @@ Expected: FAIL — `session_store` module does not exist
 
 - [ ] **Step 3: Implement session_store.py**
 
-Create `host/clawd_tank_daemon/session_store.py`:
+Create `host/agent_pets_daemon/session_store.py`:
 
 ```python
 """Persist daemon session state to disk for restart recovery."""
@@ -168,9 +168,9 @@ import os
 import tempfile
 from pathlib import Path
 
-logger = logging.getLogger("clawd-tank")
+logger = logging.getLogger("agent-pets")
 
-SESSIONS_PATH = Path.home() / ".clawd-tank" / "sessions.json"
+SESSIONS_PATH = Path.home() / ".agent-pets" / "sessions.json"
 
 
 def save_sessions(sessions: dict[str, dict], path: Path = SESSIONS_PATH) -> None:
@@ -228,18 +228,18 @@ Expected: ALL PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/session_store.py host/tests/test_session_store.py
+git add host/agent_pets_daemon/session_store.py host/tests/test_session_store.py
 git commit -m "feat(daemon): add session state save/load for restart recovery"
 ```
 
 ### Task 2: Daemon — integrate persistence
 
 **Files:**
-- Modify: `host/clawd_tank_daemon/daemon.py:1-19` (imports)
-- Modify: `host/clawd_tank_daemon/daemon.py:86-127` (`__init__` — add `_sessions_path`, load sessions, run initial eviction)
-- Modify: `host/clawd_tank_daemon/daemon.py:129-164` (`_handle_message` — save after structural state change)
-- Modify: `host/clawd_tank_daemon/daemon.py:182-225` (`_update_session_state` — return bool for structural changes)
-- Modify: `host/clawd_tank_daemon/daemon.py:227-236` (`_evict_stale_sessions` — save after eviction)
+- Modify: `host/agent_pets_daemon/daemon.py:1-19` (imports)
+- Modify: `host/agent_pets_daemon/daemon.py:86-127` (`__init__` — add `_sessions_path`, load sessions, run initial eviction)
+- Modify: `host/agent_pets_daemon/daemon.py:129-164` (`_handle_message` — save after structural state change)
+- Modify: `host/agent_pets_daemon/daemon.py:182-225` (`_update_session_state` — return bool for structural changes)
+- Modify: `host/agent_pets_daemon/daemon.py:227-236` (`_evict_stale_sessions` — save after eviction)
 - Test: `host/tests/test_session_state.py`
 
 **Key design decisions from review:**
@@ -483,7 +483,7 @@ Expected: ALL PASS
 - [ ] **Step 6: Commit**
 
 ```bash
-git add host/clawd_tank_daemon/daemon.py host/tests/test_session_state.py
+git add host/agent_pets_daemon/daemon.py host/tests/test_session_state.py
 git commit -m "feat(daemon): persist session state to disk for restart recovery"
 ```
 
@@ -500,7 +500,7 @@ Add a new completed section after "Subagent Tracking (v1.2.0)":
 ```markdown
 ## Session State Persistence (v1.2.0) — Complete
 
-- [x] **Atomic session state save/load** — `save_sessions()`/`load_sessions()` in `session_store.py` serialize session state dict to `~/.clawd-tank/sessions.json` with set↔list conversion. Atomic writes via temp file + `os.replace`.
+- [x] **Atomic session state save/load** — `save_sessions()`/`load_sessions()` in `session_store.py` serialize session state dict to `~/.agent-pets/sessions.json` with set↔list conversion. Atomic writes via temp file + `os.replace`.
 - [x] **Smart persistence** — Session state saved only on structural changes (state transitions, subagent add/remove), not on every `last_event` timestamp update. Reduces disk writes during heavy tool use.
 - [x] **Daemon startup recovery** — Loads saved sessions on init with immediate staleness eviction. Restarting the menu bar app immediately shows correct animation for running Claude Code sessions.
 ```
@@ -510,7 +510,7 @@ Add a new completed section after "Subagent Tracking (v1.2.0)":
 In the "Session State Model" section, add after the subagent tracking bullet:
 
 ```
-- **Session persistence**: Session state is saved atomically to `~/.clawd-tank/sessions.json` on structural state changes. Daemon loads saved state on startup with immediate stale session eviction, so restarting the menu bar app preserves the correct display state for running Claude Code sessions.
+- **Session persistence**: Session state is saved atomically to `~/.agent-pets/sessions.json` on structural state changes. Daemon loads saved state on startup with immediate stale session eviction, so restarting the menu bar app preserves the correct display state for running Claude Code sessions.
 ```
 
 - [ ] **Step 3: Commit**

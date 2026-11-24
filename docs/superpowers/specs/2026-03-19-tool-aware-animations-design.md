@@ -30,7 +30,7 @@ All mapping logic lives in `daemon.py`. The firmware learns 4 new animation name
 
 ## Data Flow Changes
 
-### 1. Hook handler (`host/clawd-tank-notify` + `host/clawd_tank_menubar/hooks.py`)
+### 1. Hook handler (`host/agent-pets-notify` + `host/agent_pets_menubar/hooks.py`)
 
 Extract `tool_name` from the `PreToolUse` hook payload and include it in the daemon message. **Both** the standalone script and the embedded `NOTIFY_SCRIPT` in `hooks.py` must be updated — the menu bar app deploys the embedded copy.
 
@@ -42,11 +42,11 @@ Extract `tool_name` from the `PreToolUse` hook payload and include it in the dae
 {"event": "tool_use", "session_id": "...", "tool_name": "Bash"}
 ```
 
-### 2. Protocol conversion (`host/clawd_tank_daemon/protocol.py`)
+### 2. Protocol conversion (`host/agent_pets_daemon/protocol.py`)
 
 Pass through `tool_name` from the hook payload into the daemon message for `PreToolUse` events.
 
-### 3. Daemon state management (`host/clawd_tank_daemon/daemon.py`)
+### 3. Daemon state management (`host/agent_pets_daemon/daemon.py`)
 
 - Store `tool_name` on the session state dict: `self._session_states[session_id]["tool_name"] = msg.get("tool_name", "")`
 - Pass the full `msg` dict (or `tool_name` field) through `_handle_message()` → `_update_session_state()` for `tool_use` events

@@ -10,9 +10,9 @@ class WindowsSetup {
     [STAThread] static int Main(string[] args) {
         bool verify=args.Contains("/verify");
         bool quiet=args.Contains("/quiet") || verify;
-        if (!quiet && MessageBox.Show("Install or update Clawd Tank for this Windows account?", "Clawd Tank Setup",
+        if (!quiet && MessageBox.Show("Install or update Agent Pets for this Windows account?", "Agent Pets Setup",
             MessageBoxButtons.OKCancel,MessageBoxIcon.Question)!=DialogResult.OK) return 0;
-        string stage=Path.Combine(Path.GetTempPath(),"clawd-tank-setup-"+Guid.NewGuid().ToString("N"));
+        string stage=Path.Combine(Path.GetTempPath(),"agent-pets-setup-"+Guid.NewGuid().ToString("N"));
         try {
             Directory.CreateDirectory(stage);
             using (Stream data=Assembly.GetExecutingAssembly().GetManifestResourceStream("habitat.zip"))
@@ -28,7 +28,7 @@ class WindowsSetup {
             }
             return 0;
         } catch(Exception e) {
-            if (!quiet) MessageBox.Show(e.Message,"Clawd Tank Setup",MessageBoxButtons.OK,MessageBoxIcon.Error);
+            if (!quiet) MessageBox.Show(e.Message,"Agent Pets Setup",MessageBoxButtons.OK,MessageBoxIcon.Error);
             Console.Error.WriteLine(e.Message);
             return 1;
         } finally { try { Directory.Delete(stage,true); } catch(IOException) {} }

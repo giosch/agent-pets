@@ -14,7 +14,7 @@ Add a TCP socket bridge between the simulator and daemon, so the daemon can driv
 ## Architecture
 
 ```
-Claude Code hooks → clawd-tank-notify → Unix socket → daemon
+Claude Code hooks → agent-pets-notify → Unix socket → daemon
                                                         ├── BLE → ESP32 (existing)
                                                         └── TCP:19872 → simulator (new)
 ```
@@ -125,10 +125,10 @@ Each transport has its own independent sender coroutine and queue:
 ### Daemon CLI
 
 ```
-clawd-tank-daemon                    # BLE only (unchanged)
-clawd-tank-daemon --sim              # BLE + TCP on default port 19872
-clawd-tank-daemon --sim-only         # TCP only (no BLE scanning noise)
-clawd-tank-daemon --sim-port 12345   # Custom port (implies --sim)
+agent-pets-daemon                    # BLE only (unchanged)
+agent-pets-daemon --sim              # BLE + TCP on default port 19872
+agent-pets-daemon --sim-only         # TCP only (no BLE scanning noise)
+agent-pets-daemon --sim-port 12345   # Custom port (implies --sim)
 ```
 
 `--sim-only` is useful during development when no ESP32 is available, avoiding noisy BLE scan logs.
@@ -137,18 +137,18 @@ clawd-tank-daemon --sim-port 12345   # Custom port (implies --sim)
 
 ```bash
 # Terminal 1: simulator with TCP listener
-./simulator/build/clawd-tank-sim --listen
+./simulator/build/agent-pets-sim --listen
 
 # Terminal 2: daemon pointing at simulator (no BLE)
-clawd-tank-daemon --sim-only
+agent-pets-daemon --sim-only
 
 # Terminal 3: send notification (unchanged)
-echo '{"event":"add","session_id":"test-1","project":"my-app","message":"Waiting"}' | clawd-tank-notify
+echo '{"event":"add","session_id":"test-1","project":"my-app","message":"Waiting"}' | agent-pets-notify
 ```
 
 Or with both transports:
 ```bash
-clawd-tank-daemon --sim   # drives both ESP32 and simulator
+agent-pets-daemon --sim   # drives both ESP32 and simulator
 ```
 
 ## File Changes
@@ -158,20 +158,20 @@ clawd-tank-daemon --sim   # drives both ESP32 and simulator
 - `simulator/sim_socket.h` — Public API (`sim_socket_init`, `sim_socket_process`, `sim_socket_shutdown`)
 - `simulator/sim_ble_parse.c` — Shared JSON-to-`ble_evt_t` parser
 - `simulator/sim_ble_parse.h` — Parser API
-- `host/clawd_tank_daemon/sim_client.py` — TCP transport client
-- `host/clawd_tank_daemon/transport.py` — `TransportClient` Protocol definition
+- `host/agent_pets_daemon/sim_client.py` — TCP transport client
+- `host/agent_pets_daemon/transport.py` — `TransportClient` Protocol definition
 
 ### Modified files
 - `simulator/sim_main.c` — Add `--listen` CLI option, call `sim_socket_init()` / `sim_socket_process()` / `sim_socket_shutdown()`, handle `--listen` + `--headless` indefinite run
 - `simulator/CMakeLists.txt` — Add `sim_socket.c` and `sim_ble_parse.c` to sources
-- `host/clawd_tank_daemon/daemon.py` — Multi-transport support, per-transport sender coroutines, `--sim` / `--sim-only` / `--sim-port` flags
-- `host/clawd_tank_daemon/ble_client.py` — Implement `TransportClient` Protocol
-- `host/clawd_tank_daemon/__main__.py` or CLI entry point — Pass new flags through
+- `host/agent_pets_daemon/daemon.py` — Multi-transport support, per-transport sender coroutines, `--sim` / `--sim-only` / `--sim-port` flags
+- `host/agent_pets_daemon/ble_client.py` — Implement `TransportClient` Protocol
+- `host/agent_pets_daemon/__main__.py` or CLI entry point — Pass new flags through
 
 ## Testing
 
 - **Simulator unit**: Start simulator with `--listen`, send JSON over TCP with a test script, verify events fire
-- **Integration**: Run full pipeline (simulator + daemon + clawd-tank-notify), verify notifications appear
+- **Integration**: Run full pipeline (simulator + daemon + agent-pets-notify), verify notifications appear
 - **Simultaneous**: Run with both BLE device and simulator, verify both receive the same notifications
 - **Reconnect**: Kill and restart simulator, verify daemon reconnects and replays active notifications
 - **Config**: Read/write config over TCP, verify values applied in simulator
