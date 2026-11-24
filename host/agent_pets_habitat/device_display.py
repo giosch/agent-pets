@@ -81,6 +81,7 @@ async def stream(display, directory, url, next_sequence, transport, serial, hid_
     state = DisplayState()
     threading.Thread(target=read_events, args=(directory, url, messages, stop), daemon=True).start()
     announced = False
+    last_record = None
     last_status = -1.0
     backend_announced = None
     last_check = asyncio.get_running_loop().time()
@@ -116,12 +117,18 @@ async def stream(display, directory, url, next_sequence, transport, serial, hid_
                 await send_record(display, connection_status(state.online), next_sequence())
                 last_status = now
                 if backend_announced != state.online:
+                    last_record = None
                     print("Habitat backend online" if state.online else "PC connection active; habitat backend unavailable", flush=True)
                     backend_announced = state.online
             if not state.online:
                 await asyncio.sleep(.1)
                 continue
-            await send_record(display, state.record(), next_sequence())
+            record = state.record()
+            if record == last_record:
+                await asyncio.sleep(.1)
+                continue
+            await send_record(display, record, next_sequence())
+            last_record = record
             state.acknowledge()
             if not announced:
                 if display.kind == "GATT":
@@ -129,7 +136,7 @@ async def stream(display, directory, url, next_sequence, transport, serial, hid_
                                       {"address": display.device.address, "name": display.device.name})
                 print(f"{display.kind} display connected: {display.name}, {len(state.sessions)} habitat sessions", flush=True)
                 announced = True
-            await asyncio.sleep(.25)
+            await asyncio.sleep(.1)
     finally:
         stop.set()
 

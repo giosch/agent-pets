@@ -51,7 +51,7 @@ The original firmware displays project names and short notification messages, br
 
 ## Latest uploaded build
 
-- Flash use: 3,115,615 / 3,145,728 bytes; globals 63,752 bytes.
+- Flash use: 3,144,195 / 3,145,728 bytes; globals 64,208 bytes.
 - Firmware upload to COM5 completed with verified flash hashes.
 - Paired HID reconnected after the upload (GATT recovery also worked).
 - Five spoken phrases: approval, question, attention needed, ready, working. Voice off by default, saved across restarts when changed.
@@ -83,3 +83,38 @@ Adaptive typography verified on the flashed board: large short Test title, longe
 - Final live audit found no pending permission waits. An older pre-update diagnostic was cleared by collecting its successful native completion, without editing session state or expiring a permission by timeout.
 - Speaker output was temporarily suppressed through a RAM-only diagnostic switch during overnight testing. Saved Voice, mute and volume preferences were preserved.
 - No remote Claude integration or synthetic live sessions were added. Unrelated historical TODO.md tasks remain outside this device UI worklist.
+
+
+## Power-saving follow-up, 2026-11-24
+
+- [x] Research board/chip options and wake limitations; record evidence and implementation priorities in es3c35p-power.md.
+- [x] Add saved brightness in Settings → Display, live dragging, bounded 1–100%, one preference write on release. Firmware compiled and uploaded with verified hashes. Restart persistence checked; user confirmed the physical slider works.
+- Superseded by the implemented Eco/sleep behavior below, requested by the user after the research.
+
+
+## Eco, idle screen-off and manual deep sleep
+
+- [x] Eco default: reduced CPU/rendering load, coalesced PC traffic and automatic idle audio hardware suspension.
+- [x] Saved timeout choices 1/5/15/30 minutes/Never, default five minutes.
+- [x] Strong warning dimming (one tenth of the configured backlight level), no warning message, ten seconds before connected screen-off.
+- [x] Wake gestures are consumed until finger release, preserving hidden controls.
+- [x] Meaningful PC activity wakes/resets idle, including hidden sessions; routine snapshots, clocks and heartbeats do not.
+- [x] Manual deep sleep from Settings or the BOOT Power menu, with explicit confirmation, persistent bonds/preferences, GPIO0 BOOT wake, safe output holds and ordinary LCD sleep; user verified BOOT wake from real deep sleep.
+- [x] 194 host tests plus compile-time policy checks; real telemetry verified connected screen-off, stopped drawing, parked audio, PC wake and timer-based deep-sleep reboot/reconnection.
+- User acceptance: dimming tap only wakes; BOOT wakes connected screen-off and deep sleep.
+- Connected screen-off was refined after the user found LCD SLPIN disables touch reporting: keep LCD/touch awake, with backlight/drawing/audio off.
+- [x] User confirmed dark-screen touch wake and BOOT behavior work after the LCD/touch correction.
+- User requested restoring five minutes after the short test and substantially stronger dimming; warning now fades to 10% of the selected brightness.
+- Power consumption has not been measured; no percentage or battery-life claim is made.
+
+
+2026-11-24: rotated the current landscape placement another 180 degrees at the user’s request, with the matching inverse touch transform.
+
+
+## Battery and BOOT hold follow-up
+
+- [x] Added a conditional battery icon, estimated percentage and measured voltage, with saved Installed configuration. Empty connector was measured at approximately 4.11 V while the user confirmed no pack was attached; automatic voltage-only presence detection would be misleading.
+- [x] Added a 1.2-second BOOT hold Power menu with explicit Deep sleep and Cancel choices; preserve short-press wake/reveal and suppress short-release after long press.
+- Firmware built and uploaded to COM5 with verified flash hashes. Flash: 3,144,195 / 3,145,728 bytes; globals: 64,208 bytes. Compile-time battery-curve and BOOT gesture checks pass; all three HID security guards pass.
+- Real framebuffer captures verified the disabled battery page, enabled indicator and voltage page, minimal ambient indicator and BOOT Power menu. Installed was restored off for the user’s empty connector. Preview used actual charger voltage, not a real-cell capacity test.
+- [x] User confirmed the uploaded battery/BOOT menu updates work great on 2026-11-24. No real-cell capacity calibration is possible until a battery is fitted.

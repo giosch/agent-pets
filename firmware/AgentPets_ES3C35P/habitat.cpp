@@ -1,6 +1,12 @@
 #include <Arduino.h>
 #include <Preferences.h>
 #include <math.h>
+#include <esp_sleep.h>
+#include <driver/rtc_io.h>
+#include <driver/gpio.h>
+#include "power_policy.h"
+#include "battery_level.h"
+#include "boot_gesture.h"
 #include "LGFX_ES3C35P.hpp"
 #include "habitat.h"
 #include "device_art.h"
@@ -10,7 +16,63 @@
 static LGFX lcd;
 static LGFX_Sprite canvas(&lcd), backdrop(&lcd), panelCanvas(&lcd);
 static Preferences preferences;
+static bool batteryInstalled = false;
+static uint16_t batteryMv = 0;
+static uint32_t lastBatteryRead = 0;
+static bool powerMenu = false;
+
+static void readBattery(bool force = false)
+{
+  if (!force && (!batteryInstalled || (lastBatteryRead && millis()-lastBatteryRead<15000))) return;
+  static bool configured = false;
+  if (!configured) { analogSetPinAttenuation(8,ADC_11db); configured=true; }
+  uint32_t total=0;
+  for(int i=0;i<24;++i) total+=analogReadMilliVolts(8);
+  batteryMv=(total*2+12)/24;
+  lastBatteryRead=millis();
+}
+
+void habitatBatteryInstalled(bool installed)
+{
+  batteryInstalled=installed;
+  preferences.putBool("battery",installed);
+  if(installed) readBattery(true);
+}
+
+void habitatBatteryReport()
+{
+  readBattery(true);
+  Serial.printf("{\"event\":\"battery\",\"installed\":%s,\"mv\":%u,\"percent\":%d}\n",
+    batteryInstalled?"true":"false",batteryMv,batteryInstalled?int(batteryLevel(batteryMv)):-1);
+}
+
 static uint8_t character = 0, scenery = 1;
+static uint8_t brightness = 200;
+static PowerPolicy powerPolicy;
+static uint8_t idleMinutes = 5;
+static bool wakeTouchGuard = false, redrawRequested = true;
+static String pcActivityToken;
+static uint32_t deepConfirmUntil = 0, receivedSnapshots = 0, renderedFrames = 0;
+static void render();
+static void applyPowerBrightness()
+{
+  uint8_t output = powerPolicy.level(brightness, millis());
+  if (lcd.getBrightness() != output) lcd.setBrightness(output);
+}
+
+void habitatInteraction()
+{
+  bool wake = powerPolicy.interact(millis());
+  if (wake) {
+    wakeTouchGuard = true;
+    buttonAudioSleep(false);
+    redrawRequested = true;
+  }
+  if (!wake) applyPowerBrightness();
+}
+
+bool habitatScreenOff() { return powerPolicy.stage == PowerPolicy::Stage::Off; }
+
 static bool demo = false, connected = false;
 static bool bluetoothSource = false;
 static uint32_t lastSnapshot = 0, lastBridge = 0, bridgeGeneration = 0;
@@ -59,9 +121,17 @@ static uint32_t clockSeconds = 0, clockUpdated = 0;
 static int totalPets = 0;
 static int pressedControl = -1;
 static uint32_t pressedUntil = 0;
-static int settingsPage = 0; // 0 habitat, 1 audio, 2 Bluetooth
+static int settingsPage = 0; // 0 habitat, 1 audio, 2 Bluetooth, 3 display, 4 battery
+void habitatPowerReport()
+{
+  const char* stage = habitatScreenOff() ? "off" : powerPolicy.stage == PowerPolicy::Stage::Dimming ? "dimming" : "eco";
+  Serial.printf("{\"event\":\"power\",\"state\":\"%s\",\"brightness\":%u,\"output\":%u,\"idle_ms\":%u,\"timeout_ms\":%u,\"warning_ms\":%u,\"cpu_mhz\":%u,\"audio_parked\":%s,\"settings\":%d,\"snapshots\":%u,\"frames\":%u,\"wake_cause\":%d}\n",
+    stage,habitatBrightness(),powerPolicy.level(brightness,millis()),millis()-powerPolicy.last,
+    powerPolicy.timeout,powerPolicy.warning,getCpuFrequencyMhz(),buttonAudioSleeping()?"true":"false",settingsPage,receivedSnapshots,renderedFrames,int(esp_sleep_get_wakeup_cause()));
+}
+
 static uint32_t forgetUntil = 0;
-static bool adjustingVolume = false;
+static bool adjustingVolume = false, adjustingBrightness = false;
 static bool uiVisible = false;
 static uint32_t lastUiTouch = 0;
 static constexpr uint32_t UI_IDLE_MS = 8000;
@@ -80,6 +150,22 @@ static constexpr uint16_t UI_ACCENT = uiColor(0x356A53);
 static constexpr uint16_t UI_PRESSED = uiColor(0xDFEAD6);
 static constexpr uint16_t UI_SHADOW = uiColor(0xB3BFAF);
 static constexpr uint16_t UI_SECONDARY = uiColor(0x648074);
+
+static void drawBattery()
+{
+  if (!batteryInstalled || batteryMv<2500 || batteryMv>4400) return;
+  int x=uiVisible?296:414, y=uiVisible?12:10;
+  if(uiVisible) canvas.fillRoundRect(x,y,78,28,9,UI_SURFACE);
+  else x-=4;
+  uint8_t percent=batteryLevel(batteryMv);
+  uint16_t ink=uiVisible?(percent<=15?uiColor(0xAD674B):UI_INK):UI_SECONDARY;
+  int bx=x+8, by=y+9;
+  canvas.drawRoundRect(bx,by,19,10,2,ink);
+  canvas.fillRect(bx+19,by+3,2,4,ink);
+  if(percent) canvas.fillRect(bx+2,by+2,max(1,int(percent)*15/100),6,ink);
+  canvas.setFont(&fonts::Font0);canvas.setTextSize(1);canvas.setTextDatum(top_left);canvas.setTextColor(ink);
+  canvas.drawString("~"+String(percent)+"%",x+34,y+10);
+}
 
 struct Pet {
   String id, activity, attention, moment, phase, lastPose, title, source, progressKind;
@@ -160,6 +246,9 @@ bool habitatReceive(const cJSON* root, bool wireless)
       count > 3 || !integer(total) || total->valueint < count) return false;
   const cJSON* localTime = cJSON_GetObjectItemCaseSensitive(root, "local_time");
   if (localTime && (!integer(localTime) || localTime->valueint >= 86400)) return false;
+  const cJSON* activity = cJSON_GetObjectItemCaseSensitive(root, "activity_token");
+  if (activity && (!cJSON_IsString(activity) || strlen(activity->valuestring) > 64)) return false;
+  bool changed = count != petCount || total->valueint != totalPets;
   Pet next[3];
   uint32_t now = millis();
   bool mayAnnounce = connected && snapshotCurrent && !demo && !settingsPage &&
@@ -199,6 +288,12 @@ bool habitatReceive(const cJSON* root, bool wireless)
     pet.order = order->valueint;
     if (!pet.title.length()) pet.title = String(pet.source == "claude" ? "Claude Code" : pet.source == "codex" ? "Codex" : "Pet") + " session " + String(pet.order + 1);
     if (mayAnnounce && announce < 0 && blocking(pet.attention) && pet.attention != previousAttention) announce = i;
+    changed |= !found;
+    if (found) for (int j = 0; j < petCount; ++j) if (pets[j].id == id)
+      changed |= pets[j].activity != pet.activity || pets[j].attention != pet.attention ||
+                 pets[j].title != pet.title || pets[j].helpers != helpers->valueint ||
+                 pets[j].calls != (calls ? calls->valueint : 0) ||
+                 pets[j].progressDone != (progressDone ? progressDone->valueint : -1);
     pet.helpers = helpers->valueint;
     pet.calls = calls ? calls->valueint : 0;
     pet.elapsed = elapsed ? elapsed->valueint : -1;
@@ -218,6 +313,7 @@ bool habitatReceive(const cJSON* root, bool wireless)
     const cJSON* token = cJSON_GetObjectItemCaseSensitive(item, "moment_token");
     String moment = habitatString(item, "moment");
     if (cJSON_IsNumber(token) && token->valuedouble != pet.token && moment.length()) {
+      changed = true;
       pet.token = token->valuedouble;
       pet.moment = moment;
       pet.momentUntil = now + 1450;
@@ -247,7 +343,12 @@ bool habitatReceive(const cJSON* root, bool wireless)
   bridgeReceived(wireless, true);
   snapshotCurrent = true;
   lastSnapshot = now;
+  ++receivedSnapshots;
   if (localTime) { clockKnown = true; clockSeconds = localTime->valueint; clockUpdated = now; }
+  if (activity) {
+    String token(activity->valuestring);
+    if (token != pcActivityToken) { pcActivityToken = token; habitatInteraction(); }
+  } else if (changed) habitatInteraction(); // Compatibility with older companions.
   return true;
 }
 
@@ -554,6 +655,7 @@ static void drawPetBubble(uint32_t now)
 
 bool habitatConnectionInfo()
 {
+  habitatInteraction();
   if (settingsPage) return false;
   if (bubblePet == "@connection" && int32_t(bubbleUntil - millis()) > 0) bubbleUntil = 0;
   else { bubblePet = "@connection"; bubbleUntil = millis() + PET_INFO_MS; bubbleAutomatic = false; }
@@ -562,6 +664,7 @@ bool habitatConnectionInfo()
 
 bool habitatInspect(int index)
 {
+  habitatInteraction();
   if (settingsPage || index < 0 || index >= (demo ? 3 : petCount)) return false;
   Pet& pet = (demo ? demoPets : pets)[index];
   if (bubblePet == pet.id && int32_t(bubbleUntil - millis()) > 0 && !bubbleAutomatic) bubbleUntil = 0;
@@ -660,9 +763,23 @@ static void settingsButton(int x, int y, int width, const String& label, bool pr
   canvas.drawString(label, x + width / 2, y + 19);
 }
 
+uint8_t habitatBrightness()
+{
+  return (uint16_t(brightness) * 100 + 127) / 255;
+}
+
+void habitatSetBrightness(int percent, bool save)
+{
+  brightness = (constrain(percent, 1, 100) * 255 + 50) / 100;
+  applyPowerBrightness();
+  if (save) preferences.putUChar("brightness", brightness);
+}
+
 void habitatSettings(int page)
 {
-  settingsPage = page;
+  habitatInteraction();
+  settingsPage = constrain(page, 0, 4);
+  redrawRequested = true;
   uiVisible = true;
   lastUiTouch = millis();
 }
@@ -681,11 +798,12 @@ static void drawSettings()
   canvas.drawLine(451, 25, 439, 37, UI_INK);
   settingsButton(14, 82, 112, "Audio", settingsPage == 1);
   settingsButton(14, 134, 112, "Bluetooth", settingsPage == 2);
+  settingsButton(14, 186, 112, "Display", settingsPage == 3);
+  settingsButton(14, 238, 112, "Battery", settingsPage == 4);
   canvas.setTextDatum(top_left);
   canvas.setFont(&fonts::Font0);
   canvas.setTextColor(UI_SECONDARY);
-  canvas.drawString("AGENT PETS", 22, 271);
-  canvas.drawString("ES3C35P", 22, 285);
+  canvas.drawString("AGENT PETS", 22, 292);
   canvas.setFont(&fonts::Font2);
   if (settingsPage == 1) {
     canvas.drawString("Sounds and voice", 162, 82);
@@ -708,6 +826,38 @@ static void drawSettings()
     canvas.fillCircle(thumb, 231, 10, UI_SURFACE);
     canvas.drawCircle(thumb, 231, 10, UI_ACCENT);
     settingsButton(162, 258, 276, buttonAudioReady() ? (speaking ? "Test voice" : "Test sound") : "Audio unavailable");
+  } else if (settingsPage == 3) {
+    canvas.drawString("Screen and power", 162, 82);
+    canvas.setTextColor(UI_INK);
+    canvas.drawString("Brightness", 162, 114);
+    canvas.setTextDatum(top_right);
+    canvas.drawString(String(habitatBrightness()) + "%", 438, 114);
+    canvas.fillRoundRect(172, 150, 256, 6, 3, UI_LINE);
+    int thumb = 172 + (habitatBrightness() - 1) * 256 / 99;
+    canvas.fillRoundRect(172, 150, max(6, thumb - 172), 6, 3, UI_ACCENT);
+    canvas.fillCircle(thumb, 153, 11, UI_SHADOW);
+    canvas.fillCircle(thumb, 151, 10, UI_SURFACE);
+    canvas.drawCircle(thumb, 151, 10, UI_ACCENT);
+    settingsButton(162, 190, 276, idleMinutes ? "Screen off: " + String(idleMinutes) + " min" : "Screen off: never", false);
+    bool confirming = int32_t(deepConfirmUntil - millis()) > 0;
+    settingsButton(162, 248, 276, confirming ? "Tap again to sleep" : "Deep sleep", false);
+    canvas.setTextDatum(top_left); canvas.setFont(&fonts::Font0);
+    canvas.setTextColor(UI_SECONDARY);
+    canvas.drawString(confirming ? "Only the BOOT button wakes deep sleep." : "Eco mode / tap to change idle timeout", 162, 292);
+  } else if (settingsPage == 4) {
+    canvas.drawString("Battery",162,82);
+    canvas.setTextColor(UI_INK);canvas.drawString("Installed",162,118);
+    canvas.fillRoundRect(386,114,48,24,12,batteryInstalled?UI_ACCENT:UI_LINE);
+    canvas.fillCircle(batteryInstalled?422:398,126,9,UI_SURFACE);
+    if(batteryInstalled) {
+      canvas.drawString("About "+String(batteryLevel(batteryMv))+"%",162,164);
+      char volts[12];snprintf(volts,sizeof(volts),"%u.%02u V",batteryMv/1000,batteryMv%1000/10);
+      canvas.drawString(volts,162,195);
+    }
+    canvas.setFont(&fonts::Font0);canvas.setTextColor(UI_SECONDARY);
+    canvas.drawString("Enable when a battery is fitted.",162,240);
+    canvas.drawString("Turn off when you remove it.",162,256);
+    canvas.drawString("Charge is estimated from voltage.",162,280);
   } else {
     canvas.setTextColor(UI_INK);
     canvas.drawString(bluetoothName(), 162, 82);
@@ -734,8 +884,30 @@ static void drawSettings()
   }
 }
 
+void habitatPowerMenu(bool visible)
+{
+  habitatInteraction(); powerMenu=visible; bubbleUntil=0; redrawRequested=true;
+}
+
+static void drawPowerMenu()
+{
+  canvas.fillScreen(UI_PAPER);
+  canvas.drawCircle(240,76,19,UI_ACCENT);
+  canvas.drawCircle(240,76,18,UI_ACCENT);
+  canvas.fillRect(234,54,13,10,UI_PAPER);
+  canvas.fillRect(238,52,4,25,UI_ACCENT);
+  canvas.setFont(&fonts::Font4);canvas.setTextDatum(middle_center);canvas.setTextColor(UI_INK);
+  canvas.drawString("Power",240,122);
+  settingsButton(112,162,256,"Deep sleep");
+  settingsButton(112,216,256,"Cancel",false);
+  canvas.setFont(&fonts::Font0);canvas.setTextDatum(middle_center);canvas.setTextColor(UI_SECONDARY);
+  canvas.drawString("Press BOOT to wake after deep sleep.",240,284);
+  canvas.setTextDatum(top_left);
+}
+
 static void render()
 {
+  ++renderedFrames;
   uint32_t now = millis();
   backdrop.pushSprite(&canvas, 0, 0);
   int count = demo ? 3 : petCount;
@@ -814,13 +986,15 @@ static void render()
     drawAmbientStatus(extra);
   }
   drawPetBubble(now);
+  drawBattery();
+  if(powerMenu) drawPowerMenu();
   // ST77922 hardware rotation differs from the inherited ST77916 mapping.
-  // Rotate the finished scene into the tested 320x480 panel orientation.
+  // Rotate the finished scene into the opposite landscape placement on the 320x480 panel.
   const uint16_t* source = static_cast<const uint16_t*>(canvas.getBuffer());
   uint16_t* destination = static_cast<uint16_t*>(panelCanvas.getBuffer());
   for (int panelY = 0; panelY < 480; ++panelY) {
     for (int panelX = 0; panelX < 320; ++panelX)
-      destination[panelY * 320 + panelX] = source[(319 - panelX) * 480 + panelY];
+      destination[panelY * 320 + panelX] = source[panelX * 480 + (479 - panelY)];
   }
   panelCanvas.pushSprite(0, 0);
 }
@@ -829,7 +1003,7 @@ void habitatBegin()
 {
   lcd.init();
   lcd.setRotation(0);
-  lcd.setBrightness(200);
+  lcd.setBrightness(0); // Restore the saved level before the first frame.
   canvas.setPsram(true);
   canvas.setColorDepth(16);
   backdrop.setPsram(true);
@@ -842,6 +1016,15 @@ void habitatBegin()
     while (true) delay(1000);
   }
   preferences.begin("habitat", false);
+  batteryInstalled=preferences.getBool("battery",false);
+  readBattery();
+  pinMode(0, INPUT_PULLUP);
+  idleMinutes = preferences.getUChar("idlemins", 5);
+  if (idleMinutes != 0 && idleMinutes != 1 && idleMinutes != 5 && idleMinutes != 15 && idleMinutes != 30) idleMinutes = 5;
+  powerPolicy.timeout = uint32_t(idleMinutes) * 60000;
+  powerPolicy.last = millis();
+  brightness = constrain(preferences.getUChar("brightness", 200), 3, 255);
+  lcd.setBrightness(brightness);
   character = preferences.getUChar("character", 0) % (sizeof(artCharacters) / sizeof(artCharacters[0]));
   scenery = preferences.getUChar("scenery", 1) % (sizeof(artBackdrops) / sizeof(artBackdrops[0]));
   buttonAudioBegin(preferences.getBool("muted", false), preferences.getUChar("volume", 40));
@@ -865,20 +1048,46 @@ void habitatBegin()
 void habitatTick()
 {
   uint32_t now = millis();
+  static BootGesture boot;
+  static bool bootWakeConsumed=false;
+  BootGesture::Event event=boot.update(digitalRead(0)==LOW,now);
+  if(event==BootGesture::Pressed) {
+    bootWakeConsumed=powerPolicy.stage!=PowerPolicy::Stage::Eco;
+    habitatInteraction();
+  } else if(event==BootGesture::ShortPress && !bootWakeConsumed) {
+    habitatInteraction(); powerMenu=false; uiVisible=true; lastUiTouch=millis(); redrawRequested=true;
+  } else if(event==BootGesture::LongPress) {
+    habitatPowerMenu(true);
+  }
+  if(boot.down) habitatInteraction();
   connected = linkState() == LinkState::Live;
+  readBattery();
   static bool wasTouched = false;
   static uint32_t lastButtonTouch = 0;
   int32_t x = 0, y = 0;
   bool touched = lcd.getTouch(&x, &y);
   int32_t nativeX = x;
-  x = y;
-  y = 319 - nativeX;
-  bool firstTouch = touched && !wasTouched && now - lastButtonTouch >= 160;
+  x = 479 - y;
+  y = nativeX;
+  if (touched) {
+    bool wasSleeping = powerPolicy.stage != PowerPolicy::Stage::Eco;
+    habitatInteraction();
+    if (wasSleeping) wakeTouchGuard = true;
+  }
+  if (!touched) wakeTouchGuard = false;
+  bool firstTouch = touched && !wasTouched && !wakeTouchGuard && now - lastButtonTouch >= 160;
+  if (touched) redrawRequested = true;
   if (touched && uiVisible) lastUiTouch = now;
   if (uiVisible && !settingsPage && !touched && now - lastUiTouch >= UI_IDLE_MS) {
     uiVisible = false;
   }
-  if (firstTouch && !settingsPage && x >= 0 && x <= (uiVisible ? 198 : 44) && y >= 0 && y <= 44) {
+  if (powerMenu) {
+    if(firstTouch) {
+      lastButtonTouch=now;
+      if(x>=112 && x<=368 && y>=162 && y<=202) habitatDeepSleep();
+      else if(x>=112 && x<=368 && y>=216 && y<=256) habitatPowerMenu(false);
+    }
+  } else if (firstTouch && !settingsPage && x >= 0 && x <= (uiVisible ? 198 : 44) && y >= 0 && y <= 44) {
     habitatConnectionInfo(); lastButtonTouch = now;
   } else if (firstTouch && !settingsPage && inspectAt(x, y, now)) {
     lastButtonTouch = now;
@@ -901,6 +1110,24 @@ void habitatTick()
       } else if (x >= 14 && x <= 126 && y >= 134 && y <= 174) {
         settingsPage = 2;
         buttonAudioPlay();
+      } else if (x >= 14 && x <= 126 && y >= 186 && y <= 226) {
+        settingsPage = 3;
+        buttonAudioPlay();
+      } else if (x >= 14 && x <= 126 && y >= 238 && y <= 278) {
+        settingsPage = 4; readBattery(); buttonAudioPlay();
+      } else if (settingsPage == 4 && x >= 366 && x <= 454 && y >= 102 && y <= 148) {
+        habitatBatteryInstalled(!batteryInstalled); buttonAudioPlay();
+      } else if (settingsPage == 3 && x >= 152 && x <= 448 && y >= 132 && y <= 174) {
+        adjustingBrightness = true;
+      } else if (settingsPage == 3 && x >= 162 && x <= 438 && y >= 190 && y <= 230) {
+        const uint8_t choices[] = {1,5,15,30,0};
+        for (int i=0;i<5;++i) if (choices[i]==idleMinutes) { idleMinutes=choices[(i+1)%5]; break; }
+        preferences.putUChar("idlemins",idleMinutes);
+        powerPolicy.timeout=uint32_t(idleMinutes)*60000;
+        buttonAudioPlay();
+      } else if (settingsPage == 3 && x >= 162 && x <= 438 && y >= 248 && y <= 288) {
+        if (int32_t(deepConfirmUntil-now)>0) habitatDeepSleep();
+        else deepConfirmUntil=now+5000;
       } else if (settingsPage == 1 && x >= 366 && x <= 454 && y >= 102 && y <= 148) {
         buttonAudioMute(!buttonAudioMuted());
         preferences.putBool("muted", buttonAudioMuted());
@@ -926,6 +1153,8 @@ void habitatTick()
     }
     if (adjustingVolume && touched)
       buttonAudioSetVolume(constrain((x - 172) * 100 / 256, 0, 100));
+    if (adjustingBrightness && touched && !wakeTouchGuard)
+      habitatSetBrightness(1 + constrain((x - 172) * 99 / 256, 0, 99), false);
   } else if (uiVisible && firstTouch) {
     int control = -1;
     if (x >= 426 && y <= 54) control = 3;
@@ -955,14 +1184,36 @@ void habitatTick()
     preferences.putUChar("volume", buttonAudioVolume());
     buttonAudioPlay();
   }
+  if (!touched && wasTouched && adjustingBrightness) {
+    adjustingBrightness = false;
+    preferences.putUChar("brightness", brightness);
+    buttonAudioPlay();
+  }
   wasTouched = touched;
   if (demo) demoPets[2].attention = now / 6000 % 2 ? "ready" : "approval";
+  now = millis(); // Wake and input handlers may have advanced time.
+  PowerPolicy::Stage previous = powerPolicy.stage;
+  powerPolicy.tick(now);
+  if (previous != powerPolicy.stage) {
+    redrawRequested = true;
+    if (habitatScreenOff()) {
+      // The integrated touch controller stops reporting during LCD SLPIN.
+      // Keep it scanning in connected screen-off; sleep the panel only in deep sleep.
+      lcd.setBrightness(0);
+      buttonAudioSleep(true); uiVisible = false; settingsPage = 0; bubbleUntil = 0; powerMenu = false;
+    }
+    habitatPowerReport();
+  }
   static uint32_t lastFrame = 0;
-  if (now - lastFrame >= 60) { lastFrame = now; render(); }
+  if (!habitatScreenOff() && (redrawRequested || now-lastFrame >= uint32_t(touched?60:settingsPage?1000:125))) {
+    lastFrame=now; render(); redrawRequested=false;
+  }
+  applyPowerBrightness();
 }
 
 void habitatAudioTest()
 {
+  habitatInteraction();
   buttonAudioPlay();
   buttonAudioReport();
 }
@@ -975,4 +1226,29 @@ void habitatCapture()
   Serial.println("{\"event\":\"capture\",\"bytes\":460800}");
   Serial.write(pixels, 480 * 320 * 3);
   free(pixels);
+}
+
+void habitatPowerTest(uint32_t timeout, uint32_t warning)
+{
+  habitatInteraction(); powerPolicy.timeout=timeout; powerPolicy.warning=warning;
+}
+
+bool habitatDeepSleep(uint32_t testWakeSeconds)
+{
+  if (digitalRead(0)==LOW) return false; // Do not arm an already-held wake button.
+  esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
+  if (esp_sleep_enable_ext1_wakeup_io(1ULL, ESP_EXT1_WAKEUP_ANY_LOW)!=ESP_OK) return false;
+  if (testWakeSeconds) esp_sleep_enable_timer_wakeup(uint64_t(testWakeSeconds)*1000000ULL);
+  buttonAudioSleep(true);
+  uint32_t start=millis();
+  while (!buttonAudioSleeping() && millis()-start<2000) delay(10);
+  if (!buttonAudioSleeping()) { buttonAudioSleep(false); return false; }
+  lcd.setBrightness(0); lcd.sleep();
+  bluetoothSleep();
+  pinMode(41,OUTPUT); digitalWrite(41,LOW);
+  pinMode(1,OUTPUT); digitalWrite(1,HIGH);
+  gpio_hold_en(GPIO_NUM_41); gpio_hold_en(GPIO_NUM_1); gpio_deep_sleep_hold_en();
+  Serial.println("{\"event\":\"deep_sleep\",\"wake\":\"BOOT\"}");
+  Serial.flush(); delay(30); esp_deep_sleep_start();
+  return true;
 }

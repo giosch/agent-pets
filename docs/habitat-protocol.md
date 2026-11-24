@@ -65,3 +65,6 @@ The live JSON meanings above are the common contract. A native TCP or USB serial
 ## Native Codex execution evidence
 
 On Windows, the companion can resolve a Codex shell permission before PostToolUse when a unique direct child shell of the same native agent is already executing the exact command. It compares a local SHA-256 fingerprint, the parent PID plus creation identity, and the child creation time against the tool observation. Only that call's approval clears; its executing state and other pending waits remain. Duplicate commands, missing evidence, unsupported platforms and unrelated tools keep their permission state until a normal hook resolves it. Commands are fingerprinted in memory and are not retained or sent to displays. The exact native UTF-8 shell setup prefix is normalized before hashing.
+
+
+The paired-device snapshot includes an optional activity_token (up to 64 bytes). It identifies the companion connection epoch plus the habitat revision, and remains unchanged across clock/elapsed updates or repeated snapshots. The device uses changes to reset idle/wake; the host's real session updates and removals advance it even when a changed pet is not selected for the physical screen. This is independent of per-record transport transaction IDs and bridge_status heartbeats.

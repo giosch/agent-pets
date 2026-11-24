@@ -186,7 +186,7 @@ void bluetoothBegin()
   NimBLEDevice::setSecurityAuth(true, false, true);
   NimBLEDevice::setSecurityIOCap(BLE_HS_IO_NO_INPUT_OUTPUT);
   server = NimBLEDevice::createServer();
-  server->setCallbacks(&serverCallbacks);
+  server->setCallbacks(&serverCallbacks, false); // Static callback object is not owned by NimBLE.
   server->advertiseOnDisconnect(false);
   auto hid = new NimBLEHIDDevice(server);
   hid->setManufacturer("Agent Pets");
@@ -267,4 +267,13 @@ void bluetoothTick()
       replies->notify(record.connection);
     }
   }
+}
+
+void bluetoothSleep()
+{
+  if (!server) return;
+  NimBLEDevice::getAdvertising()->stop();
+  for (auto peer : server->getPeerDevices()) server->disconnect(peer);
+  NimBLEDevice::deinit(false); // Stop radio; retain objects until deep sleep discards RAM. Bonds stay in NVS.
+  server = nullptr;
 }

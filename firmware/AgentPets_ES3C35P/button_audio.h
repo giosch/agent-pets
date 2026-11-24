@@ -16,3 +16,6 @@ bool buttonAudioVoiceEnabled();
 void buttonAudioSpeak(PetVoice phrase);
 
 void buttonAudioPreviewMute(bool enabled);
+
+void buttonAudioSleep(bool enabled);
+bool buttonAudioSleeping();

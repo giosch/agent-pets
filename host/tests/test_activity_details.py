@@ -78,3 +78,23 @@ def test_device_receives_real_age_clock_and_reported_counts_only():
     session.pop("activity_since")
     state.apply({"version": 1, "type": "snapshot", "sequence": 2, "sessions": [session]})
     assert "elapsed" not in json.loads(state.record())["sessions"][0]
+
+
+def test_pc_activity_token_is_stable_across_clock_ticks_but_tracks_hidden_events():
+    state=DisplayState()
+    sessions=[{"id":f"claude:{i}","order":i,"activity":"idle","attention":"ready"} for i in range(4)]
+    state.apply({"version":1,"type":"snapshot","sequence":7,"sessions":sessions})
+    first=json.loads(state.record())
+    with patch("agent_pets_habitat.serial_display.time.time",return_value=time.time()+10):
+        later=json.loads(state.record())
+    assert first["activity_token"]==later["activity_token"]
+    state.acknowledge()
+    assert json.loads(state.record())["activity_token"]==first["activity_token"]
+    state.apply({"version":1,"type":"update","sequence":8,"session":dict(sessions[3],active_calls=1)})
+    updated=json.loads(state.record())
+    assert updated["activity_token"]!=first["activity_token"]
+    assert updated["sessions"]==first["sessions"] # fourth session remains outside visible capacity
+    state.apply({"version":1,"type":"update","sequence":8,"session":sessions[3]})
+    assert json.loads(state.record())["activity_token"]==updated["activity_token"]
+    other=DisplayState();other.apply({"version":1,"type":"snapshot","sequence":8,"sessions":sessions})
+    assert json.loads(other.record())["activity_token"]!=updated["activity_token"]

@@ -22,12 +22,66 @@ static std::atomic<uint8_t> volume{40};
 static std::atomic<int> lastWriteResult{ESP_OK};
 static std::atomic<uint32_t> lastWriteBytes{0};
 static bool ready = false;
+static std::atomic<bool> sleepRequested{false}, parked{false};
+static bool codecRunning = false;
 
 static bool codecWrite(uint8_t reg, uint8_t value)
 {
   const uint8_t bytes[] = {reg, value};
   // Share LovyanGFX's existing I2C controller with touch, using its bus locking.
   return lgfx::i2c::transactionWrite(1, 0x18, bytes, sizeof(bytes), 100000).has_value();
+}
+
+static bool codecStart()
+{
+  bool valid = codecWrite(0x00, 0x1F);
+  delay(20);
+  valid = codecWrite(0x00, 0x00) && valid;
+  // External 6.144 MHz MCLK, slave I2S, 16-bit samples, DAC output enabled.
+  const uint8_t registers[][2] = {
+    {0x0D, 0xFA}, {0x44, 0x08}, {0x44, 0x08},
+    {0x0B, 0x00}, {0x0C, 0x00}, {0x10, 0x1F}, {0x11, 0x7F},
+    {0x00, 0x80}, {0x01, 0x3F}, {0x02, 0x00}, {0x03, 0x10},
+    {0x04, 0x10}, {0x05, 0x00}, {0x06, 0x03}, {0x07, 0x00},
+    {0x08, 0xFF}, {0x09, 0x0C}, {0x0A, 0x0C}, {0x0D, 0x01},
+    {0x0E, 0x02}, {0x12, 0x00}, {0x13, 0x10}, {0x1C, 0x6A},
+    {0x14, 0x1A}, {0x15, 0x40}, {0x45, 0x00},
+    {0x37, 0x08}, {0x32, 0xBF} // ES8311 unity gain is 0xBF. 0xFF adds 32 dB.
+  };
+  for (const auto& setting : registers) {
+    if (valid) valid = codecWrite(setting[0], setting[1]);
+  }
+  if (valid) valid = codecWrite(0x31, muted.load() ? 0x60 : 0x00);
+  return valid;
+}
+
+static void parkAudio()
+{
+  digitalWrite(AMPLIFIER_PIN, HIGH);
+  if (codecRunning) {
+    codecWrite(0x31, 0x60);
+    const uint8_t sequence[][2] = {{0x32,0x00},{0x17,0x00},{0x0E,0xFF},{0x12,0x02},
+      {0x14,0x00},{0x0D,0xFA},{0x15,0x00},{0x02,0x10},{0x00,0x00},{0x00,0x1F},
+      {0x01,0x30},{0x01,0x00},{0x45,0x00},{0x0D,0xFC},{0x02,0x00}};
+    for (const auto& setting : sequence) codecWrite(setting[0], setting[1]);
+    i2s_channel_disable(channel);
+    codecRunning = false;
+  }
+  parked.store(true);
+}
+
+static bool resumeAudio()
+{
+  if (!codecRunning) {
+    if (i2s_channel_enable(channel) != ESP_OK) return false;
+    if (!codecStart()) { i2s_channel_disable(channel); return false; }
+    codecRunning = true;
+    delay(20); // Zero-filled I2S and analog bias settle before the amplifier.
+  }
+  codecWrite(0x31, muted.load() ? 0x60 : 0x00);
+  digitalWrite(AMPLIFIER_PIN, muted.load() ? HIGH : LOW);
+  parked.store(false);
+  return true;
 }
 
 static void playVoice(uint8_t clipIndex)
@@ -39,7 +93,7 @@ static void playVoice(uint8_t clipIndex)
   int predictor = 0, index = 0, previous = 0;
   int16_t samples[256 * 4];
   for (uint32_t position = 0; position < clip.samples;) {
-    if (muted.load() || previewMuted.load() || !voiceEnabled.load() || !volume.load()) return;
+    if (muted.load() || previewMuted.load() || sleepRequested.load() || !voiceEnabled.load() || !volume.load()) return;
     float gain = powf(10.0f, (-70.0f + 70.0f * volume.load() / 100.0f) / 20.0f);
     int count = 0;
     for (int n = 0; n < 256 && position < clip.samples; ++n, ++position) {
@@ -78,10 +132,15 @@ static void playClicks(void*)
   }
   for (int i = 0; i < TONE_FRAMES; ++i)
     tone[i] = int32_t(tone[i]) * INT16_MAX / peak;
+  uint32_t lastSound = millis();
   while (true) {
-    xQueueReceive(clicks, &click, portMAX_DELAY);
-    if (muted.load() || previewMuted.load() || volume.load() == 0) continue;
-    if (click >= 2) { playVoice(click - 2); continue; }
+    bool received = xQueueReceive(clicks, &click, pdMS_TO_TICKS(250)) == pdTRUE;
+    if (sleepRequested.load() || muted.load() || !volume.load() ||
+        (!received && millis() - lastSound >= 1500)) { parkAudio(); continue; }
+    if (!received || click == 0 || previewMuted.load()) continue;
+    if (!resumeAudio()) continue;
+    lastSound = millis();
+    if (click >= 2) { playVoice(click - 2); lastSound = millis(); continue; }
     // A -70 to 0 dBFS curve keeps the lower settings quiet while allowing
     // full digital range at the top. Zero volume is handled as silence above.
     float decibels = -70.0f + 70.0f * volume.load() / 100.0f;
@@ -94,8 +153,7 @@ static void playClicks(void*)
     esp_err_t result = i2s_channel_write(channel, samples, sizeof(samples), &written, 100);
     lastWriteResult.store(result);
     lastWriteBytes.store(written);
-    // I2S automatically sends zeros between notes. Keeping the amplifier awake
-    // avoids the standby transitions that produce a pop on every button tap.
+    lastSound = millis(); // Keep rapid taps warm, park after longer silence.
   }
 }
 
@@ -107,8 +165,6 @@ bool buttonAudioBegin(bool initiallyMuted, uint8_t initialVolume)
   digitalWrite(AMPLIFIER_PIN, HIGH);
   // Probe before allocating I2S resources. The display is already initialized.
   if (!codecWrite(0x00, 0x1F)) return false;
-  delay(20);
-  if (!codecWrite(0x00, 0x00)) return false;
   i2s_chan_config_t channelConfig = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_AUTO, I2S_ROLE_MASTER);
   channelConfig.auto_clear_after_cb = true;
   if (i2s_new_channel(&channelConfig, &channel, nullptr) != ESP_OK) return false;
@@ -126,21 +182,8 @@ bool buttonAudioBegin(bool initiallyMuted, uint8_t initialVolume)
     enabled = i2s_channel_enable(channel) == ESP_OK;
     valid = enabled;
   }
-  // External 6.144 MHz MCLK, slave I2S, 16-bit samples, DAC output enabled.
-  const uint8_t registers[][2] = {
-    {0x0D, 0xFA}, {0x44, 0x08}, {0x44, 0x08},
-    {0x0B, 0x00}, {0x0C, 0x00}, {0x10, 0x1F}, {0x11, 0x7F},
-    {0x00, 0x80}, {0x01, 0x3F}, {0x02, 0x00}, {0x03, 0x10},
-    {0x04, 0x10}, {0x05, 0x00}, {0x06, 0x03}, {0x07, 0x00},
-    {0x08, 0xFF}, {0x09, 0x0C}, {0x0A, 0x0C}, {0x0D, 0x01},
-    {0x0E, 0x02}, {0x12, 0x00}, {0x13, 0x10}, {0x1C, 0x6A},
-    {0x14, 0x1A}, {0x15, 0x40}, {0x45, 0x00},
-    {0x37, 0x08}, {0x32, 0xBF} // ES8311 unity gain is 0xBF. 0xFF adds 32 dB.
-  };
-  for (const auto& setting : registers) {
-    if (valid) valid = codecWrite(setting[0], setting[1]);
-  }
-  if (valid) valid = codecWrite(0x31, initiallyMuted ? 0x60 : 0x00);
+  if (valid) valid = codecStart();
+  if (valid) codecRunning = true;
   if (valid) {
     clicks = xQueueCreate(1, sizeof(uint8_t));
     valid = clicks != nullptr;
@@ -162,13 +205,12 @@ void buttonAudioMute(bool value)
 {
   muted.store(value);
   if (clicks) xQueueReset(clicks);
-  if (ready) codecWrite(0x31, value ? 0x60 : 0x00);
-  if (ready) digitalWrite(AMPLIFIER_PIN, value ? HIGH : LOW);
+  if (clicks) { uint8_t update = 0; xQueueOverwrite(clicks, &update); }
 }
 
 void buttonAudioPlay()
 {
-  if (!ready || muted.load() || previewMuted.load()) return;
+  if (!ready || muted.load() || previewMuted.load() || sleepRequested.load()) return;
   uint8_t click = 1;
   xQueueOverwrite(clicks, &click);
 }
@@ -183,7 +225,7 @@ bool buttonAudioVoiceEnabled() { return voiceEnabled.load(); }
 
 void buttonAudioSpeak(PetVoice phrase)
 {
-  if (!ready || muted.load() || previewMuted.load() || !voiceEnabled.load() || !volume.load()) return;
+  if (!ready || muted.load() || previewMuted.load() || sleepRequested.load() || !voiceEnabled.load() || !volume.load()) return;
   uint8_t message = uint8_t(phrase) + 2;
   xQueueOverwrite(clicks, &message);
 }
@@ -205,3 +247,14 @@ void buttonAudioPreviewMute(bool enabled)
   previewMuted.store(enabled);
   if (enabled && clicks) xQueueReset(clicks);
 }
+
+void buttonAudioSleep(bool enabled)
+{
+  sleepRequested.store(enabled);
+  if (enabled && clicks) {
+    xQueueReset(clicks);
+    uint8_t update = 0; xQueueOverwrite(clicks, &update);
+  }
+}
+
+bool buttonAudioSleeping() { return !ready || parked.load(); }

@@ -11,3 +11,5 @@ unsigned bluetoothPairSeconds();
 const char* bluetoothName();
 const char* bluetoothTransport();
 uint32_t bluetoothGeneration();
+
+void bluetoothSleep();

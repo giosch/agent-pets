@@ -1,5 +1,6 @@
 """Forward the three highest-priority habitat sessions to the USB pet display."""
 import json
+import secrets
 from queue import Empty, Full, Queue
 import threading
 import time
@@ -43,6 +44,7 @@ class DisplayState:
         self.sessions = {}
         self.online = False
         self.sequence = -1
+        self.activity_epoch = secrets.token_hex(4)
 
     def apply(self, event):
         kind = event.get("type")
@@ -82,6 +84,7 @@ class DisplayState:
         message = json.loads(display_snapshot({"version": 1, "type": "snapshot", "sessions": sessions}))
         local = time.localtime(now)
         message["local_time"] = local.tm_hour * 3600 + local.tm_min * 60 + local.tm_sec
+        message["activity_token"] = f"{self.activity_epoch}:{self.sequence}"
         result = json.dumps(message, separators=(",", ":"), ensure_ascii=True).encode("ascii") + b"\n"
         if len(result) > 4096:
             raise ValueError("Display snapshot exceeds the device record limit")
@@ -139,6 +142,7 @@ def run(port, directory, url=None):
                     device.port = port
                     device.open()
                     announced = False
+                    last_record = None
                     while True:
                         while True:
                             try:
@@ -149,9 +153,13 @@ def run(port, directory, url=None):
                             except Empty:
                                 break
                         if not state.online:
+                            last_record = None
                             time.sleep(0.1)
                             continue
                         record = state.record()
+                        if record == last_record:
+                            time.sleep(.1)
+                            continue
                         device.reset_input_buffer()
                         if device.write(record) != len(record):
                             raise OSError("Incomplete USB write")
@@ -162,13 +170,14 @@ def run(port, directory, url=None):
                                 if not announced:
                                     print(f"USB display connected, {len(state.sessions)} habitat sessions", flush=True)
                                     announced = True
+                                last_record = record
                                 state.acknowledge()
                                 break
                             if b'"invalid_snapshot"' in reply or b'"record_too_large"' in reply:
                                 raise ValueError(f"Device rejected snapshot: {reply.decode('ascii').strip()}")
                         else:
                             raise OSError("USB display did not acknowledge the snapshot")
-                        time.sleep(0.25)
+                        time.sleep(.1)
             except (OSError, ValueError, KeyError, serial.SerialException) as error:
                 state.acknowledge()
                 print(f"USB bridge waiting: {error}", flush=True)
